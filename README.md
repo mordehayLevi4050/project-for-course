@@ -4,81 +4,81 @@
 
 <h1 align="center">GrouPay</h1>
 
-<p align="center">חלוקת הוצאות משותפות בטיול או בארוחה, בהשראת אפליקציית bit</p>
+<p align="center">Split shared trip and restaurant expenses within a group, inspired by the Israeli bit app</p>
 
 ---
 
-## על הפרויקט
+## About
 
-קבוצת חברים יוצאת יחד לטיול או למסעדה, וכל אחד משלם חלק מההוצאות. בסוף, הסכום הכולל אמור להתחלק שווה בין כולם.
+A group of friends goes on a trip or out to dinner, and each of them pays for some of the expenses. In the end, the total cost should be split equally among everyone.
 
-GrouPay מנהלת קבוצה לכל טיול ומציגה בזמן אמת כמה כל אחד היה אמור לשלם, ומי צריך להעביר כסף למי.
+GrouPay keeps a group for each trip and shows, in real time, how much each person's share is and who needs to pay whom.
 
-זה פרויקט לימודי שנבנה במסגרת קורס פיתוח עם AI.
+This is a learning project built as part of an AI-assisted development course. The app UI is in Hebrew (right-to-left) with amounts in shekels (₪).
 
-## צילומי מסך
+## Screenshots
 
-| מסך פתיחה | רשימת קבוצות | מי חייב למי | פירוט הוצאה |
+| Home (empty) | Groups list | Who owes whom | Expense details |
 |:---:|:---:|:---:|:---:|
 | <img src="docs/screenshots/home_empty.png" width="200"> | <img src="docs/screenshots/home_groups.png" width="200"> | <img src="docs/screenshots/group_summary.png" width="200"> | <img src="docs/screenshots/expense_details.png" width="200"> |
 
-## מה אפשר לעשות
+## Features
 
-- **קבוצות:** לפתוח קבוצה לכל טיול, ולמחוק קבוצה בלחיצה ארוכה.
-- **משתתפים:** להוסיף משתתפים לקבוצה. שמות כפולים חסומים, ואי אפשר למחוק משתתף שיש לו הוצאות.
-- **הוצאות:** להוסיף הוצאה עם משלם, סכום, תיאור קצר ופירוט טקסטואלי. לחיצה על הוצאה מציגה את הפירוט ומאפשרת למחוק אותה.
-- **מי חייב למי:** בראש מסך הקבוצה מוצגים הסכום הכולל, החלק של כל אחד, רשימת ההעברות שצריך לבצע והיתרה של כל משתתף.
+- **Groups:** create a group for each trip; long-press a group to delete it.
+- **Members:** add members to a group. Duplicate names are blocked, and a member who paid for an expense cannot be deleted.
+- **Expenses:** add an expense with the payer, amount, a short title and free-text details. Tap an expense to see its details or delete it.
+- **Who owes whom:** the top of the group screen shows the total, each person's share, the transfers needed to settle up, and every member's balance.
 
-## איך החלוקה מחושבת
+## How the split is calculated
 
-1. כל הסכומים נשמרים באגורות (מספרים שלמים), כדי למנוע שגיאות עיגול.
-2. הסכום הכולל מתחלק שווה בין המשתתפים. אם נשארות אגורות, הן מתחלקות אחת-אחת, כך שסכום החלקים שווה בדיוק לסכום הכולל.
-3. היתרה של כל משתתף היא מה ששילם פחות החלק שלו. יתרה חיובית: מגיע לו כסף. שלילית: הוא חייב.
-4. ההעברות מחושבות באלגוריתם חמדני: בכל צעד, מי שחייב הכי הרבה משלם למי שמגיע לו הכי הרבה, עד שכולם מאוזנים.
+1. All amounts are stored in agorot (integers) to avoid floating-point rounding errors.
+2. The total is split equally among the members. Any leftover agorot are handed out one at a time, so the shares always add up exactly to the total.
+3. Each member's balance is what they paid minus their share. Positive means they are owed money; negative means they owe money.
+4. Transfers are computed greedily: at each step, the member who owes the most pays the member who is owed the most, until everyone is settled.
 
-**דוגמה:** דני שילם ₪300 ורוני שילם ₪60. סה״כ ₪360, כלומר ₪120 לכל אחד משלושת המשתתפים. רוני מעביר לדני ₪60, ומאיה מעבירה לדני ₪120.
+**Example:** Dani paid ₪300 and Roni paid ₪60. The total is ₪360, so each of the three members owes ₪120. Roni pays Dani ₪60, and Maya pays Dani ₪120.
 
-## טכנולוגיות
+## Tech stack
 
-- **Flutter** (Dart): קוד אחד ל-Android, ובהמשך גם ל-iPhone
-- **Material 3**: ממשק בעברית, מימין לשמאל, בגווני טורקיז
-- **provider**: ניהול state
-- **שמירה:** קובץ JSON מקומי במכשיר (`groupay_data.json`)
+- **Flutter** (Dart): one codebase for Android, with iPhone support planned
+- **Material 3**: Hebrew right-to-left UI in a turquoise theme
+- **provider**: state management
+- **Storage:** a local JSON file on the device (`groupay_data.json`)
 
-## הרצה
+## Running the app
 
-דרישות: [Flutter SDK](https://docs.flutter.dev/get-started/install) ואמולטור Android או מכשיר מחובר.
+Requirements: the [Flutter SDK](https://docs.flutter.dev/get-started/install) and an Android emulator or a connected device.
 
 ```bash
 flutter pub get
 flutter run
 ```
 
-בדיקות:
+Tests:
 
 ```bash
 flutter test
 ```
 
-## מבנה הקוד
+## Project structure
 
 ```
 lib/
-  main.dart              הגדרות האפליקציה, עברית ו-RTL
-  theme.dart             צבעים ועיצוב
-  models/                Group, Member, Expense
-  data/json_storage.dart שמירה וטעינה מקובץ JSON
-  state/app_state.dart   מצב האפליקציה וכל הפעולות
-  logic/                 חישוב החלוקה ופורמט סכומים
-  screens/               מסכי האפליקציה
-  widgets/               רכיבים: הסמל, הכותרת, כרטיס הסיכום ועוד
-test/                    בדיקות יחידה ובדיקות ממשק
-tool/render_icon_test.dart יצירת אייקון האפליקציה מהסמל
+  main.dart                   app setup, Hebrew locale and RTL
+  theme.dart                  colors and styling
+  models/                     Group, Member, Expense
+  data/json_storage.dart      saving and loading the JSON file
+  state/app_state.dart        app state and all actions
+  logic/                      split calculation and amount formatting
+  screens/                    app screens
+  widgets/                    logo, app bar, settlement card and more
+test/                         unit and widget tests
+tool/render_icon_test.dart    renders the launcher icon from the logo
 ```
 
-## מה הלאה
+## What's next
 
-- עריכת הוצאות ומשתתפים
-- ניהול משתמשים, כך שכל משתתף יוכל להזין את ההוצאות שלו
-- שמירה בענן וסנכרון בין המשתתפים
-- גרסה ל-iPhone
+- Editing expenses and members
+- User accounts, so each member can enter their own expenses
+- Cloud storage and syncing between members
+- An iPhone version
