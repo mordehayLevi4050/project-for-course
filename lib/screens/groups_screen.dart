@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../logic/money.dart';
 import '../models/group.dart';
 import '../state/app_state.dart';
 import '../theme.dart';

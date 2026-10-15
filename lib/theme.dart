@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 /// Brand colors, a turquoise palette in the spirit of bit.
 class GroupayColors {
@@ -7,6 +6,8 @@ class GroupayColors {
   static const mint = Color(0xFF1DD3B0);
   static const deepTeal = Color(0xFF00838F);
   static const background = Color(0xFFF4F7F8);
+  static const positive = Color(0xFF2E7D32);
+  static const negative = Color(0xFFC62828);
 }
 
 ThemeData buildGroupayTheme() {
@@ -36,14 +37,4 @@ ThemeData buildGroupayTheme() {
       foregroundColor: Colors.white,
     ),
   );
-}
-
-/// Formats an amount in agorot as shekels, e.g. 12050 -> 120.50 ₪.
-String formatShekels(int agorot) {
-  final format = NumberFormat.currency(
-    locale: 'he',
-    symbol: '₪',
-    decimalDigits: agorot % 100 == 0 ? 0 : 2,
-  );
-  return format.format(agorot / 100);
 }

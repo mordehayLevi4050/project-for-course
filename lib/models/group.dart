@@ -18,6 +18,21 @@ class Group {
 
   int get totalAgorot => expenses.fold(0, (sum, e) => sum + e.amountAgorot);
 
+  Member? memberById(String id) {
+    for (final m in members) {
+      if (m.id == id) return m;
+    }
+    return null;
+  }
+
+  Group copyWith({List<Member>? members, List<Expense>? expenses}) => Group(
+        id: id,
+        name: name,
+        createdAt: createdAt,
+        members: members ?? this.members,
+        expenses: expenses ?? this.expenses,
+      );
+
   factory Group.fromJson(Map<String, dynamic> json) => Group(
         id: json['id'] as String,
         name: json['name'] as String,
