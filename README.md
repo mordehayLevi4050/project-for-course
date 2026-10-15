@@ -1,17 +1,84 @@
-# groupay
+<p align="center">
+  <img src="assets/icon/icon.png" width="120" alt="GrouPay logo">
+</p>
 
-A new Flutter project.
+<h1 align="center">GrouPay</h1>
 
-## Getting Started
+<p align="center">חלוקת הוצאות משותפות בטיול או בארוחה, בהשראת אפליקציית bit</p>
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## על הפרויקט
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+קבוצת חברים יוצאת יחד לטיול או למסעדה, וכל אחד משלם חלק מההוצאות. בסוף, הסכום הכולל אמור להתחלק שווה בין כולם.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+GrouPay מנהלת קבוצה לכל טיול ומציגה בזמן אמת כמה כל אחד היה אמור לשלם, ומי צריך להעביר כסף למי.
+
+זה פרויקט לימודי שנבנה במסגרת קורס פיתוח עם AI.
+
+## צילומי מסך
+
+| מסך פתיחה | רשימת קבוצות | מי חייב למי | פירוט הוצאה |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/home_empty.png" width="200"> | <img src="docs/screenshots/home_groups.png" width="200"> | <img src="docs/screenshots/group_summary.png" width="200"> | <img src="docs/screenshots/expense_details.png" width="200"> |
+
+## מה אפשר לעשות
+
+- **קבוצות:** לפתוח קבוצה לכל טיול, ולמחוק קבוצה בלחיצה ארוכה.
+- **משתתפים:** להוסיף משתתפים לקבוצה. שמות כפולים חסומים, ואי אפשר למחוק משתתף שיש לו הוצאות.
+- **הוצאות:** להוסיף הוצאה עם משלם, סכום, תיאור קצר ופירוט טקסטואלי. לחיצה על הוצאה מציגה את הפירוט ומאפשרת למחוק אותה.
+- **מי חייב למי:** בראש מסך הקבוצה מוצגים הסכום הכולל, החלק של כל אחד, רשימת ההעברות שצריך לבצע והיתרה של כל משתתף.
+
+## איך החלוקה מחושבת
+
+1. כל הסכומים נשמרים באגורות (מספרים שלמים), כדי למנוע שגיאות עיגול.
+2. הסכום הכולל מתחלק שווה בין המשתתפים. אם נשארות אגורות, הן מתחלקות אחת-אחת, כך שסכום החלקים שווה בדיוק לסכום הכולל.
+3. היתרה של כל משתתף היא מה ששילם פחות החלק שלו. יתרה חיובית: מגיע לו כסף. שלילית: הוא חייב.
+4. ההעברות מחושבות באלגוריתם חמדני: בכל צעד, מי שחייב הכי הרבה משלם למי שמגיע לו הכי הרבה, עד שכולם מאוזנים.
+
+**דוגמה:** דני שילם ₪300 ורוני שילם ₪60. סה״כ ₪360, כלומר ₪120 לכל אחד משלושת המשתתפים. רוני מעביר לדני ₪60, ומאיה מעבירה לדני ₪120.
+
+## טכנולוגיות
+
+- **Flutter** (Dart): קוד אחד ל-Android, ובהמשך גם ל-iPhone
+- **Material 3**: ממשק בעברית, מימין לשמאל, בגווני טורקיז
+- **provider**: ניהול state
+- **שמירה:** קובץ JSON מקומי במכשיר (`groupay_data.json`)
+
+## הרצה
+
+דרישות: [Flutter SDK](https://docs.flutter.dev/get-started/install) ואמולטור Android או מכשיר מחובר.
+
+```bash
+flutter pub get
+flutter run
+```
+
+בדיקות:
+
+```bash
+flutter test
+```
+
+## מבנה הקוד
+
+```
+lib/
+  main.dart              הגדרות האפליקציה, עברית ו-RTL
+  theme.dart             צבעים ועיצוב
+  models/                Group, Member, Expense
+  data/json_storage.dart שמירה וטעינה מקובץ JSON
+  state/app_state.dart   מצב האפליקציה וכל הפעולות
+  logic/                 חישוב החלוקה ופורמט סכומים
+  screens/               מסכי האפליקציה
+  widgets/               רכיבים: הסמל, הכותרת, כרטיס הסיכום ועוד
+test/                    בדיקות יחידה ובדיקות ממשק
+tool/render_icon_test.dart יצירת אייקון האפליקציה מהסמל
+```
+
+## מה הלאה
+
+- עריכת הוצאות ומשתתפים
+- ניהול משתמשים, כך שכל משתתף יוכל להזין את ההוצאות שלו
+- שמירה בענן וסנכרון בין המשתתפים
+- גרסה ל-iPhone
