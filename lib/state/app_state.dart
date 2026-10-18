@@ -75,6 +75,7 @@ class AppState extends ChangeNotifier {
     required int amountAgorot,
     required String title,
     String details = '',
+    List<String> participantIds = const [],
   }) async {
     final group = groupById(groupId)!;
     final expense = Expense(
@@ -84,6 +85,7 @@ class AppState extends ChangeNotifier {
       title: title.trim(),
       details: details.trim(),
       createdAt: DateTime.now(),
+      participantIds: participantIds,
     );
     // Newest expense first.
     await _updateGroup(group.copyWith(expenses: [expense, ...group.expenses]));

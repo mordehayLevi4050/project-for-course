@@ -8,6 +8,9 @@ class Expense {
   final String details;
   final DateTime createdAt;
 
+  /// Members who share this expense equally. Empty means everyone in the group.
+  final List<String> participantIds;
+
   const Expense({
     required this.id,
     required this.payerId,
@@ -15,6 +18,7 @@ class Expense {
     required this.title,
     this.details = '',
     required this.createdAt,
+    this.participantIds = const [],
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) => Expense(
@@ -24,6 +28,7 @@ class Expense {
         title: json['title'] as String,
         details: json['details'] as String? ?? '',
         createdAt: DateTime.parse(json['createdAt'] as String),
+        participantIds: (json['participantIds'] as List<dynamic>?)?.cast<String>() ?? const [],
       );
 
   Map<String, dynamic> toJson() => {
@@ -33,5 +38,6 @@ class Expense {
         'title': title,
         'details': details,
         'createdAt': createdAt.toIso8601String(),
+        'participantIds': participantIds,
       };
 }

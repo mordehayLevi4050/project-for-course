@@ -21,6 +21,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _title = TextEditingController();
   final _details = TextEditingController();
   String? _payerId;
+  late final Set<String> _participantIds;
   bool _submitted = false;
 
   @override
@@ -28,6 +29,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     super.initState();
     final members = context.read<AppState>().groupById(widget.groupId)!.members;
     if (members.length == 1) _payerId = members.single.id;
+    // Shared with everyone by default.
+    _participantIds = {for (final m in members) m.id};
   }
 
   @override
@@ -43,13 +46,24 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Future<void> _save() async {
     setState(() => _submitted = true);
     final amount = _amountAgorot;
-    if (amount == null || _payerId == null || _title.text.trim().isEmpty) return;
+    if (amount == null ||
+        _payerId == null ||
+        _participantIds.isEmpty ||
+        _title.text.trim().isEmpty) {
+      return;
+    }
+    final members = context.read<AppState>().groupById(widget.groupId)!.members;
+    final everyone = members.every((m) => _participantIds.contains(m.id));
     await context.read<AppState>().addExpense(
           widget.groupId,
           payerId: _payerId!,
           amountAgorot: amount,
           title: _title.text,
           details: _details.text,
+          // Empty list means everyone.
+          participantIds: everyone
+              ? const []
+              : [for (final m in members) if (_participantIds.contains(m.id)) m.id],
         );
     if (mounted) Navigator.pop(context);
   }
@@ -119,6 +133,44 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 'בחרו מי שילם',
+                style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+          const SizedBox(height: 24),
+          Text('עם מי מתחלק?', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ChoiceChip(
+                label: const Text('כולם'),
+                selected: group.members.every((m) => _participantIds.contains(m.id)),
+                selectedColor: GroupayColors.turquoise.withValues(alpha: 0.2),
+                onSelected: (_) => setState(
+                  () => _participantIds.addAll([for (final m in group.members) m.id]),
+                ),
+              ),
+              for (final m in group.members)
+                FilterChip(
+                  label: Text(m.name),
+                  selected: _participantIds.contains(m.id),
+                  selectedColor: GroupayColors.turquoise.withValues(alpha: 0.2),
+                  onSelected: (selected) => setState(() {
+                    if (selected) {
+                      _participantIds.add(m.id);
+                    } else {
+                      _participantIds.remove(m.id);
+                    }
+                  }),
+                ),
+            ],
+          ),
+          if (_submitted && _participantIds.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                'בחרו לפחות משתתף אחד',
                 style: textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error),
               ),
             ),

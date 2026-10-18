@@ -21,7 +21,8 @@ class Transfer {
   String toString() => 'Transfer($fromId -> $toId: $amountAgorot)';
 }
 
-/// Who paid what, what each member's equal share is, and who should pay whom.
+/// Who paid what, what each member's share is, and who should pay whom.
+/// Each expense is split equally among its participants.
 class Settlement {
   final int totalAgorot;
 
@@ -39,13 +40,28 @@ class Settlement {
     final total = group.totalAgorot;
     if (members.isEmpty) return Settlement._(total, const {}, const {}, const []);
 
-    // Equal split; leftover agorot go one each to the first members.
-    final base = total ~/ members.length;
-    final remainder = total % members.length;
-    final shares = {
-      for (var i = 0; i < members.length; i++)
-        members[i].id: base + (i < remainder ? 1 : 0),
-    };
+    // Sum the expenses per set of participants, then split each sum equally
+    // within its set; leftover agorot go one each to the first participants.
+    final memberIds = [for (final m in members) m.id];
+    final participantsByKey = <String, List<String>>{};
+    final sumByKey = <String, int>{};
+    for (final e in group.expenses) {
+      var ids = memberIds.where(e.participantIds.contains).toList();
+      // No participants (or all of them were deleted) means everyone.
+      if (ids.isEmpty) ids = memberIds;
+      final key = ids.join(',');
+      participantsByKey[key] = ids;
+      sumByKey[key] = (sumByKey[key] ?? 0) + e.amountAgorot;
+    }
+    final shares = {for (final id in memberIds) id: 0};
+    for (final MapEntry(:key, value: sum) in sumByKey.entries) {
+      final ids = participantsByKey[key]!;
+      final base = sum ~/ ids.length;
+      final remainder = sum % ids.length;
+      for (var i = 0; i < ids.length; i++) {
+        shares[ids[i]] = shares[ids[i]]! + base + (i < remainder ? 1 : 0);
+      }
+    }
 
     final paid = {for (final m in members) m.id: 0};
     for (final e in group.expenses) {
