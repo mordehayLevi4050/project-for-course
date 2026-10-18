@@ -1,5 +1,5 @@
 {
-  
+  "plansDirectory": "docs/plans",
   "model": "sonnet",
   "permissions": {
     "allow": [
