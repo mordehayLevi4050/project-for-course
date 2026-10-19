@@ -13,4 +13,35 @@ you modified only the settlement.dart , add_expense_screen.dart and expense.dart
 return the list of the files you modified.
 calculation for example: the Budapest trip group contain Motty, Dany, Yosi, and Shmulik. Motty paid 200 shekels shared with all members and Dany also paid  200 shekels shared with everyone., now Yosi owes to Motty 100 and Shmulik owes to Dany 100. now Yosi add an expense of 100 Shekel but shared it only with Shmulik. the calculation result need to be Yosi owes Motty 100 and Shmulik owes Dany 100 and also 50 for yosi
 
+# exercise 3 : A prompt structured with tags
+
+## מטרת הפרומט
+
+: הפיכת השדה "על מה" בהוספת הוצאה מטקסט חופשי לבחירה מרשימת קטגוריות שנשמרת בקובץ הנתונים, ופירוט חובה כשנבחרת הקטגוריה "אחר"
+
+## prompt:
+
+```
+<role> you are a senior Flutter developer </role>
+<context>
+In add_expense_screen.dart one of the fields in the adding an expense is the field על מה what was the expense for. now it is a free text I want to force the user to choose from a list of categories
+</context>
+<task>
+add to the groupay_data.json file Categories key and a list of values like דלק, רכב, מסעדה,  etc and also אחר. in add_expense_screen.dart in על מה field change it from a free text line to a list of categories. If the user choose אחר the field פירוט becomes necessary and if the user try to save the expense an error will be displayed with the test : נדרש פירוט
+
+</task>
+<constraints>
+you don't fix another bugs you find only what is related to add category in an expense.
+ the task is done when you and the feature and the tests and the flutter analyze command and flutter test run without find any issues
+</constraints>
+<format>
+return a list of files you change and the tests results
+</format>
+<examples>
+example 1: the user add a new expense in a group and write the amount and in על מה field he choose דלק from the list and save the expense. it will saved in the groupay_data.json
+example 2: the  user add a new expense in a group and write the amount and in על מה field he choose אחר the list and save the expense it will not saved and display an error massage : פירוט נדרש
+example 3 : the  user add a new expense in a group and write the amount and in על מה field he choose אחר the list and in field על מה  he write קולה בתחנת דלק and save the expense. it will saved in the groupay_data.json
+</examples>
+```
+
 
