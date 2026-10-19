@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groupay/data/json_storage.dart';
+import 'package:groupay/logic/expense_sort.dart';
 import 'package:groupay/logic/money.dart';
 import 'package:groupay/main.dart';
 import 'package:groupay/models/categories.dart';
 import 'package:groupay/models/group.dart';
 import 'package:groupay/state/app_state.dart';
+import 'package:groupay/widgets/expense_tile.dart';
 
 class _MemoryStore implements GroupStore {
   List<Group> saved = [];
@@ -211,5 +213,74 @@ void main() {
     expect(other.title, otherCategory);
     expect(other.details, 'קולה בתחנת דלק');
     expect(other.amountAgorot, 2000);
+  });
+
+  testWidgets('sort the expense list by date, amount, category and payer', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.5;
+    addTearDown(tester.view.reset);
+
+    final store = _MemoryStore();
+    final state = AppState(store);
+    await state.load();
+    final group = await state.addGroup('טיול');
+    for (final name in ['דני', 'רוני', 'מאיה']) {
+      await state.addMember(group.id, name);
+    }
+    String idOf(String name) =>
+        state.groupById(group.id)!.members.firstWhere((m) => m.name == name).id;
+    await state.addExpense(group.id, payerId: idOf('דני'), amountAgorot: 20000, title: 'דלק');
+    await state.addExpense(group.id, payerId: idOf('רוני'), amountAgorot: 10000, title: 'מסעדה');
+    await state.addExpense(group.id, payerId: idOf('מאיה'), amountAgorot: 30000, title: 'לינה');
+    final storedOrder = [for (final e in state.groupById(group.id)!.expenses) e.id];
+
+    await tester.pumpWidget(GroupayApp(state: state));
+    await tester.tap(find.text('טיול'));
+    await tester.pumpAndSettle();
+
+    List<int> shownAmounts() => [
+          for (final t in tester.widgetList<ExpenseTile>(find.byType(ExpenseTile)))
+            t.expense.amountAgorot ~/ 100,
+        ];
+    Future<void> sortBy(String label) async {
+      await tester.ensureVisible(find.byTooltip('מיון'));
+      await tester.tap(find.byTooltip('מיון'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(CheckedPopupMenuItem<ExpenseSortField>, label));
+      await tester.pumpAndSettle();
+    }
+    Future<void> toggleDirection(String tooltip) async {
+      await tester.tap(find.byTooltip(tooltip));
+      await tester.pumpAndSettle();
+    }
+
+    // Default: newest first.
+    expect(shownAmounts(), [300, 100, 200]);
+
+    await sortBy('סכום');
+    expect(shownAmounts(), [100, 200, 300]);
+    await toggleDirection('סדר עולה');
+    expect(shownAmounts(), [300, 200, 100]);
+
+    // Category list order: דלק, מסעדה, ..., לינה.
+    await sortBy('קטגוריה');
+    expect(shownAmounts(), [200, 100, 300]);
+    await toggleDirection('סדר עולה');
+    expect(shownAmounts(), [300, 100, 200]);
+
+    // Payer by name: דני, מאיה, רוני.
+    await sortBy('מי שילם');
+    expect(shownAmounts(), [200, 300, 100]);
+    await toggleDirection('סדר עולה');
+    expect(shownAmounts(), [100, 300, 200]);
+
+    await sortBy('תאריך');
+    expect(shownAmounts(), [300, 100, 200]);
+    await toggleDirection('סדר יורד');
+    expect(shownAmounts(), [200, 100, 300]);
+
+    // Sorting is display-only: the stored order is unchanged.
+    expect([for (final e in state.groupById(group.id)!.expenses) e.id], storedOrder);
+    expect([for (final e in store.saved.single.expenses) e.id], storedOrder);
   });
 }
