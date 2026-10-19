@@ -49,3 +49,6 @@ app.*.map.json
 
 # Claude Code personal settings
 .claude/settings.local.json
+
+# edit_promps.txt
+edit_promps.txt
