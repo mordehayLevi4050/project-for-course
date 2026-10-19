@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working conventions
+
+- Before requesting permission to execute a terminal command, provide a brief explanation in Hebrew of what the command does and why it is needed. This applies only to terminal commands, not to source code modifications.
+
 ## Project
 
 GrouPay is a Flutter app (Android now, iOS later) for splitting shared trip/restaurant expenses equally within a group, styled after the Israeli bit app. Single local user, no accounts; all data lives in one JSON file on the device. It is a learning project for a course, published at https://github.com/mordehayLevi4050/project-for-course.
