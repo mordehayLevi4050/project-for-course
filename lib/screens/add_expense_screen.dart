@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../logic/money.dart';
+import '../models/categories.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../widgets/groupay_app_bar.dart';
@@ -18,8 +19,8 @@ class AddExpenseScreen extends StatefulWidget {
 
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _amount = TextEditingController();
-  final _title = TextEditingController();
   final _details = TextEditingController();
+  String? _category;
   String? _payerId;
   late final Set<String> _participantIds;
   bool _submitted = false;
@@ -36,12 +37,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   void dispose() {
     _amount.dispose();
-    _title.dispose();
     _details.dispose();
     super.dispose();
   }
 
   int? get _amountAgorot => parseShekels(_amount.text);
+
+  /// "Other" needs details to say what the expense was.
+  bool get _detailsRequired => _category == otherCategory;
+  bool get _detailsMissing => _detailsRequired && _details.text.trim().isEmpty;
 
   Future<void> _save() async {
     setState(() => _submitted = true);
@@ -49,7 +53,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     if (amount == null ||
         _payerId == null ||
         _participantIds.isEmpty ||
-        _title.text.trim().isEmpty) {
+        _category == null ||
+        _detailsMissing) {
       return;
     }
     final members = context.read<AppState>().groupById(widget.groupId)!.members;
@@ -58,7 +63,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           widget.groupId,
           payerId: _payerId!,
           amountAgorot: amount,
-          title: _title.text,
+          title: _category!,
           details: _details.text,
           // Empty list means everyone.
           participantIds: everyone
@@ -70,7 +75,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final group = context.watch<AppState>().groupById(widget.groupId)!;
+    final appState = context.watch<AppState>();
+    final group = appState.groupById(widget.groupId)!;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -175,31 +181,33 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               ),
             ),
           const SizedBox(height: 24),
-          TextField(
-            controller: _title,
-            maxLength: 40,
-            textInputAction: TextInputAction.next,
+          DropdownButtonFormField<String>(
+            initialValue: _category,
             decoration: InputDecoration(
               labelText: 'על מה?',
-              hintText: 'למשל: ארוחת ערב',
               filled: true,
               fillColor: Colors.white,
-              errorText: _submitted && _title.text.trim().isEmpty ? 'הזינו תיאור קצר' : null,
+              errorText: _submitted && _category == null ? 'בחרו קטגוריה' : null,
             ),
-            onChanged: (_) => setState(() {}),
+            items: [
+              for (final c in appState.categories) DropdownMenuItem(value: c, child: Text(c)),
+            ],
+            onChanged: (c) => setState(() => _category = c),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _details,
             minLines: 3,
             maxLines: 6,
-            decoration: const InputDecoration(
-              labelText: 'פירוט (לא חובה)',
+            decoration: InputDecoration(
+              labelText: _detailsRequired ? 'פירוט' : 'פירוט (לא חובה)',
               hintText: 'למשל: 2 פיצות, שתייה וקינוח',
               alignLabelWithHint: true,
               filled: true,
               fillColor: Colors.white,
+              errorText: _submitted && _detailsMissing ? 'נדרש פירוט' : null,
             ),
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 24),
           FilledButton(

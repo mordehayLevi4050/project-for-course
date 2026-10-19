@@ -7,12 +7,19 @@ import 'package:groupay/state/app_state.dart';
 
 class _MemoryStore implements GroupStore {
   List<Group> saved = [];
+  List<String>? categories;
 
   @override
   Future<List<Group>> load() async => saved;
 
   @override
-  Future<void> save(List<Group> groups) async => saved = groups;
+  Future<List<String>?> loadCategories() async => categories;
+
+  @override
+  Future<void> save(List<Group> groups, List<String> categories) async {
+    saved = groups;
+    this.categories = categories;
+  }
 }
 
 void main() {

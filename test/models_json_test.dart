@@ -36,8 +36,10 @@ void main() {
     final storage = JsonStorage(directory: () async => dir);
 
     expect(await storage.load(), isEmpty);
-    await storage.save([group]);
+    expect(await storage.loadCategories(), isNull);
+    await storage.save([group], const ['דלק', 'אחר']);
     final loaded = await storage.load();
     expect(loaded.single.toJson(), group.toJson());
+    expect(await storage.loadCategories(), ['דלק', 'אחר']);
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../data/json_storage.dart';
+import '../models/categories.dart';
 import '../models/expense.dart';
 import '../models/group.dart';
 import '../models/member.dart';
@@ -11,12 +12,16 @@ class AppState extends ChangeNotifier {
   final _uuid = const Uuid();
 
   List<Group> _groups = [];
+  List<String> _categories = defaultCategories;
   bool _loaded = false;
 
   AppState(this._store);
 
   /// Newest group first.
   List<Group> get groups => List.unmodifiable(_groups);
+
+  /// Expense categories; always includes [otherCategory].
+  List<String> get categories => List.unmodifiable(_categories);
   bool get loaded => _loaded;
 
   Group? groupById(String id) {
@@ -29,8 +34,14 @@ class AppState extends ChangeNotifier {
   Future<void> load() async {
     _groups = await _store.load()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final stored = await _store.loadCategories();
+    _categories = [...?stored];
+    if (_categories.isEmpty) _categories = defaultCategories;
+    if (!_categories.contains(otherCategory)) _categories = [..._categories, otherCategory];
     _loaded = true;
     notifyListeners();
+    // Write the categories to the file if they were missing or incomplete.
+    if (!listEquals(stored, _categories)) await _store.save(_groups, _categories);
   }
 
   Future<Group> addGroup(String name) async {
@@ -105,6 +116,6 @@ class AppState extends ChangeNotifier {
 
   Future<void> _commit() async {
     notifyListeners();
-    await _store.save(_groups);
+    await _store.save(_groups, _categories);
   }
 }
