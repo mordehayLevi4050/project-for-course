@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Working conventions
 
 - Before requesting permission to execute a terminal command, provide a brief explanation in Hebrew of what the command does and why it is needed. This applies only to terminal commands, not to source code modifications.
+- Whenever you create or fix a feature, also create or update its tests, even if not explicitly asked, unless told otherwise.
 
 ## Project
 
