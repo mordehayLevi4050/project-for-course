@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GrouPay Add Expense</title>
+<style>
+/* Tokens carried from decisions:
+   header #0F766E -> #0D9488 · CTA #EA580C · bg #F3F8F7 · ink #0B2B28
+   categories: Flight #3B82F6 Hotel #8B5CF6 Car #14B8A6 Fuel #F59E0B
+               Restaurant #EF4444 Food&drink #22C55E Attractions #EC4899 Other #64748B */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background: #E5E7EB; color: #0B2B28; padding: 24px 16px; }
+h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px; max-width: 860px; }
+.grid { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; }
+.dir { width: 340px; } .dir h2 { font-size: 18px; } .why { font-size: 13px; color: #444; margin: 4px 0 10px; min-height: 56px; }
+.phone { width: 340px; height: 740px; border-radius: 36px; border: 10px solid #111; background: #F3F8F7; overflow: hidden; display: flex; flex-direction: column; }
+.top { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 14px 18px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+.top b { font-size: 17px; } .top .x { font-size: 22px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
+.amount { text-align: center; padding: 14px 0 6px; }
+.amount .v { font-size: 46px; font-weight: 800; direction: ltr; } .amount .v .cur { color: #0D9488; font-weight: 700; }
+.amount .v .caret { display: inline-block; width: 3px; height: 40px; background: #EA580C; vertical-align: -4px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.amount .hint { font-size: 12px; color: #6B7280; }
+.payers { display: flex; justify-content: center; gap: 14px; padding: 6px 0 10px; }
+.p { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; color: #475569; width: 52px; }
+.p i { width: 44px; height: 44px; border-radius: 50%; background: #E2ECEA; display: flex; align-items: center; justify-content: center; font-style: normal; font-weight: 700; font-size: 16px; color: #0F766E; border: 2px solid transparent; }
+.p.on i { background: #0F766E; color: #fff; box-shadow: 0 0 0 3px #F3F8F7, 0 0 0 5px #0F766E; }
+.p.on { color: #0B2B28; font-weight: 700; }
+.lbl { font-size: 11px; color: #6B7280; padding: 0 16px 4px; }
+.cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 12px 10px; }
+.c { height: 64px; border-radius: 16px; background: #fff; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11.5px; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.c span { font-size: 22px; }
+.c.on { border-color: var(--k); background: color-mix(in srgb, var(--k) 16%, white); font-weight: 700; }
+.err { color: #B91C1C; font-size: 12px; text-align: center; padding-bottom: 6px; }
+.desc { margin: 0 12px 10px; height: 52px; border-radius: 14px; border: 2px solid #64748B; background: #fff; padding: 0 14px; display: flex; align-items: center; font-size: 15px; }
+.desc .ph { color: #9CA3AF; } .desc .caret { display: inline-block; width: 2px; height: 22px; background: #0B2B28; margin-inline-start: 2px; animation: blink 1s steps(1) infinite; }
+.pad { margin-top: auto; background: #fff; border-radius: 24px 24px 0 0; padding: 10px 10px 16px; display: grid; grid-template-columns: repeat(3, 1fr) 1.15fr; grid-template-rows: repeat(4, 54px); gap: 8px; direction: ltr; box-shadow: 0 -4px 14px rgba(11,43,40,.06); }
+.k { border-radius: 14px; background: #F3F8F7; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; }
+.save { grid-column: 4; grid-row: 2 / span 3; border-radius: 18px; background: #EA580C; color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(234,88,12,.35); }
+.back { grid-column: 4; grid-row: 1; font-size: 20px; }
+.ime { margin-top: auto; height: 250px; background: #D1D5DB; display: flex; align-items: center; justify-content: center; color: #4B5563; font-size: 13px; }
+.savebar { padding: 10px 12px; display: flex; justify-content: flex-start; }
+.savebar div { width: 64%; height: 56px; border-radius: 28px; background: #EA580C; color: #fff; font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.tap { position: relative; } .tap::after { content: attr(data-t); position: absolute; top: -8px; left: -8px; background: #111; color: #fff; font-size: 11px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; direction: ltr; }
+.note { font-size: 12px; color: #555; margin-top: 24px; text-align: center; max-width: 820px; margin-inline: auto; line-height: 1.6; }
+</style></head><body>
+<h1>GrouPay: מסך הוספת הוצאה</h1>
+<p class="lead">מקלדת מספרים מותאמת, רשת של 4×2 קטגוריות, עיגולים לבחירת המשלם, ושמירה מפורשת. העיגולים השחורים הממוספרים מסמנים את הלחיצות במסלול של UJ-2: לחיצה 1 היא "הוספת הוצאה" בעמוד הקבוצה, ואז קטגוריה (2) ושמירה (3).</p>
+<div class="grid">
+
+<div class="dir">
+  <h2>מצב רגיל: Motty בקופה</h2>
+  <p class="why">הסכום הוקלד (87.40), המשלם כבר מוגדר על מוטי, ו"אוכל ושתייה" נבחר. כפתור השמירה גבוה ונמצא בצד ימין של המקלדת, בדיוק מתחת לאגודל.</p>
+  <div class="phone">
+    <div class="top"><span class="x">✕</span><b>הוצאה חדשה</b><span>רומא דצמבר</span></div>
+    <div class="amount"><div class="v"><span class="cur">₪</span>87.40<span class="caret"></span></div></div>
+    <div class="lbl">מי שילם</div>
+    <div class="payers"><div class="p on"><i>מ</i>מוטי</div><div class="p"><i>ד</i>דנה</div><div class="p"><i>י</i>יוסי</div><div class="p"><i>נ</i>נועה</div></div>
+    <div class="lbl">קטגוריה</div>
+    <div class="cats">
+      <div class="c" style="--k:#3B82F6"><span>✈️</span>טיסה</div>
+      <div class="c" style="--k:#8B5CF6"><span>🏨</span>מלון</div>
+      <div class="c" style="--k:#14B8A6"><span>🚗</span>רכב</div>
+      <div class="c" style="--k:#F59E0B"><span>⛽</span>דלק</div>
+      <div class="c" style="--k:#EF4444"><span>🍝</span>מסעדה</div>
+      <div class="c on tap" data-t="2" style="--k:#22C55E"><span>🛒</span>אוכל ושתייה</div>
+      <div class="c" style="--k:#EC4899"><span>🎡</span>אטרקציות</div>
+      <div class="c" style="--k:#64748B"><span>📝</span>אחר</div>
+    </div>
+    <div class="pad">
+      <div class="k">1</div><div class="k">2</div><div class="k">3</div><div class="k back">⌫</div>
+      <div class="k">4</div><div class="k">5</div><div class="k">6</div>
+      <div class="save tap" data-t="3">שמירה</div>
+      <div class="k">7</div><div class="k">8</div><div class="k">9</div>
+      <div class="k">.</div><div class="k">0</div><div class="k">00</div>
+    </div>
+  </div>
+</div>
+
+<div class="dir">
+  <h2>מקרה קצה: "אחר" דורש תיאור</h2>
+  <p class="why">כשבוחרים "אחר", מופיע שדה תיאור ונפתחת מקלדת טקסט. כפתור השמירה עובר לצד ימין, מעל המקלדת. אם לוחצים "שמירה" כשהשדה ריק, מופיעה הודעה, וכל מה שהוקלד נשאר על המסך.</p>
+  <div class="phone">
+    <div class="top"><span class="x">✕</span><b>הוצאה חדשה</b><span>רומא דצמבר</span></div>
+    <div class="amount"><div class="v"><span class="cur">₪</span>72.60</div></div>
+    <div class="payers"><div class="p"><i>מ</i>מוטי</div><div class="p on"><i>ד</i>דנה</div><div class="p"><i>י</i>יוסי</div><div class="p"><i>נ</i>נועה</div></div>
+    <div class="cats">
+      <div class="c" style="--k:#3B82F6"><span>✈️</span>טיסה</div>
+      <div class="c" style="--k:#8B5CF6"><span>🏨</span>מלון</div>
+      <div class="c" style="--k:#14B8A6"><span>🚗</span>רכב</div>
+      <div class="c" style="--k:#F59E0B"><span>⛽</span>דלק</div>
+      <div class="c" style="--k:#EF4444"><span>🍝</span>מסעדה</div>
+      <div class="c" style="--k:#22C55E"><span>🛒</span>אוכל ושתייה</div>
+      <div class="c" style="--k:#EC4899"><span>🎡</span>אטרקציות</div>
+      <div class="c on" style="--k:#64748B"><span>📝</span>אחר</div>
+    </div>
+    <div class="desc"><span class="ph">מה קנית? (חובה עבור "אחר")</span><span class="caret"></span></div>
+    <div class="err">יש להזין תיאור עבור "אחר"</div>
+    <div class="savebar"><div>שמירה</div></div>
+    <div class="ime">מקלדת הטקסט של אנדרואיד (עברית)</div>
+  </div>
+</div>
+
+</div>
+<p class="note">שאלות פתוחות על הסקיצה: (1) המיקום של "שמירה" כמקש גבוה בצד ימין של המקלדת. (2) מקש "00" לעומת מקש ריק. (3) הכותרת המוקטנת של מסך ההוספה (✕, "הוצאה חדשה", שם הקבוצה). (4) איך "שמירה" אמור להיראות במצב "אחר".</p>
+</body></html>

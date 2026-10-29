@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GrouPay Secondary Screens</title>
+<style>
+/* Governing spine sections (2026-10-29 update, PRD final 2026-10-29):
+   EXPERIENCE.md: Information Architecture, Voice and Tone (fixed messages = PRD NFR-6), Component Patterns (Name fields, Member list, Exit sheet, disabled Add expense), State Patterns (Create group stages), Key Flows UJ-1 / UJ-3
+   DESIGN.md: Components (Bottom sheet, Button disabled)
+   header #0F766E -> #0D9488 · CTA #EA580C · bg #F3F8F7 · ink #0B2B28 · danger #B91C1C
+   member colors (by order added, cycle after 6): #1D4ED8 #9333EA #C2410C #BE185D #047857 #A16207 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Heebo, "Segoe UI", Roboto, Arial, sans-serif; background: #E5E7EB; color: #0B2B28; padding: 24px 16px; }
+h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px; max-width: 900px; }
+.grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+.dir { width: 340px; } .dir h2 { font-size: 17px; } .why { font-size: 13px; color: #444; margin: 4px 0 10px; min-height: 58px; }
+.phone { width: 340px; height: 700px; border-radius: 34px; border: 10px solid #111; background: #F3F8F7; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.head { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 12px 18px 26px; }
+.head .top { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 700; }
+.head .name { font-size: 22px; font-weight: 700; margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; }
+.head .name .aff { font-size: 18px; background: rgba(255,255,255,.22); border-radius: 10px; padding: 0 8px; font-weight: 700; }
+.head .tot { font-size: 40px; font-weight: 800; direction: ltr; text-align: right; }
+.head .sub { font-size: 18px; font-weight: 700; }
+.bar0 { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 6px 8px; display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; min-height: 56px; }
+.bar0 b { text-align: center; font-size: 20px; } .bar0 .x { font-size: 22px; text-align: center; } .bar0 .del { color: #fff; background: #B91C1C; border-radius: 12px; font-size: 13px; font-weight: 700; padding: 6px 0; text-align: center; }
+.body { flex: 1; padding: 12px; overflow: hidden; position: relative; }
+.body.up { margin-top: -14px; }
+.foot { display: flex; align-items: center; gap: 10px; padding: 12px 16px 18px; }
+.fab { flex: 2; height: 64px; border-radius: 32px; background: #EA580C; color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(234,88,12,.35); }
+.sec { flex: 1; height: 64px; border-radius: 32px; border: 1.5px solid #99CFC9; background: #fff; color: #0F766E; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.off { opacity: .4; box-shadow: none; }
+.hint { font-size: 14px; color: #475569; text-align: center; padding: 0 16px; }
+.field { background: #fff; border: 2px solid #CDE3DF; border-radius: 14px; height: 52px; display: flex; align-items: center; padding: 0 14px; font-size: 16px; margin-bottom: 10px; }
+.field.focus { border-color: #0D9488; } .field .ph { color: #9CA3AF; }
+.field .add { margin-inline-start: auto; color: #fff; background: #0D9488; border-radius: 10px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.lbl { font-size: 12px; color: #6B7280; margin: 6px 4px 6px; font-weight: 600; }
+.av { width: 46px; height: 46px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mrow { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; }
+.mrow b { flex: 1; font-size: 15px; } .mrow span { color: #9CA3AF; font-size: 18px; }
+.err { color: #B91C1C; font-size: 14px; margin: -4px 4px 10px; }
+.scrim { position: absolute; inset: 0; background: rgba(11,43,40,.45); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 24px 24px 0 0; padding: 10px 18px 20px; }
+.sheet .grab { width: 40px; height: 4px; border-radius: 2px; background: #CBD5E1; margin: 0 auto 14px; }
+.sheet h3 { font-size: 20px; margin-bottom: 6px; } .sheet p { font-size: 14px; color: #475569; margin-bottom: 14px; line-height: 1.5; }
+.sheet .warn { background: #FFEDD5; color: #9A3412; border-radius: 10px; padding: 8px 10px; font-size: 14px; margin-bottom: 14px; }
+.sheet .row { display: flex; gap: 10px; }
+.danger { background: #B91C1C; box-shadow: none; }
+.set { background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 12px; }
+.set > div { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; min-height: 56px; border-bottom: 1px solid #EEF2F1; font-size: 15px; }
+.set > div:last-child { border-bottom: 0; } .set small { color: #6B7280; font-size: 13px; }
+.set .e { min-height: 0; padding: 0 16px 10px; color: #B91C1C; font-size: 14px; justify-content: flex-start; }
+.sw { width: 52px; height: 30px; border-radius: 15px; background: #0F766E; position: relative; } .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; }
+.amount { text-align: center; padding: 14px 0 4px; font-size: 46px; font-weight: 800; direction: ltr; } .amount .cur { color: #0D9488; }
+.payers { display: grid; grid-template-columns: repeat(6, 44px); gap: 8px; padding: 6px 0; justify-content: center; }
+.p { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: #475569; }
+.p .av { width: 44px; height: 44px; } .p:not(.on) .av { opacity: .55; } .p.on { color: #0B2B28; font-weight: 700; } .p.on .av { box-shadow: 0 0 0 3px #F3F8F7, 0 0 0 5px var(--m); }
+.note { font-size: 13px; color: #555; margin-top: 24px; text-align: center; max-width: 860px; margin-inline: auto; line-height: 1.6; }
+</style></head><body>
+<h1>GrouPay: המסכים המשניים (עדכון 29.10)</h1>
+<p class="lead">יצירת קבוצה בשני שלבים, עם השאלה "קבוצה פעילה?" מיד אחרי השמירה (FR-7). עריכת הוצאה עם חלונית מחיקה, חלונית "לצאת ללא שמירה?" (FR-10), הגדרות קבוצה, ועמוד קבוצה עם פחות משני משתתפים. ההודעות הקבועות לקוחות מטבלת NFR-6 ב-PRD. עמוד הקבוצה הנעולה הוסר (נדחה לגרסה הבאה). אם יש סתירה בין המסמכים לסקיצה, המסמכים קובעים.</p>
+<div class="grid">
+
+<!-- 1 create group, stage 1 + active sheet -->
+<div class="dir"><h2>1. יצירת קבוצה, שלב 1 ← "קבוצה פעילה?"</h2>
+<p class="why">מקלידים שם (עד 20 תווים) ולוחצים "יצירת קבוצה". הקבוצה נשמרת, והחלונית עולה מיד, עוד לפני שיש משתתפים. האזהרה מופיעה כשקבוצה אחרת פעילה.</p>
+<div class="phone">
+  <div class="bar0"><span class="x">✕</span><b>קבוצה חדשה</b><span></span></div>
+  <div class="body">
+    <div class="lbl">שם הקבוצה</div><div class="field focus">בודפשט דצמבר</div>
+  </div>
+  <div class="foot"><div class="fab">יצירת קבוצה</div></div>
+  <div class="scrim"></div>
+  <div class="sheet"><div class="grab"></div>
+    <h3>להפוך את הקבוצה לקבוצה הפעילה?</h3>
+    <p>האפליקציה תיפתח ישר לתוך הקבוצה הזו.</p>
+    <div class="warn">הקבוצה 'אילת סוכות' תפסיק להיות הקבוצה הפעילה</div>
+    <div class="row"><div class="fab">כן, להפוך לפעילה</div><div class="sec">לא עכשיו</div></div>
+  </div>
+</div></div>
+
+<!-- 2 create group, stage 2 -->
+<div class="dir"><h2>2. יצירת קבוצה, שלב 2: משתתפים</h2>
+<p class="why">אחרי החלונית, שם הקבוצה עובר לכותרת ואזור המשתתפים נפתח באותו מסך. כל שם (עד 10 תווים) מקבל עיגול בצבע לפי סדר ההוספה. "סיום" פותח את עמוד הקבוצה.</p>
+<div class="phone">
+  <div class="bar0"><span></span><b>בודפשט דצמבר</b><span></span></div>
+  <div class="body">
+    <div class="lbl">משתתפים</div>
+    <div class="mrow"><div class="av" style="background:#1D4ED8">מ</div><b>מוטי</b><span>✕</span></div>
+    <div class="mrow"><div class="av" style="background:#9333EA">ד</div><b>דנה</b><span>✕</span></div>
+    <div class="mrow"><div class="av" style="background:#C2410C">י</div><b>יוסי</b><span>✕</span></div>
+    <div class="field focus">דנה<span class="add">+</span></div>
+    <div class="err">כבר יש משתתף בשם הזה</div>
+  </div>
+  <div class="foot"><div class="fab">סיום</div></div>
+</div></div>
+
+<!-- 3 edit expense + delete sheet -->
+<div class="dir"><h2>3. עריכת הוצאה ← מחיקה</h2>
+<p class="why">אותו מסך כמו בהוספה, עם כל השדות ממולאים. שעת הרישום היא שעת השמירה הראשונה ולא משתנה. "🗑 מחיקה" בכותרת, רחוק מהאגודל. לחיצה ארוכה על שורה ברשימה פותחת את אותה חלונית.</p>
+<div class="phone">
+  <div class="bar0"><span class="x">✕</span><b>בודפשט דצמבר</b><span class="del">🗑 מחיקה</span></div>
+  <div class="body" style="text-align:center">
+    <div class="amount"><span class="cur">₪</span>87</div>
+    <div style="font-size:12px;color:#6B7280">נרשם היום 14:32 · נערך עכשיו</div>
+    <div class="payers">
+      <div class="p on" style="--m:#1D4ED8"><div class="av" style="background:#1D4ED8">מ</div>מוטי</div><div class="p"><div class="av" style="background:#9333EA">ד</div>דנה</div><div class="p"><div class="av" style="background:#C2410C">י</div>יוסי</div><div class="p"><div class="av" style="background:#BE185D">נ</div>נועה</div>
+    </div>
+    <div style="color:#6B7280;font-size:13px;margin-top:24px">… קטגוריות, מקלדת ו"שמירה" כמו במסך ההוספה …</div>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet"><div class="grab"></div>
+    <h3>למחוק את ההוצאה?</h3>
+    <p>🛒 אוכל ושתייה · מוטי · ₪87<br>אי אפשר לבטל את הפעולה.</p>
+    <div class="row"><div class="fab danger">מחיקה</div><div class="sec">ביטול</div></div>
+  </div>
+</div></div>
+
+<!-- 4 exit sheet -->
+<div class="dir"><h2>4. "לצאת ללא שמירה?" (FR-10)</h2>
+<p class="why">✕ או "חזרה" כשיש קלט שלא נשמר. "יציאה" מוחקת את הקלט. "המשך עריכה", הקשה על הרקע או "חזרה" מחזירים למסך עם הקלט. בלי קלט, המסך נסגר מיד. החלונית לא נספרת בתקציב ההקשות.</p>
+<div class="phone">
+  <div class="bar0"><span class="x">✕</span><b>בודפשט דצמבר</b><span></span></div>
+  <div class="body" style="text-align:center">
+    <div class="amount"><span class="cur">₪</span>87.4</div>
+    <div class="payers">
+      <div class="p on" style="--m:#1D4ED8"><div class="av" style="background:#1D4ED8">מ</div>מוטי</div><div class="p"><div class="av" style="background:#9333EA">ד</div>דנה</div><div class="p"><div class="av" style="background:#C2410C">י</div>יוסי</div><div class="p"><div class="av" style="background:#BE185D">נ</div>נועה</div>
+    </div>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet"><div class="grab"></div>
+    <h3>לצאת ללא שמירה?</h3>
+    <p>מה שהזנת לא יישמר.</p>
+    <div class="row"><div class="fab danger">יציאה</div><div class="sec">המשך עריכה</div></div>
+  </div>
+</div></div>
+
+<!-- 5 group settings -->
+<div class="dir"><h2>5. הגדרות קבוצה</h2>
+<p class="why">התג "⚙ ✎" ליד השם בעמוד הקבוצה פותח את המסך הזה. ניסיון להסיר את יוסי, שיש הוצאה על שמו, נדחה בהודעה הקבועה מתחת לשורה שלו.</p>
+<div class="phone">
+  <div class="bar0"><span class="x">→</span><b>הגדרות קבוצה</b><span></span></div>
+  <div class="body">
+    <div class="set"><div>שם הקבוצה <small>בודפשט דצמבר ›</small></div><div>קבוצה פעילה <span class="sw"></span></div></div>
+    <div class="lbl">משתתפים (4)</div>
+    <div class="set">
+      <div><span style="display:flex;gap:10px;align-items:center"><span class="av" style="background:#1D4ED8;width:36px;height:36px;font-size:18px">מ</span>מוטי</span><small>✎ &nbsp; ✕</small></div>
+      <div><span style="display:flex;gap:10px;align-items:center"><span class="av" style="background:#9333EA;width:36px;height:36px;font-size:18px">ד</span>דנה</span><small>✎ &nbsp; ✕</small></div>
+      <div><span style="display:flex;gap:10px;align-items:center"><span class="av" style="background:#C2410C;width:36px;height:36px;font-size:18px">י</span>יוסי</span><small>✎ &nbsp; ✕</small></div>
+      <div class="e">לא ניתן להסיר משתתף שיש הוצאה על שמו</div>
+      <div><span style="display:flex;gap:10px;align-items:center"><span class="av" style="background:#BE185D;width:36px;height:36px;font-size:18px">נ</span>נועה</span><small>✎ &nbsp; ✕</small></div>
+      <div style="color:#0F766E;font-weight:600">+ הוספת משתתף</div>
+    </div>
+    <div class="set"><div style="color:#0F766E">🗂 העברה לארכיון</div></div>
+  </div>
+</div></div>
+
+<!-- 6 group page with fewer than 2 members -->
+<div class="dir"><h2>6. עמוד קבוצה עם משתתף אחד (FR-10, FR-16)</h2>
+<p class="why">"הוספת הוצאה" ו"סיכום" מושבתים (40%, בלי צל), וההודעה הקבועה מופיעה מעל הכפתורים. מוסיפים משתתפים דרך "⚙ ✎".</p>
+<div class="phone">
+  <div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span></span></div><div class="name">יום כיף בתל אביב <span class="aff">⚙ ✎</span></div><div class="tot">₪0</div><div class="sub">משתתף אחד · 0 הוצאות</div></div>
+  <div class="body up" style="display:flex;align-items:center;justify-content:center;color:#6B7280">עדיין אין הוצאות</div>
+  <div class="hint">יש להוסיף לפחות שני משתתפים כדי לרשום הוצאות</div>
+  <div class="foot"><div class="fab off">+ הוספת הוצאה</div><div class="sec off">סיכום</div></div>
+</div></div>
+
+</div>
+<p class="note">ממתין לאישור: (1) הסדר הקבוע של המשתתפים בבורר המשלם (לפי סדר ההוספה). (2) הנוסח של חלונית היציאה ("יציאה" / "המשך עריכה"). (3) סגנון הכפתור המושבת. ההודעות הקבועות עצמן לקוחות מה-PRD ולא נתונות לשינוי כאן.</p>
+</body></html>

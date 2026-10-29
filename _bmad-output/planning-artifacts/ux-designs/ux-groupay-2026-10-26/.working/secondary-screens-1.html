@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GrouPay Secondary Screens</title>
+<style>
+/* header #0F766E -> #0D9488 · CTA #EA580C · bg #F3F8F7 · ink #0B2B28 · danger #B91C1C
+   member colors (by order added, cycle after 6): #1D4ED8 #9333EA #C2410C #BE185D #047857 #A16207 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background: #E5E7EB; color: #0B2B28; padding: 24px 16px; }
+h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px; max-width: 900px; }
+.grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+.dir { width: 320px; } .dir h2 { font-size: 17px; } .why { font-size: 13px; color: #444; margin: 4px 0 10px; min-height: 58px; }
+.phone { width: 320px; height: 660px; border-radius: 34px; border: 10px solid #111; background: #F3F8F7; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.head { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 12px 18px 26px; }
+.head .top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.head .name { font-size: 22px; font-weight: 700; margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; }
+.head .name .aff { font-size: 13px; background: rgba(255,255,255,.22); border-radius: 12px; padding: 2px 8px; font-weight: 600; }
+.head .tot { font-size: 36px; font-weight: 800; direction: ltr; text-align: right; }
+.head .sub { font-size: 13px; opacity: .9; }
+.bar0 { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 6px 8px; display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; min-height: 56px; }
+.bar0 b { text-align: center; font-size: 17px; } .bar0 .x { font-size: 22px; text-align: center; } .bar0 .del { color: #fff; background: #B91C1C; border-radius: 12px; font-size: 13px; font-weight: 700; padding: 6px 0; text-align: center; }
+.body { flex: 1; padding: 12px; overflow: hidden; }
+.body.up { margin-top: -14px; }
+.badge { display: inline-block; border-radius: 10px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+.b-act { background: #FFEDD5; color: #9A3412; } .b-lock { background: #E2E8F0; color: #334155; } .b-done { background: #D1FAE5; color: #065F46; }
+.g { background: #fff; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); display: flex; align-items: center; gap: 12px; }
+.g.active { border-inline-start: 6px solid #EA580C; }
+.g .m { flex: 1; } .g .m b { font-size: 16px; display: block; } .g .m span { font-size: 12px; color: #6B7280; }
+.g .t { font-weight: 800; font-size: 16px; direction: ltr; }
+.foot { display: flex; align-items: center; gap: 10px; padding: 12px 16px 18px; }
+.fab { flex: 2; height: 60px; border-radius: 30px; background: #EA580C; color: #fff; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(234,88,12,.35); }
+.sec { flex: 1; height: 60px; border-radius: 30px; border: 1.5px solid #99CFC9; background: #fff; color: #0F766E; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.link { text-align: center; color: #0F766E; font-weight: 600; font-size: 14px; padding: 6px 0 0; }
+.field { background: #fff; border: 2px solid #CDE3DF; border-radius: 14px; height: 52px; display: flex; align-items: center; padding: 0 14px; font-size: 16px; margin-bottom: 10px; }
+.field.focus { border-color: #0D9488; } .field .ph { color: #9CA3AF; }
+.field .add { margin-inline-start: auto; color: #fff; background: #0D9488; border-radius: 10px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.lbl { font-size: 12px; color: #6B7280; margin: 6px 4px 6px; }
+.av { width: 46px; height: 46px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mrow { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 14px; padding: 8px 12px; margin-bottom: 8px; }
+.mrow b { flex: 1; font-size: 15px; } .mrow span { color: #9CA3AF; font-size: 18px; }
+.err { color: #B91C1C; font-size: 12px; margin: -6px 4px 8px; }
+.scrim { position: absolute; inset: 0; background: rgba(11,43,40,.45); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 24px 24px 0 0; padding: 10px 18px 20px; }
+.sheet .grab { width: 40px; height: 4px; border-radius: 2px; background: #CBD5E1; margin: 0 auto 14px; }
+.sheet h3 { font-size: 18px; margin-bottom: 6px; } .sheet p { font-size: 13px; color: #475569; margin-bottom: 14px; line-height: 1.5; }
+.sheet .warn { background: #FFF7ED; color: #9A3412; border-radius: 10px; padding: 8px 10px; font-size: 12px; margin-bottom: 14px; }
+.sheet .row { display: flex; gap: 10px; }
+.set { background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 12px; }
+.set div { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; min-height: 56px; border-bottom: 1px solid #EEF2F1; font-size: 15px; }
+.set div:last-child { border-bottom: 0; } .set small { color: #6B7280; font-size: 13px; }
+.sw { width: 52px; height: 30px; border-radius: 15px; background: #0F766E; position: relative; } .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; }
+.row2 { display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 72px; background: #fff; border-radius: 18px; margin-bottom: 10px; border-inline-start: 6px solid var(--k); }
+.ico { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 21px; background: color-mix(in srgb, var(--k) 15%, white); }
+.row2 .meta { flex: 1; } .row2 b { display: block; font-size: 16px; } .row2 span { font-size: 12px; color: #6B7280; } .row2 .a { font-weight: 700; direction: ltr; }
+.lockbox { flex: 2; min-height: 60px; border-radius: 18px; background: #E2E8F0; color: #334155; font-size: 13px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; line-height: 1.35; }
+.note { font-size: 12px; color: #555; margin-top: 24px; text-align: center; max-width: 860px; margin-inline: auto; line-height: 1.6; }
+</style></head><body>
+<h1>GrouPay: המסכים המשניים</h1>
+<p class="lead">כל החלטות הסבב האחרון במקום אחד: רשימת הקבוצות, יצירת קבוצה עם חלונית "קבוצה פעילה?", עריכת הוצאה, הגדרות קבוצה, וקבוצה נעולה.</p>
+<div class="grid">
+
+<!-- 1 group list -->
+<div class="dir"><h2>1. רשימת הקבוצות (מסך הבית)</h2>
+<p class="why">כרטיס לכל קבוצה. לקבוצה הפעילה יש פס כתום ותג. "+ קבוצה חדשה" בכתום מימין, והקישור "ארכיון" מתחת.</p>
+<div class="phone">
+  <div class="head"><div class="top"><b style="font-size:20px">GrouPay</b><span></span></div><div class="sub" style="margin-top:6px">הקבוצות שלי</div></div>
+  <div class="body up">
+    <div class="g active"><div class="m"><b>רומא דצמבר</b><span>4 משתתפים</span></div><div style="text-align:left"><div class="t">₪8,400</div><span class="badge b-act">⭐ פעילה</span></div></div>
+    <div class="g"><div class="m"><b>אילת סוכות</b><span>5 משתתפים</span></div><div style="text-align:left"><div class="t">₪3,120</div><span class="badge b-done">✓ מסולקת</span></div></div>
+    <div class="g"><div class="m"><b>צפון – קמפינג</b><span>3 משתתפים</span></div><div style="text-align:left"><div class="t">₪960</div><span class="badge b-lock">🔒 נעולה</span></div></div>
+  </div>
+  <div class="foot"><div class="fab">+ קבוצה חדשה</div><div style="flex:1"></div></div>
+  <div class="link" style="padding:0 0 16px">🗂 ארכיון (2)</div>
+</div></div>
+
+<!-- 2 create group + sheet -->
+<div class="dir"><h2>2. יצירת קבוצה ← "קבוצה פעילה?"</h2>
+<p class="why">מסך אחד: שם הקבוצה, ואחריו המשתתפים. כל שם שמוקלד מקבל עיגול בצבע לפי סדר ההוספה. אחרי "סיום" עולה מלמטה חלונית שמציעה להפוך את הקבוצה לפעילה, ומזהירה שהקבוצה הפעילה הקודמת תפסיק להיות פעילה.</p>
+<div class="phone">
+  <div class="bar0"><span class="x">✕</span><b>קבוצה חדשה</b><span></span></div>
+  <div class="body">
+    <div class="lbl">שם הקבוצה</div><div class="field">רומא דצמבר</div>
+    <div class="lbl">משתתפים</div>
+    <div class="mrow"><div class="av" style="background:#1D4ED8">מ</div><b>מוטי</b><span>✕</span></div>
+    <div class="mrow"><div class="av" style="background:#9333EA">ד</div><b>דנה</b><span>✕</span></div>
+    <div class="mrow"><div class="av" style="background:#C2410C">י</div><b>יוסי</b><span>✕</span></div>
+    <div class="field focus">דנה<span class="add">+</span></div>
+    <div class="err">המשתתף כבר קיים</div>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet"><div class="grab"></div>
+    <h3>להפוך את "רומא דצמבר" לקבוצה הפעילה?</h3>
+    <p>האפליקציה תיפתח ישר לתוך הקבוצה הזו.</p>
+    <div class="warn">"אילת סוכות" תפסיק להיות הקבוצה הפעילה.</div>
+    <div class="row"><div class="fab">כן, להפוך לפעילה</div><div class="sec">לא עכשיו</div></div>
+  </div>
+</div></div>
+
+<!-- 3 edit expense -->
+<div class="dir"><h2>3. עריכת הוצאה</h2>
+<p class="why">אותו מסך כמו בהוספה, עם כל השדות ממולאים. כפתור "מחיקה" אדום וקטן נמצא בכותרת, רחוק מהאגודל, ולחיצה עליו פותחת חלונית אישור. לחיצה ארוכה על שורה ברשימה פותחת את אותה חלונית.</p>
+<div class="phone">
+  <div class="bar0"><span class="x">✕</span><b>רומא דצמבר</b><span class="del">🗑 מחיקה</span></div>
+  <div class="body" style="text-align:center">
+    <div style="font-size:44px;font-weight:800;direction:ltr;margin:14px 0 4px"><span style="color:#0D9488">₪</span>87.00</div>
+    <div style="font-size:12px;color:#6B7280">נרשם היום 14:32 · נערך עכשיו</div>
+    <div style="display:flex;gap:12px;justify-content:center;margin:14px 0">
+      <div class="av" style="background:#1D4ED8;box-shadow:0 0 0 3px #F3F8F7,0 0 0 5px #1D4ED8">מ</div><div class="av" style="background:#9333EA;opacity:.55">ד</div><div class="av" style="background:#C2410C;opacity:.55">י</div><div class="av" style="background:#BE185D;opacity:.55">נ</div>
+    </div>
+    <div style="color:#6B7280;font-size:13px;margin-top:30px">… קטגוריות, מקלדת ו"שמירה" כמו במסך ההוספה …</div>
+  </div>
+  <div class="scrim"></div>
+  <div class="sheet"><div class="grab"></div>
+    <h3>למחוק את ההוצאה?</h3>
+    <p>🛒 אוכל ושתייה · מוטי · ₪87.00<br>אי אפשר לבטל את הפעולה.</p>
+    <div class="row"><div class="sec">ביטול</div><div class="fab" style="background:#B91C1C;box-shadow:none">מחיקה</div></div>
+  </div>
+</div></div>
+
+<!-- 4 group settings -->
+<div class="dir"><h2>4. הגדרות קבוצה</h2>
+<p class="why">בעמוד הקבוצה, ליד השם, יש תג "⚙ ✎" שמסמן שאפשר ללחוץ על השם. הלחיצה פותחת את המסך הזה, שבו נמצאים שינוי השם, המשתתפים, ההגדרה כקבוצה פעילה והארכוב.</p>
+<div class="phone">
+  <div class="head" style="padding-bottom:16px"><div class="top"><span>→ חזרה</span><span></span></div><div class="name">רומא דצמבר <span class="aff">⚙ ✎</span></div><div class="sub" style="margin-top:4px">← כך נראה השם בעמוד הקבוצה</div></div>
+  <div class="body">
+    <div class="set"><div>שם הקבוצה <small>רומא דצמבר ›</small></div><div>קבוצה פעילה <span class="sw"></span></div></div>
+    <div class="lbl">משתתפים (4)</div>
+    <div class="set">
+      <div><span style="display:flex;gap:10px;align-items:center"><span class="av" style="background:#1D4ED8;width:36px;height:36px;font-size:18px">מ</span>מוטי</span><small>✎</small></div>
+      <div><span style="display:flex;gap:10px;align-items:center"><span class="av" style="background:#9333EA;width:36px;height:36px;font-size:18px">ד</span>דנה</span><small>✎</small></div>
+      <div><span style="display:flex;gap:10px;align-items:center"><span class="av" style="background:#C2410C;width:36px;height:36px;font-size:18px">י</span>יוסי</span><small>✎</small></div>
+      <div style="color:#0F766E;font-weight:600">+ הוספת משתתף</div>
+    </div>
+    <div class="set"><div style="color:#0F766E">🗂 העברה לארכיון</div></div>
+  </div>
+</div></div>
+
+<!-- 5 locked group page -->
+<div class="dir"><h2>5. עמוד קבוצה נעולה</h2>
+<p class="why">הכפתור "הוספת הוצאה" מוסתר, ובמקומו יש הסבר. כפתור "סיכום" נשאר. גם שורות ההוצאות נשארות גלויות, אבל לחיצה עליהן לא פותחת עריכה.</p>
+<div class="phone">
+  <div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span class="badge" style="background:rgba(255,255,255,.22);color:#fff">🔒 נעולה</span></div><div class="name">צפון – קמפינג <span class="aff">⚙ ✎</span></div><div class="tot">₪960.00</div><div class="sub">3 משתתפים · 4 הוצאות</div></div>
+  <div class="body up">
+    <div class="row2" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>שירה · 12.10 19:20</span></div><div class="a">₪240.00</div></div>
+    <div class="row2" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>אורי · 12.10 08:05</span></div><div class="a">₪310.00</div></div>
+    <div class="row2" style="--k:#EC4899"><div class="ico">🎡</div><div class="meta"><b>אטרקציות</b><span>מוטי · 11.10 13:40</span></div><div class="a">₪410.00</div></div>
+  </div>
+  <div class="foot"><div class="lockbox">🔒 הקבוצה נעולה כי סומן תשלום. כדי לערוך, צריך לבטל את סימוני "שולם" בסיכום.</div><div class="sec">סיכום</div></div>
+</div></div>
+
+</div>
+<p class="note">פתוח לדיון: (1) התג "⚙ ✎" ליד שם הקבוצה כסימן שאפשר ללחוץ עליו. (2) כפתור "מחיקה" בעריכה כתג אדום בכותרת. (3) הניסוח של כל ההודעות.</p>
+</body></html>

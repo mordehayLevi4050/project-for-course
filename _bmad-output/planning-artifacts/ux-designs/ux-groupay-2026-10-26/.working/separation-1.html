@@ -1,0 +1,58 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GrouPay List Separation</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background: #E5E7EB; color: #1A1D24; padding: 24px 16px; }
+h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px; max-width: 820px; }
+.grid { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; }
+.dir { width: 340px; } .dir h2 { font-size: 18px; } .why { font-size: 13px; color: #444; margin: 4px 0 10px; min-height: 56px; }
+.phone { width: 340px; height: 740px; border-radius: 36px; border: 10px solid #111; background: #F3F8F7; overflow: hidden; display: flex; flex-direction: column; }
+.head { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 16px 20px 30px; }
+.head .top { display: flex; justify-content: space-between; font-size: 14px; opacity: .9; }
+.head .name { font-size: 22px; font-weight: 700; margin-top: 8px; }
+.head .tot { font-size: 40px; font-weight: 800; direction: ltr; text-align: right; }
+.head .sub { font-size: 13px; opacity: .9; }
+.stripe { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 10px; gap: 2px; }
+.body { flex: 1; position: relative; overflow: hidden; margin-top: -16px; }
+.rows { padding: 12px 12px 0; }
+/* Larger rows: ~76px tall, 4-5 visible */
+.row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; min-height: 72px; background: #fff; border-radius: 18px; margin-bottom: 10px; border-inline-start: 6px solid var(--k); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.ico { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 21px; background: color-mix(in srgb, var(--k) 15%, white); }
+.meta { flex: 1; } .meta b { display: block; font-size: 16px; } .meta span { font-size: 12px; color: #6B7280; }
+.amt { font-size: 17px; font-weight: 700; direction: ltr; color: #0B2B28; }
+.bar { position: absolute; bottom: 0; left: 0; right: 0; display: flex; gap: 10px; padding: 16px 16px 20px; }
+.fab { flex: 2; height: 64px; border-radius: 32px; border: 0; background: #EA580C; color: #fff; font-size: 18px; font-weight: 700; box-shadow: 0 6px 16px rgba(234,88,12,.35); }
+.sec { flex: 1; height: 64px; border-radius: 32px; border: 1.5px solid #99CFC9; background: #fff; color: #0F766E; font-size: 16px; font-weight: 600; }
+/* Option A: solid white tray, top hairline + soft upward shadow */
+.oa .bar { background: #fff; border-top: 1px solid #E2ECEA; box-shadow: 0 -6px 16px rgba(11,43,40,.08); border-radius: 24px 24px 0 0; }
+/* Option B: list fades into page bg over 56px above the buttons; no tray */
+.ob .bar { background: linear-gradient(to bottom, rgba(243,248,247,0), #F3F8F7 40%); padding-top: 56px; }
+.note { font-size: 12px; color: #555; margin-top: 24px; text-align: center; }
+</style></head><body>
+<h1>GrouPay: הפרדה בין הרשימה לכפתורים</h1>
+<p class="lead">שורות גדולות יותר, כך שרק 4–5 מהן נראות בלי גלילה. כפתור כתום. בשתי האפשרויות יש 6 הוצאות, כדי להראות מה קורה כשהרשימה ארוכה יותר מהמסך ונכנסת מתחת לאזור הכפתורים. בשתיהן יש גם מרווח בתחתית הרשימה, כך שאחרי גלילה עד הסוף ההוצאה האחרונה עוצרת מעל הכפתורים ולא מתחתם.</p>
+<div class="grid">
+<div class="dir oa"><h2>א. מגש קבוע</h2><p class="why">לאזור הכפתורים יש רקע לבן משלו, פינות מעוגלות למעלה וצל עדין. ברור לגמרי איפה נגמרת הרשימה ואיפה מתחילים הכפתורים, כמו מגש שיושב על המסך.</p>
+<div class="phone"><div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span>⋮</span></div><div class="name">רומא דצמבר</div><div class="tot">₪8,400.00</div><div class="sub">4 משתתפים · 8 הוצאות</div>
+<div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+<div class="body"><div class="rows">
+<div class="row" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+<div class="row" style="--k:#64748B"><div class="ico">📝</div><div class="meta"><b>כרטיסי SIM</b><span>דנה · היום 11:02 · אחר</span></div><div class="amt">₪72.60</div></div>
+<div class="row" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+<div class="row" style="--k:#EC4899"><div class="ico">🎡</div><div class="meta"><b>אטרקציות</b><span>נועה · אתמול 15:40</span></div><div class="amt">₪340.00</div></div>
+<div class="row" style="--k:#EF4444"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+<div class="row" style="--k:#14B8A6"><div class="ico">🚗</div><div class="meta"><b>רכב</b><span>יוסי · 02.12 10:20</span></div><div class="amt">₪470.00</div></div>
+</div><div class="bar"><button class="fab">+ הוספת הוצאה</button><button class="sec">סיכום</button></div></div></div></div>
+<div class="dir ob"><h2>ב. דהייה הדרגתית</h2><p class="why">אין מגש. הרשימה דוהה בהדרגה לצבע הרקע לפני הכפתורים, כך שהמסך מרגיש פתוח וקליל יותר, אבל הגבול בין הרשימה לכפתורים פחות חד.</p>
+<div class="phone"><div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span>⋮</span></div><div class="name">רומא דצמבר</div><div class="tot">₪8,400.00</div><div class="sub">4 משתתפים · 8 הוצאות</div>
+<div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+<div class="body"><div class="rows">
+<div class="row" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+<div class="row" style="--k:#64748B"><div class="ico">📝</div><div class="meta"><b>כרטיסי SIM</b><span>דנה · היום 11:02 · אחר</span></div><div class="amt">₪72.60</div></div>
+<div class="row" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+<div class="row" style="--k:#EC4899"><div class="ico">🎡</div><div class="meta"><b>אטרקציות</b><span>נועה · אתמול 15:40</span></div><div class="amt">₪340.00</div></div>
+<div class="row" style="--k:#EF4444"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+<div class="row" style="--k:#14B8A6"><div class="ico">🚗</div><div class="meta"><b>רכב</b><span>יוסי · 02.12 10:20</span></div><div class="amt">₪470.00</div></div>
+</div><div class="bar"><button class="fab">+ הוספת הוצאה</button><button class="sec">סיכום</button></div></div></div></div>
+</div>
+<p class="note">מקור: .working/separation-1.html</p>
+</body></html>

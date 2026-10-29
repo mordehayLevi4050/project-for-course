@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRD Validation: GrouPay</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+
+    --grade-exc: #16a34a;
+    --grade-good: #65a30d;
+    --grade-fair: #d97706;
+    --grade-poor: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; word-break: break-all; }
+  .grade {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: white;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .grade-excellent { background: var(--grade-exc); }
+  .grade-good { background: var(--grade-good); }
+  .grade-fair { background: var(--grade-fair); }
+  .grade-poor { background: var(--grade-poor); }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+  @media (max-width: 600px) {
+    .container { padding: 20px 16px 48px; }
+    header.report-header { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <header class="report-header">
+      <div class="title">
+        <h1>PRD: GrouPay — Validation Report</h1>
+        <div class="subtitle">_bmad-output/planning-artifacts/prds/prd-groupay-2026-10-26/prd.md</div>
+      </div>
+      <div class="grade grade-poor">Poor</div>
+    </header>
+
+    <div class="synthesis">
+      <p>The PRD is very precise for a project of this size. The settlement maths (FR-15, FR-19) gives one exact answer in every case, and all of its worked examples are correct when recomputed by hand. Scope and non-goals are stated explicitly, and the positioning is honest about Splid. The main risks are at the edges of the core journey rather than in its rigour. First, the PRD never specifies how to record an expense that someone <em>other</em> than the Organizer paid, even though the Vision says that is how half the trip's spending happens. Second, it treats converting foreign currency in people's heads on a trip abroad as a footnote (NFR-7), when that conversion directly distorts the accuracy and clarity metrics the trip is meant to test. Judged on the rubric alone, the PRD would be <strong>Fair</strong>: no dimension is broken and there are 2 high findings.</p>
+      <p>The grade drops to <strong>Poor</strong> because of two critical findings from the adversarial review. Both are small to fix in the text, but both would mislead architecture. <strong>(1)</strong> The "A → B ₪N" arrow does not mirror in a Hebrew RTL line, so the screenshot that the whole product exists to produce can show the payment going the wrong way. <strong>(2)</strong> The PRD defines the Transfer list as always being "the minimal set", yet FR-17/FR-19 require it to be saved and left unchanged while Paid marks exist. No stored entity is defined for it, and Paid marks point to Transfers only by the two names. The adversarial review also found eight high-severity gaps: no cap on Members while an exact minimum is required (an NP-hard calculation), no all-or-nothing saving for the multi-step "money was transferred" action, zero-Member division, and success metrics that can't be measured. The EARS consistency check found the uncommitted EARS rewrite largely aligned with the PRD. However, it adds founder-set Hebrew message texts and a lock message that the PRD does not contain, and the lock message contradicts the PRD's reason for the lock. Because the PRD says it wins wherever the two documents differ, those founder decisions are currently not protected.</p>
+    </div>
+
+    <div class="dimension-summary">
+      <div class="dim-card"><div class="dim-name">Decision-readiness</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Substance over theater</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+      <div class="dim-card"><div class="dim-name">Strategic coherence</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Done-ness clarity</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Scope honesty</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+      <div class="dim-card"><div class="dim-name">Downstream usability</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+      <div class="dim-card"><div class="dim-name">Shape fit</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+    </div>
+
+    <!-- Decision-readiness -->
+    <section class="dimension">
+      <details>
+        <summary><h2>Decision-readiness</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>The PRD makes real decisions and states their cost. §2.2 admits that v1 "deliberately does not solve" the original pain. §1 concedes that offline use and no signup are "table stakes, not an edge". §7 accepts the risk of data loss with no backup. What is missing is pushback on the one trade-off that most threatens the December test. §10 has a single Open Question, and it concerns later phases. §11 reports "No open assumptions", which is credible only if no live tension remains, and at least one does.</p>
+        </div></div>
+        <div class="findings-list">
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">Currency conversion accepted without weighing its effect on the test</h3><span class="finding-location">§5.2 NFR-7; §9 SM-2/3/4</span></header>
+            <div class="finding-note">The trip is in Rome, so almost every Expense is converted in someone's head. This weakens three metrics. SM-2: the 4-tap budget excludes the conversion step, which is now the slowest part of recording. SM-3: an amount can be disputed over the exchange rate even when FR-15 is perfect. SM-4: for the same reason. The PRD never weighs this against moving "Second currency with a fixed rate" ahead of the trip.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add an Open Question that names the trade-off. At minimum, state a conversion convention (one agreed rate for the whole trip, plus a rounding rule).</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">No open items despite a real-world launch</h3><span class="finding-location">§10, §11</span></header>
+            <div class="finding-note">The founder's trip phone is never named, there is no Member cap, and recording other Members' payments after the fact is unspecified. All three are still open but are not listed.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Reopen the items that can't be settled before the build, or list them as accepted risks in §7.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- Substance -->
+    <section class="dimension">
+      <details>
+        <summary><h2>Substance over theater</h2><span class="verdict-pill verdict-strong">strong</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>Very little here is filler. There is one protagonist, Motty, and his traits feed directly into NFR-2 and FR-10. The Vision is specific to this product, and the NFRs carry product-specific numbers (4 taps, 48×48 dp, 2 s, 300 ms, tenths of a shekel).</p>
+        </div></div>
+        <div class="findings-list">
+          <article class="finding">
+            <header><span class="badge badge-sev-low">low</span><h3 class="finding-title">"Look and feel" is a mood, not an input</h3><span class="finding-location">§1</span></header>
+            <div class="finding-note">"Travel and financial confidence together" doesn't constrain any design choice.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Move it to the UX brief, or name concrete traits.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- Strategic coherence -->
+    <section class="dimension">
+      <details>
+        <summary><h2>Strategic coherence</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>The thesis is clear: Hebrew-first, speed as the core design rule, short trips, and settling up with a screenshot. The counter-metrics are well chosen. The gap is that the thesis covers only the Organizer's own purchases. The path that SM-1 depends on most is recording Dana's fuel hours later, and it has no journey and no tap budget.</p>
+        </div></div>
+        <div class="findings-list">
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">Recording an expense paid by another Member is unspecified</h3><span class="finding-location">UJ-2, FR-10, NFR-1, SM-1</span></header>
+            <div class="finding-note">FR-10 defines only the <em>default</em> Payer. No FR says the Payer can be selected, how, or at what tap cost. There is also no way to back-date an expense, and the PRD does not say whether that is intended.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a journey (Motty records Dana's fuel that evening). Add a Payer-selection bullet with its own tap bound. State that the recorded time is when the expense was entered, not when it was paid.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">SM-1 and SM-5 have no measurement method or threshold</h3><span class="finding-location">§9</span></header>
+            <div class="finding-note">SM-1 has nothing to check missing expenses against. SM-5's "minutes … not an evening" is not a measurable limit.</div>
+            <div class="finding-fix"><strong>Fix:</strong> SM-1: after the trip, Members review the list and report misses, target 0. SM-5: ≤ 15 minutes.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-low">low</span><h3 class="finding-title">SM-2 checks the spec, not the bet</h3><span class="finding-location">§9 SM-2</span></header>
+            <div class="finding-note">SM-2 restates NFR-1, so it passes automatically if the app is built as specified.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Reframe it as an observed outcome, such as the median time from opening the app to a saved Expense.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- Done-ness -->
+    <section class="dimension">
+      <details>
+        <summary><h2>Done-ness clarity</h2><span class="verdict-pill verdict-adequate">adequate</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>Most FRs are exemplary: messages are quoted, limits are given, and FR-15 is precise enough to write tests from directly. The weak spots fall on the screens and limits that the stories will be judged on.</p>
+        </div></div>
+        <div class="findings-list">
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">No Member cap, yet FR-15 requires an exact minimum plus a tie-break</h3><span class="finding-location">FR-15, NFR-16</span></header>
+            <div class="finding-note">Finding the minimum set of transfers requires a combinatorial search. Tests cover only 2–6 Members, while FR-2 allows any number.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Cap group size (for example 12), or add a performance limit for the Summary.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">"Understandable from a screenshot alone" is not testable</h3><span class="finding-location">FR-16</span></header>
+            <div class="finding-note">There is no acceptance procedure.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Name the content rules (Group name, Trip total, one "name → name ₪N" line per Transfer, paid state shown as text) and leave the human judgment to SM-4.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Reference devices are unnamed</h3><span class="finding-location">FR-16, NFR-5</span></header>
+            <div class="finding-note">"The founder's trip phone" and "a mid-range Android phone" can't be tested by anyone else.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Name the model or a dp viewport (for example 360×780 dp).</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Lock explanation has no message text</h3><span class="finding-location">FR-18</span></header>
+            <div class="finding-note">Every other refusal in the PRD quotes its message. This one doesn't.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Quote the message. See also EARS H1.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Default-Payer edge cases</h3><span class="finding-location">FR-10</span></header>
+            <div class="finding-note">The default is undefined when the most recent Expense is deleted, or when the first Member added has been removed.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Use "the most recent remaining Expense, otherwise the earliest remaining Member".</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Archive view entry point unspecified</h3><span class="finding-location">FR-6</span></header>
+            <div class="finding-note">The PRD doesn't say where the Archive view is reached from or what it shows when empty.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add one bullet covering both.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- Scope honesty -->
+    <section class="dimension">
+      <details>
+        <summary><h2>Scope honesty</h2><span class="verdict-pill verdict-strong">strong</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>Omissions are stated at three levels: an Out-of-Scope line for each feature, the §6.2 deferrals, and the §7 Non-Goals. Accepted risks are stated plainly, and nothing looks silently dropped from scope. The only weakness, an open-items count of zero, is covered under Decision-readiness.</p>
+        </div></div>
+      </details>
+    </section>
+
+    <!-- Downstream -->
+    <section class="dimension">
+      <details>
+        <summary><h2>Downstream usability</h2><span class="verdict-pill verdict-strong">strong</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>The Glossary is complete and used consistently. FR and SM IDs run in order without gaps, FRs link back to the user journeys they realize, and §8.1 maps FRs to stories cleanly.</p>
+        </div></div>
+        <div class="findings-list">
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Story sizing is uneven</h3><span class="finding-location">§8.1</span></header>
+            <div class="finding-note">Story 3 combines the hardest algorithm with the Paid-mark state machine. Story 1 spans 9 FRs.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Note an internal split of Story 3: calculation engine and tests, then Summary UI and Paid marks.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Some journey links point to journeys that don't show the action</h3><span class="finding-location">FR-3, FR-5</span></header>
+            <div class="finding-note">No user journey renames a Member (FR-3) or a Group (FR-5).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Drop the links, or add the action to the journey.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- Shape fit -->
+    <section class="dimension">
+      <details>
+        <summary><h2>Shape fit</h2><span class="verdict-pill verdict-strong">strong</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>This is a consumer app with one user and meaningful UX, and the PRD feeds UX, architecture and stories. One protagonist with four journeys is the right amount. NFR-11–14 lean toward prescribing architecture, but §0 justifies them and they are kept narrow.</p>
+        </div></div>
+      </details>
+    </section>
+
+    <!-- Adversarial -->
+    <section class="reviewer-section">
+      <details>
+        <summary><h2>Adversarial review</h2><span class="reviewer-source">review-adversarial-general.md</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>Critical 2 · High 8 · Medium 12 · Low 7. "The PRD is unusually precise about the arithmetic. That precision hides structural gaps around it. … The document is marked <code>status: final</code> with 'No open assumptions'. That claim is not credible. Fix the critical and high items before architecture starts."</p>
+        </div></div>
+        <div class="findings-list">
+          <article class="finding">
+            <header><span class="badge badge-sev-critical">critical</span><h3 class="finding-title">C1 · Transfer arrow reverses meaning in RTL</h3><span class="finding-location">Glossary "Transfer", FR-15/16, NFR-6</span></header>
+            <div class="finding-note">The → character does not mirror in right-to-left text. "יוסי → דנה" is laid out with the arrow pointing at the debtor, so the screenshot says Dana pays Yossi. This is the product's single output.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add an NFR that every direction must be unambiguous in RTL. Use direction-free wording ("יוסי משלם לדנה ₪100", meaning "Yossi pays Dana ₪100"), or use ← with each name isolated for bidi. Add a test on a rendered screenshot.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-critical">critical</span><h3 class="finding-title">C2 · Transfer list is defined as "the minimal set" but must be saved and frozen while locked</h3><span class="finding-location">Glossary, FR-15, FR-17, FR-19</span></header>
+            <div class="finding-note">The list is either always recalculated (then the residual-equals-recomputed assumption is unproven, and Paid marks keyed by name pair can be left pointing at Transfers that no longer exist) or saved as a snapshot (then NFR-11 is missing that stored entity and its IDs). Architecture will choose one without anyone deciding.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Snapshot the list at the first Paid mark, give each Transfer a stable ID, and have marks reference that ID. Alternatively, prove the invariant as a property test.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H1 · No Member cap, but an exact minimum plus tie-break is required</h3><span class="finding-location">FR-2, FR-15, NFR-5/16</span></header>
+            <div class="finding-note">Finding the minimum set of transfers is NP-hard. A 15-Member group could freeze the Summary.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Cap Members, add a latency NFR for the Summary, and extend the tests up to the cap.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H2 · Groups with zero or one Member</h3><span class="finding-location">FR-10, FR-15, FR-4</span></header>
+            <div class="finding-note">With zero Members the Share divides by zero and there is no Payer to choose. The PRD doesn't say whether Add expense is enabled in that case.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Disable Add expense below the minimum, compute Share only when there are 2 or more Members, and add tests.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H3 · No all-or-nothing saving or double-tap protection</h3><span class="finding-location">NFR-9, FR-19, FR-10</span></header>
+            <div class="finding-note">"Yes, transferred" clears the mark, records a Payment and may unlock the Group. If the app is killed partway, money is double-counted or lost. A double tap on Save creates a duplicate Expense.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add an NFR that every action is saved all-or-nothing, and make commit actions ignore repeated taps.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H4 · The time-based tie-break depends on the phone's clock, and the save-order number isn't server-ready</h3><span class="finding-location">FR-15, NFR-11/12</span></header>
+            <div class="finding-note">If the clock is wrong when an expense is recorded, its time is wrong even though it is stored in UTC. A per-device sequence number will collide across devices in the multi-user phase.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Make the sequence number or a logical clock the primary order, and keep the order source replaceable.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H5 · A "no disputes" goal with no way for friends to check amounts</h3><span class="finding-location">§7 Non-Goals, FR-16, SM-3/4</span></header>
+            <div class="finding-note">The screenshot can't answer "why do I owe ₪1,250?".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Show the per-person Share on the Summary, or record disputes as an accepted risk with a counter-metric.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H6 · Success metrics are self-judged, have nothing to check against, and can't be read from the device</h3><span class="finding-location">§9, §7, NFR-8/10</span></header>
+            <div class="finding-note">SM-1 has nothing to check against. The founder judges SM-4 and SM-5 on his own build. Reading the counter-metrics needs data that can't be taken off the phone.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a hidden stats export or a documented adb procedure, and give each metric a threshold.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H7 · The lock and archive rules cut across all three stories but are scheduled in Story 3</h3><span class="finding-location">§8.1, FR-18, FR-6</span></header>
+            <div class="finding-note">Stories 1 and 2 ship without the guards, so Story 3 has to reopen them.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Define a single "can modify Group" check in Story 1, and split Story 3.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H8 · Names with no length limit break the one-screen Summary</h3><span class="finding-location">FR-1, FR-2, FR-16</span></header>
+            <div class="finding-note">A 40-character name wraps every Transfer line.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Set maximum lengths (for example Member ≤ 20, Group ≤ 30), or specify how names are truncated.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">M1–M12 · Twelve medium findings</h3><span class="finding-location">see file</span></header>
+            <div class="finding-note">The medium findings cover:
+              <ul>
+                <li>ambiguous default Payer</li>
+                <li>removing a Member silently changes everyone's Shares</li>
+                <li>an unclear tap-budget start point</li>
+                <li>name normalization (NFC, bidi characters, niqqud)</li>
+                <li>Amount input grammar</li>
+                <li>reference devices</li>
+                <li>"Everyone is settled up" shown when there are no Expenses</li>
+                <li>migrations and Android Auto Backup</li>
+                <li>SM-3 is trivially satisfied</li>
+                <li>whether the PRD or EARS is authoritative</li>
+                <li>an unsaved Expense lost when the app is killed</li>
+                <li>no stated reason for the Leftover rule</li>
+              </ul>
+            </div>
+            <div class="finding-fix"><strong>Fix:</strong> See <code>review-adversarial-general.md</code>.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-low">low</span><h3 class="finding-title">L1–L7 · Seven low findings</h3><span class="finding-location">see file</span></header>
+            <div class="finding-note">The low findings cover:
+              <ul>
+                <li>FR-7 and UJ-1 give a different order of steps</li>
+                <li>archived Group names can't be reused</li>
+                <li>no limit on Description length</li>
+                <li>thousands separator and ₪ position</li>
+                <li>display time zone</li>
+                <li>layout assumes right-thumb use only</li>
+                <li>"no open assumptions" is overstated</li>
+              </ul>
+            </div>
+            <div class="finding-fix"><strong>Fix:</strong> See <code>review-adversarial-general.md</code>.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- EARS -->
+    <section class="reviewer-section">
+      <details>
+        <summary><h2>EARS ↔ PRD consistency</h2><span class="reviewer-source">review-ears-consistency.md</span></summary>
+        <div class="dim-body"><div class="dim-judgment">
+          <p>Critical 0 · High 2 · Medium 5 · Low 14. Every FR from FR-1 to FR-19 has an EARS counterpart. All 40+ numeric test cases recompute correctly. The problems come from the uncommitted EARS rewrite, which adds founder-set message texts that the PRD does not contain. Since the PRD wins where the two differ, those decisions are not protected.</p>
+        </div></div>
+        <div class="findings-list">
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H1 · The EARS lock message contradicts the PRD's reason for the lock</h3><span class="finding-location">EARS l.18, l.187 · PRD FR-18</span></header>
+            <div class="finding-note">EARS: "The group is locked to changes after transfers between members". PRD: the group is locked "because a payment was marked". A Paid mark can be set by mistake, so the EARS wording claims money moved when it may not have.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Quote the exact message in PRD FR-18, have the founder confirm the wording, and follow the Glossary ("a Transfer was marked as paid").</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-high">high</span><h3 class="finding-title">H2 · The founder's fixed Hebrew messages exist only in EARS</h3><span class="finding-location">EARS l.11–18 · PRD NFR-6, §11</span></header>
+            <div class="finding-note">EARS introduces a binding requirement for exact Hebrew text, and the PRD has no counterpart.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the table to NFR-6, or name EARS as the source of truth for UI strings.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">M1 · The "Description required" message is missing from the PRD</h3><span class="finding-location">EARS l.124 · PRD FR-11</span></header>
+            <div class="finding-note">FR-11 quotes a message for every other validation rule.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the message to FR-11, and state whether a whitespace-only Description counts as empty.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">M2 · Leftover tie rule incomplete in EARS</h3><span class="finding-location">EARS l.164 · PRD FR-15</span></header>
+            <div class="finding-note">EARS is missing the rule for a receiver with no Expenses, a case reachable through Payments.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the rule and a test to EARS.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">M3 · FR-8 "set active at any time" has no EARS requirement</h3><span class="finding-location">EARS l.32–36 · PRD FR-8</span></header>
+            <div class="finding-note">EARS covers only setting the active group from the creation prompt, and setting it while locked.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the requirement and a test to EARS.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">M4 · NFRs largely absent from EARS</h3><span class="finding-location">PRD NFR-2–14, 17</span></header>
+            <div class="finding-note">EARS has no tests for NFR-5 (speed), NFR-6 (mixed Hebrew/Latin text in RTL), NFR-8 (offline) or NFR-9 (data survives restarts).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a cross-cutting section to EARS, or state in the PRD that EARS covers functional behavior only.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">M5 · Only 4 of about 13 messages have fixed Hebrew text</h3><span class="finding-location">EARS l.13–18 · PRD NFR-6</span></header>
+            <div class="finding-note">Nothing says whether the remaining messages may be translated freely.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Complete the table, or state in both documents that only the 4 listed messages are fixed.</div>
+          </article>
+          <article class="finding">
+            <header><span class="badge badge-sev-low">low</span><h3 class="finding-title">L1–L14 · Fourteen low findings</h3><span class="finding-location">see file</span></header>
+            <div class="finding-note">The low findings cover:
+              <ul>
+                <li>the §8.2 change log is out of date and EARS is uncommitted</li>
+                <li>the tie-break is defined informally in EARS</li>
+                <li>the Archive read-only rule sits under the wrong heading</li>
+                <li>test IDs are out of order</li>
+                <li>"Payments" is missing from archive and restore</li>
+                <li>whitespace-only and empty names</li>
+                <li>keeping entered data on screen after an error, and edit validation</li>
+                <li>Expense list display details</li>
+                <li>Payment limits</li>
+                <li>the Category list is missing from EARS</li>
+                <li>the "both apply" removal case is untested</li>
+                <li>the Hebrew term for Member is inconsistent</li>
+                <li>the display order of Transfers is unspecified</li>
+                <li>no test that ₪1,000,000 is accepted</li>
+              </ul>
+            </div>
+            <div class="finding-fix"><strong>Fix:</strong> See <code>review-ears-consistency.md</code>.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <div class="mechanical">
+      <h3>Mechanical notes</h3>
+      <ul>
+        <li>NFR-17 (§5.3 Platform) sits between NFR-7 and NFR-8, so the sequence is out of order. Renumber it, or move Platform to the end of §5.</li>
+        <li>Stale boilerplate in §0: it mentions <code>[ASSUMPTION]</code> tags that don't exist, and a research section that isn't in the addendum.</li>
+        <li>Glossary capitalization drifts ("Archived group" / "archived Group"). "Group page", "Expense screen" and "Archive view" are not defined in the Glossary.</li>
+        <li>NFR-1 never states that tap counting starts after the launcher icon tap.</li>
+        <li>Cross-references all resolve. The Assumptions Index is consistent: zero tags and zero entries.</li>
+      </ul>
+    </div>
+
+    <footer class="report-footer">
+      <div class="meta">
+        <span>Rubric: .claude/skills/bmad-prd/assets/prd-validation-checklist.md</span>
+        <span>Generated: 2026-10-27</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

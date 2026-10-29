@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GrouPay Summary</title>
+<style>
+/* header #0F766E -> #0D9488 · CTA #EA580C · bg #F3F8F7 · ink #0B2B28 · paid gray #E5E7EB/#9CA3AF · stamp #0F766E */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background: #E5E7EB; color: #0B2B28; padding: 24px 16px; }
+h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px; max-width: 860px; }
+.grid { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; }
+.dir { width: 340px; } .dir h2 { font-size: 18px; } .why { font-size: 13px; color: #444; margin: 4px 0 10px; min-height: 56px; }
+.phone { width: 340px; height: 740px; border-radius: 36px; border: 10px solid #111; background: #F3F8F7; overflow: hidden; display: flex; flex-direction: column; }
+.head { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 12px 20px 30px; }
+.head .top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; opacity: .95; }
+.head .name { font-size: 22px; font-weight: 700; margin-top: 8px; }
+.head .tot { font-size: 40px; font-weight: 800; direction: ltr; text-align: right; }
+.head .sub { font-size: 13px; opacity: .9; }
+.badge { display: inline-block; background: rgba(255,255,255,.22); border-radius: 12px; padding: 3px 10px; font-size: 12px; font-weight: 600; }
+.stripe { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 10px; gap: 2px; }
+.body { padding: 0 12px; margin-top: -16px; }
+.ttl { font-size: 15px; font-weight: 700; padding: 22px 6px 8px; }
+.card { position: relative; background: #fff; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); overflow: hidden; }
+.pp { display: flex; flex-direction: column; align-items: center; font-size: 13px; font-weight: 600; width: 52px; }
+.pp i { width: 44px; height: 44px; border-radius: 50%; background: #E2ECEA; color: #0F766E; font-style: normal; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 3px; }
+.arrow { font-size: 22px; color: #0D9488; align-self: flex-start; margin-top: 10px; }
+.amt { flex: 1; text-align: center; font-size: 26px; font-weight: 800; direction: ltr; }
+.sw { width: 52px; height: 30px; border-radius: 15px; background: #CBD5E1; position: relative; flex-shrink: 0; }
+.sw::after { content: ""; position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.sw.on { background: #0F766E; } .sw.on::after { right: auto; left: 3px; }
+.swl { font-size: 10px; color: #6B7280; text-align: center; margin-top: 2px; }
+.paid { background: #F1F3F5; box-shadow: none; } .paid .pp, .paid .amt { color: #9CA3AF; } .paid .pp i { background: #E5E7EB; color: #9CA3AF; } .paid .arrow { color: #CBD5E1; }
+.stamp { position: absolute; left: 92px; top: 50%; transform: translateY(-50%) rotate(-12deg); border: 3px solid #0F766E; color: #0F766E; border-radius: 8px; padding: 2px 10px; font-size: 18px; font-weight: 800; opacity: .85; background: rgba(255,255,255,.6); }
+.lock { margin: 6px 6px 0; font-size: 12px; color: #475569; display: flex; gap: 6px; align-items: center; }
+.done { margin: 24px 6px 0; text-align: center; font-size: 15px; font-weight: 700; color: #0F766E; }
+.note { font-size: 12px; color: #555; margin-top: 24px; text-align: center; max-width: 820px; margin-inline: auto; line-height: 1.6; }
+
+/* A: member avatar colors (darker hues, distinct from category tints): Motty #1D4ED8 · Dana #9333EA · Yossi #C2410C · Noa #BE185D */
+.va .pp i.m{background:#1D4ED8;color:#fff}.va .pp i.d{background:#9333EA;color:#fff}.va .pp i.y{background:#C2410C;color:#fff}.va .pp i.n{background:#BE185D;color:#fff}
+/* B: amount in CTA orange #C2410C (darker for text contrast), arrow teal */
+.vb .card:not(.paid) .amt{color:#C2410C}
+/* C: unpaid card tint #E6F4F1 + start-edge stripe #EA580C */
+.vc .card:not(.paid){background:#E6F4F1;border-inline-start:6px solid #EA580C}
+.paid .pp i{background:#E5E7EB!important;color:#9CA3AF!important}
+</style></head><body>
+<h1>GrouPay: מסך הסיכום, גרסה 2 (צבע)</h1>
+<p class="lead">בלי החותמת, והחץ ממורכז מול העיגולים. שלוש דרכים להוסיף צבע. בכל אחת יש העברה אחת ששולמה, ולכן הכרטיס שלה אפור.</p>
+<div class="grid">
+<div class="dir va">
+  <h2>א. צבע לכל משתתף</h2>
+  <p class="why">לכל משתתף צבע קבוע לעיגול שלו, וכך קל לזהות את "יוסי" בכל מקום באפליקציה. הצבעים לקוחים מגוונים כהים, כדי שלא יתבלבלו עם צבעי הקטגוריות.</p>
+  <div class="phone">
+    <div class="head">
+      <div class="top"><span>→ חזרה</span><span class="badge">🔒 נעולה</span></div>
+      <div class="name">רומא דצמבר</div>
+      <div class="tot">₪8,400.00</div>
+      <div class="sub">סה״כ טיול · 4 משתתפים · ₪2,100 לאחד</div>
+      <div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div>
+    </div>
+    <div class="body">
+      <div class="ttl">מי מעביר למי</div>
+      <div class="card paid"><div class="pp"><i class="n">נ</i>נועה</div><span class="arrow">←</span><div class="pp"><i class="m">מ</i>מוטי</div><div class="amt">₪1,250</div><div><div class="sw on"></div><div class="swl">שולם</div></div></div>
+      <div class="card"><div class="pp"><i class="y">י</i>יוסי</div><span class="arrow">←</span><div class="pp"><i class="m">מ</i>מוטי</div><div class="amt">₪430</div><div><div class="sw"></div><div class="swl">שולם?</div></div></div>
+      <div class="card"><div class="pp"><i class="y">י</i>יוסי</div><span class="arrow">←</span><div class="pp"><i class="d">ד</i>דנה</div><div class="amt">₪100</div><div><div class="sw"></div><div class="swl">שולם?</div></div></div>
+      <div class="lock">🔒 הקבוצה נעולה לשינויים כי סומן תשלום. ביטול כל הסימונים יפתח אותה מחדש.</div>
+    </div>
+  </div>
+</div>
+<div class="dir vb">
+  <h2>ב. סכום כתום</h2>
+  <p class="why">הסכום מודגש בכתום של הכפתור הראשי, והחץ בטורקיז. המסך נשאר נקי, והצבע מגיע בדיוק מהמידע החשוב ביותר.</p>
+  <div class="phone">
+    <div class="head">
+      <div class="top"><span>→ חזרה</span><span class="badge">🔒 נעולה</span></div>
+      <div class="name">רומא דצמבר</div>
+      <div class="tot">₪8,400.00</div>
+      <div class="sub">סה״כ טיול · 4 משתתפים · ₪2,100 לאחד</div>
+      <div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div>
+    </div>
+    <div class="body">
+      <div class="ttl">מי מעביר למי</div>
+      <div class="card paid"><div class="pp"><i class="n">נ</i>נועה</div><span class="arrow">←</span><div class="pp"><i class="m">מ</i>מוטי</div><div class="amt">₪1,250</div><div><div class="sw on"></div><div class="swl">שולם</div></div></div>
+      <div class="card"><div class="pp"><i class="y">י</i>יוסי</div><span class="arrow">←</span><div class="pp"><i class="m">מ</i>מוטי</div><div class="amt">₪430</div><div><div class="sw"></div><div class="swl">שולם?</div></div></div>
+      <div class="card"><div class="pp"><i class="y">י</i>יוסי</div><span class="arrow">←</span><div class="pp"><i class="d">ד</i>דנה</div><div class="amt">₪100</div><div><div class="sw"></div><div class="swl">שולם?</div></div></div>
+      <div class="lock">🔒 הקבוצה נעולה לשינויים כי סומן תשלום. ביטול כל הסימונים יפתח אותה מחדש.</div>
+    </div>
+  </div>
+</div>
+<div class="dir vc">
+  <h2>ג. כרטיסים צבעוניים</h2>
+  <p class="why">לכרטיס שעדיין לא שולם יש רקע טורקיז בהיר ופס כתום בצד. כשמסמנים "שולם" הכרטיס הופך אפור, כך שקל לראות במבט אחד כמה העברות נשארו.</p>
+  <div class="phone">
+    <div class="head">
+      <div class="top"><span>→ חזרה</span><span class="badge">🔒 נעולה</span></div>
+      <div class="name">רומא דצמבר</div>
+      <div class="tot">₪8,400.00</div>
+      <div class="sub">סה״כ טיול · 4 משתתפים · ₪2,100 לאחד</div>
+      <div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div>
+    </div>
+    <div class="body">
+      <div class="ttl">מי מעביר למי</div>
+      <div class="card paid"><div class="pp"><i class="n">נ</i>נועה</div><span class="arrow">←</span><div class="pp"><i class="m">מ</i>מוטי</div><div class="amt">₪1,250</div><div><div class="sw on"></div><div class="swl">שולם</div></div></div>
+      <div class="card"><div class="pp"><i class="y">י</i>יוסי</div><span class="arrow">←</span><div class="pp"><i class="m">מ</i>מוטי</div><div class="amt">₪430</div><div><div class="sw"></div><div class="swl">שולם?</div></div></div>
+      <div class="card"><div class="pp"><i class="y">י</i>יוסי</div><span class="arrow">←</span><div class="pp"><i class="d">ד</i>דנה</div><div class="amt">₪100</div><div><div class="sw"></div><div class="swl">שולם?</div></div></div>
+      <div class="lock">🔒 הקבוצה נעולה לשינויים כי סומן תשלום. ביטול כל הסימונים יפתח אותה מחדש.</div>
+    </div>
+  </div>
+</div>
+</div>
+<p class="note">אפשר לשלב בין האפשרויות, למשל א׳ ו-ב׳.</p>
+</body></html>

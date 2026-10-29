@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GrouPay Key Screens</title>
+<style>
+/* Governing spine sections (2026-10-29 update, PRD final 2026-10-29):
+   DESIGN.md: Colors, Typography, Layout & Spacing (thumb zone, list fade, Summary and Add/edit composition), Components (Payer picker, Transfer card)
+   EXPERIENCE.md: Information Architecture, Component Patterns, State Patterns, Key Flows UJ-2 / UJ-4, Screenshot Contract
+   Phones are 360x780dp (inner) with a 24dp status bar and a 24dp gesture bar.
+   Font: Heebo (bundled in app). Falls back to system sans here when Heebo is not installed - mock stays offline. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Heebo, "Segoe UI", Roboto, Arial, sans-serif; background: #E5E7EB; color: #0B2B28; padding: 24px 16px; }
+h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px; max-width: 900px; }
+.grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+.dir { width: 380px; } .dir h2 { font-size: 17px; } .why { font-size: 13px; color: #444; margin: 4px 0 10px; min-height: 58px; }
+.phone { width: 380px; height: 800px; border-radius: 36px; border: 10px solid #111; background: #F3F8F7; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.sys { height: 24px; flex-shrink: 0; background: #0F766E; } .gest { height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #fff; } .gest::after { content: ""; width: 110px; height: 4px; border-radius: 2px; background: #0B2B28; opacity: .5; }
+/* header-block */
+.head { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 12px 20px 30px; flex-shrink: 0; }
+.head .top { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 700; }
+.head .name { font-size: 22px; font-weight: 700; margin-top: 8px; display: inline-flex; gap: 8px; align-items: center; }
+.aff { font-size: 18px; font-weight: 700; background: rgba(255,255,255,.22); border-radius: 10px; padding: 0 8px; }
+.head .tot { font-size: 40px; font-weight: 800; direction: ltr; text-align: right; }
+.head .sub { font-size: 18px; font-weight: 700; }
+.stripe { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 10px; gap: 2px; }
+.home .head { text-align: center; padding-bottom: 22px; } .home .head .t1 { font-size: 22px; font-weight: 800; } .home .head .t2 { font-size: 18px; font-weight: 700; margin-top: 2px; }
+/* list */
+.body { flex: 1; position: relative; overflow: hidden; }
+.body.up { margin-top: -16px; }
+.rows { padding: 12px 12px 140px; }
+.row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; min-height: 72px; background: #fff; border-radius: 18px; margin-bottom: 10px; border-inline-start: 6px solid var(--k); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.ico { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 21px; background: color-mix(in srgb, var(--k) 15%, white); }
+.meta { flex: 1; } .meta b { display: block; font-size: 16px; font-weight: 600; } .meta span { font-size: 12px; color: #6B7280; }
+.amt { font-size: 17px; font-weight: 700; direction: ltr; }
+.new { animation: slidein 1.2s ease-out infinite alternate; }
+@keyframes slidein { from { opacity: .3; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+/* bottom bar with list fade */
+.bar { position: absolute; bottom: 0; left: 0; right: 0; display: flex; gap: 10px; padding: 56px 16px 20px; background: linear-gradient(to bottom, rgba(243,248,247,0), #F3F8F7 40%); }
+.fab { flex: 2; height: 64px; border-radius: 32px; border: 0; background: #EA580C; color: #fff; font: 700 19px Heebo, "Segoe UI", sans-serif; box-shadow: 0 6px 16px rgba(234,88,12,.35); }
+.sec { flex: 1; height: 64px; border-radius: 32px; border: 1.5px solid #99CFC9; background: #fff; color: #0F766E; font: 600 16px Heebo, "Segoe UI", sans-serif; }
+/* group card */
+.g { background: #fff; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); display: flex; align-items: center; gap: 12px; }
+.g.active { border-inline-start: 6px solid #EA580C; } .g .m { flex: 1; } .g .m b { font-size: 16px; display: block; } .g .m span { font-size: 12px; color: #6B7280; }
+.g .t { font-weight: 700; font-size: 17px; direction: ltr; } .sb { display: inline-block; border-radius: 10px; padding: 2px 8px; font-size: 12px; font-weight: 700; }
+.b-act { background: #FFEDD5; color: #9A3412; }
+.link { text-align: center; color: #0F766E; font-weight: 600; font-size: 14px; padding: 8px 0; }
+/* add expense */
+.tb { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; min-height: 56px; flex-shrink: 0; }
+.tb .x { font-size: 22px; text-align: center; } .tb b { text-align: center; font-size: 22px; }
+.amount { text-align: center; padding: 10px 0 4px; font-size: 46px; font-weight: 800; direction: ltr; } .amount .cur { color: #0D9488; }
+.caret { display: inline-block; width: 3px; height: 40px; background: #EA580C; vertical-align: -4px; animation: blink 1s steps(1) infinite; } @keyframes blink { 50% { opacity: 0; } }
+/* payer picker: 6 slots of 48dp per row, 8dp gaps, wraps to a second row, never scrolls */
+.payers { display: grid; grid-template-columns: repeat(6, 48px); column-gap: 8px; row-gap: 8px; padding: 4px 16px 8px; justify-content: start; }
+.p { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; width: 48px; color: #475569; text-align: center; line-height: 1.2; overflow-wrap: anywhere; }
+.av { width: 44px; height: 44px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.p:not(.on) .av { opacity: .55; } .p.on { color: #0B2B28; font-weight: 700; } .p.on .av { box-shadow: 0 0 0 3px #F3F8F7, 0 0 0 5px var(--m); }
+.cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 12px 10px; }
+.c { height: 64px; border-radius: 18px; background: #fff; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11.5px; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.c span { font-size: 22px; } .c.on { border-color: var(--k); background: color-mix(in srgb, var(--k) 16%, white); font-weight: 700; }
+.catrow { display: flex; gap: 8px; padding: 0 12px; overflow: hidden; } .catrow .c { flex: 0 0 74px; }
+.dots { display: flex; justify-content: center; gap: 8px; padding: 8px 0 6px; } .dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #6B7280; } .dot.on { background: #0F766E; border-color: #0F766E; }
+.pad { margin-top: auto; background: #fff; border-radius: 24px 24px 0 0; padding: 10px 10px 12px; box-shadow: 0 -4px 14px rgba(11,43,40,.06); }
+.keys { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 48px; gap: 8px; direction: ltr; }
+.k { border-radius: 14px; background: #F3F8F7; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; }
+.wsave { margin-top: 10px; height: 60px; border-radius: 30px; background: #EA580C; color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(234,88,12,.35); }
+/* summary: Transfer card = decorative avatar pair + sentence + amount; no arrow, no toggle (FR-16, NFR-6) */
+.sumbody { display: flex; flex-direction: column; padding: 0 12px; }
+.ttl { font-size: 15px; font-weight: 700; padding: 22px 6px 8px; }
+.card { background: #E6F4F1; border-inline-start: 6px solid #EA580C; border-radius: 18px; padding: 12px 14px; min-height: 64px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.pair { display: flex; gap: 4px; flex-shrink: 0; } .pair .av { width: 32px; height: 32px; font-size: 16px; }
+.line { flex: 1; font-size: 16px; font-weight: 600; line-height: 1.3; }
+.line bdi { font-weight: 700; }
+.tam { font-size: 26px; font-weight: 800; direction: ltr; flex-shrink: 0; }
+.scroll { flex: 1; overflow: hidden; mask-image: linear-gradient(to bottom, #000 80%, transparent); }
+</style></head><body>
+<h1>GrouPay: מסכים מרכזיים (עדכון 29.10)</h1>
+<p class="lead">עודכן לפי ה-PRD הסופי מ-29.10: אין סימון "שולם", נעילה או תשלומים. שורת ההעברה היא משפט בלי חץ, בורר המשלם מציג את כל המשתתפים בבת אחת, והטיול הוא "בודפשט דצמבר". DESIGN.md ו-EXPERIENCE.md הם החוזה: אם יש סתירה בין המסמכים לסקיצה הזו, המסמכים קובעים.</p>
+<div class="grid">
+
+<div class="dir home"><h2>1. רשימת הקבוצות</h2><p class="why">כותרות ממורכזות, ורווח בין ראש העמוד לרשימה. ב-v1 יש רק התג "⭐ פעילה".</p>
+<div class="phone"><div class="sys"></div>
+  <div class="head"><div class="t1">GrouPay</div><div class="t2">הקבוצות שלי</div></div>
+  <div class="body" style="padding:20px 12px 0">
+    <div class="g active"><div class="m"><b>בודפשט דצמבר</b><span>4 משתתפים</span></div><div style="text-align:left"><div class="t">₪8,400</div><span class="sb b-act">⭐ פעילה</span></div></div>
+    <div class="g"><div class="m"><b>אילת סוכות</b><span>5 משתתפים</span></div><div style="text-align:left"><div class="t">₪3,120</div></div></div>
+    <div class="g"><div class="m"><b>צפון – קמפינג</b><span>3 משתתפים</span></div><div style="text-align:left"><div class="t">₪960</div></div></div>
+    <div class="link">🗂 ארכיון (2)</div>
+    <div class="bar"><button class="fab">+ קבוצה חדשה</button><div style="flex:1"></div></div>
+  </div>
+<div class="gest"></div></div></div>
+
+<div class="dir"><h2>2. עמוד הקבוצה (UJ-2, אחרי שמירה)</h2><p class="why">השורה החדשה נכנסת בעדינות לראש הרשימה. הסדר הוא לפי סדר השמירה, והשעה היא שעת השמירה הראשונה.</p>
+<div class="phone"><div class="sys"></div>
+  <div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span></span></div><div class="name">בודפשט דצמבר <span class="aff">⚙ ✎</span></div><div class="tot">₪8,400</div><div class="sub">4 משתתפים · 8 הוצאות</div>
+    <div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+  <div class="body up"><div class="rows">
+    <div class="row new" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.4</div></div>
+    <div class="row" style="--k:#64748B"><div class="ico">📝</div><div class="meta"><b>כרטיסי SIM</b><span>דנה · היום 11:02</span></div><div class="amt">₪72.6</div></div>
+    <div class="row" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>דנה · היום 09:10</span></div><div class="amt">₪320</div></div>
+    <div class="row" style="--k:#EC4899"><div class="ico">🎡</div><div class="meta"><b>אטרקציות</b><span>נועה · אתמול 15:40</span></div><div class="amt">₪340</div></div>
+    <div class="row" style="--k:#EF4444"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410</div></div>
+  </div>
+  <div class="bar"><button class="fab">+ הוספת הוצאה</button><button class="sec">סיכום</button></div></div>
+<div class="gest"></div></div></div>
+
+<div class="dir"><h2>3. הוספת הוצאה (UJ-2)</h2><p class="why">כל המשתתפים גלויים בשורה אחת (עד 6), בסדר שבו נוספו. המשלם שנבחר מסומן בטבעת. "שמירה" רחבה מתחת למקלדת.</p>
+<div class="phone"><div class="sys"></div>
+  <div class="tb"><span class="x">✕</span><b>בודפשט דצמבר</b><span></span></div>
+  <div class="amount"><span class="cur">₪</span>87.4<span class="caret"></span></div>
+  <div class="payers">
+    <div class="p on" style="--m:#1D4ED8"><div class="av" style="background:#1D4ED8">מ</div>מוטי</div>
+    <div class="p"><div class="av" style="background:#9333EA">ד</div>דנה</div>
+    <div class="p"><div class="av" style="background:#C2410C">י</div>יוסי</div>
+    <div class="p"><div class="av" style="background:#BE185D">נ</div>נועה</div>
+  </div>
+  <div class="cats">
+    <div class="c" style="--k:#3B82F6"><span>✈️</span>טיסה</div><div class="c" style="--k:#8B5CF6"><span>🏨</span>מלון</div><div class="c" style="--k:#14B8A6"><span>🚗</span>רכב</div><div class="c" style="--k:#F59E0B"><span>⛽</span>דלק</div>
+    <div class="c" style="--k:#EF4444"><span>🍝</span>מסעדה</div><div class="c on" style="--k:#22C55E"><span>🛒</span>אוכל ושתייה</div><div class="c" style="--k:#EC4899"><span>🎡</span>אטרקציות</div><div class="c" style="--k:#64748B"><span>📝</span>אחר</div>
+  </div>
+  <div class="pad"><div class="keys">
+    <div class="k">1</div><div class="k">2</div><div class="k">3</div><div class="k">4</div><div class="k">5</div><div class="k">6</div><div class="k">7</div><div class="k">8</div><div class="k">9</div><div class="k">.</div><div class="k">0</div><div class="k">⌫</div>
+  </div><div class="wsave">שמירה</div></div>
+<div class="gest"></div></div></div>
+
+<div class="dir"><h2>4. סיכום (UJ-4)</h2><p class="why">זה המסך שנשלח כצילום מסך. כל העברה היא משפט: הכיוון נקבע מהמילים "מ" ו"ל" בלבד. זוג האווטרים הוא קישוט, בלי סימן ביניהם.</p>
+<div class="phone"><div class="sys"></div>
+  <div class="head"><div class="top"><span>→ חזרה</span><span></span></div><div class="name">בודפשט דצמבר</div><div class="tot">₪8,400</div><div class="sub">4 משתתפים · ₪2,100 לאחד</div>
+    <div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+  <div class="body up sumbody">
+    <div class="ttl">מי מעביר למי</div>
+    <div class="card"><div class="pair"><div class="av" style="background:#C2410C">י</div><div class="av" style="background:#9333EA">ד</div></div><div class="line">תשלום נדרש מ<bdi>יוסי</bdi> ל<bdi>דנה</bdi></div><div class="tam">₪100</div></div>
+    <div class="card"><div class="pair"><div class="av" style="background:#BE185D">נ</div><div class="av" style="background:#1D4ED8">מ</div></div><div class="line">תשלום נדרש מ<bdi>נועה</bdi> ל<bdi>מוטי</bdi></div><div class="tam">₪1,250</div></div>
+  </div>
+<div class="gest"></div></div></div>
+
+<div class="dir"><h2>5. הוספת הוצאה עם 10 משתתפים (FR-10)</h2><p class="why">6 בשורה, ושורה שנייה למשתתפים 7–10. שמות ארוכים יורדים לשתי שורות. כאן כבר אין מקום לרשת 4×2, ולכן הקטגוריות עוברות לשורה בשני עמודים. משלם שהוחלף + החלקה = 5 הקשות.</p>
+<div class="phone"><div class="sys"></div>
+  <div class="tb"><span class="x">✕</span><b>בודפשט דצמבר</b><span></span></div>
+  <div class="amount"><span class="cur">₪</span>240<span class="caret"></span></div>
+  <div class="payers">
+    <div class="p" style="--m:#1D4ED8"><div class="av" style="background:#1D4ED8">מ</div>מוטי</div>
+    <div class="p on" style="--m:#9333EA"><div class="av" style="background:#9333EA">ד</div>דנה</div>
+    <div class="p"><div class="av" style="background:#C2410C">י</div>יוסי</div>
+    <div class="p"><div class="av" style="background:#BE185D">נ</div>נועה</div>
+    <div class="p"><div class="av" style="background:#047857">ש</div>שירה</div>
+    <div class="p"><div class="av" style="background:#A16207">ר</div>רון</div>
+    <div class="p"><div class="av" style="background:#1D4ED8">א</div>אביגיל</div>
+    <div class="p"><div class="av" style="background:#9333EA">ת</div>תמר</div>
+    <div class="p"><div class="av" style="background:#C2410C">Z</div>Zoe</div>
+    <div class="p"><div class="av" style="background:#BE185D">א</div>אלכסנדרה</div>
+  </div>
+  <div class="catrow">
+    <div class="c" style="--k:#3B82F6"><span>✈️</span>טיסה</div><div class="c" style="--k:#8B5CF6"><span>🏨</span>מלון</div><div class="c" style="--k:#14B8A6"><span>🚗</span>רכב</div><div class="c on" style="--k:#F59E0B"><span>⛽</span>דלק</div><div class="c" style="--k:#EF4444"><span>🍝</span>מסעדה</div>
+  </div>
+  <div class="dots"><span class="dot on"></span><span class="dot"></span></div>
+  <div class="pad"><div class="keys">
+    <div class="k">1</div><div class="k">2</div><div class="k">3</div><div class="k">4</div><div class="k">5</div><div class="k">6</div><div class="k">7</div><div class="k">8</div><div class="k">9</div><div class="k">.</div><div class="k">0</div><div class="k">⌫</div>
+  </div><div class="wsave">שמירה</div></div>
+<div class="gest"></div></div></div>
+
+<div class="dir"><h2>6. סיכום עם 10 משתתפים (FR-16)</h2><p class="why">שם הקבוצה והסכום הכולל נשארים גלויים, ורק רשימת ההעברות נגללת, עם דהייה בתחתית. הסדר: לפי שם המשלם ואחר כך לפי שם המקבל. שם לטיני מקבל מקף אחרי האות ("מ-Zoe").</p>
+<div class="phone"><div class="sys"></div>
+  <div class="head"><div class="top"><span>→ חזרה</span><span></span></div><div class="name">בודפשט דצמבר</div><div class="tot">₪16,000</div><div class="sub">10 משתתפים · ₪1,600 לאחד</div>
+    <div class="stripe"><i style="flex:40;background:#3B82F6"></i><i style="flex:30;background:#8B5CF6"></i><i style="flex:8;background:#14B8A6"></i><i style="flex:5;background:#F59E0B"></i><i style="flex:9;background:#EF4444"></i><i style="flex:3;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+  <div class="body up sumbody">
+    <div class="ttl">מי מעביר למי</div>
+    <div class="scroll">
+      <div class="card"><div class="pair"><div class="av" style="background:#1D4ED8">א</div><div class="av" style="background:#1D4ED8">מ</div></div><div class="line">תשלום נדרש מ<bdi>אביגיל</bdi> ל<bdi>מוטי</bdi></div><div class="tam">₪1,600</div></div>
+      <div class="card"><div class="pair"><div class="av" style="background:#BE185D">א</div><div class="av" style="background:#1D4ED8">מ</div></div><div class="line">תשלום נדרש מ<bdi>אלכסנדרה</bdi> ל<bdi>מוטי</bdi></div><div class="tam">₪1,600</div></div>
+      <div class="card"><div class="pair"><div class="av" style="background:#C2410C">י</div><div class="av" style="background:#9333EA">ד</div></div><div class="line">תשלום נדרש מ<bdi>יוסי</bdi> ל<bdi>דנה</bdi></div><div class="tam">₪1,100</div></div>
+      <div class="card"><div class="pair"><div class="av" style="background:#BE185D">נ</div><div class="av" style="background:#9333EA">ד</div></div><div class="line">תשלום נדרש מ<bdi>נועה</bdi> ל<bdi>דנה</bdi></div><div class="tam">₪1,300</div></div>
+      <div class="card"><div class="pair"><div class="av" style="background:#A16207">ר</div><div class="av" style="background:#1D4ED8">מ</div></div><div class="line">תשלום נדרש מ<bdi>רון</bdi> ל<bdi>מוטי</bdi></div><div class="tam">₪1,600</div></div>
+      <div class="card"><div class="pair"><div class="av" style="background:#047857">ש</div><div class="av" style="background:#1D4ED8">מ</div></div><div class="line">תשלום נדרש מ<bdi>שירה</bdi> ל<bdi>מוטי</bdi></div><div class="tam">₪900</div></div>
+      <div class="card"><div class="pair"><div class="av" style="background:#9333EA">ת</div><div class="av" style="background:#1D4ED8">מ</div></div><div class="line">תשלום נדרש מ<bdi>תמר</bdi> ל<bdi>מוטי</bdi></div><div class="tam">₪1,600</div></div>
+      <div class="card"><div class="pair"><div class="av" style="background:#C2410C">Z</div><div class="av" style="background:#1D4ED8">מ</div></div><div class="line">תשלום נדרש מ-<bdi>Zoe</bdi> ל<bdi>מוטי</bdi></div><div class="tam">₪1,600</div></div>
+    </div>
+  </div>
+<div class="gest"></div></div></div>
+
+</div></body></html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GrouPay Directions</title>
+<style>
+  /* Shared */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background: #ECEEF2; color: #1A1D24; padding: 24px 16px; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .lead { color: #555; margin-bottom: 24px; font-size: 14px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+  .dir { width: 340px; }
+  .dir h2 { font-size: 18px; margin-bottom: 6px; }
+  .dir p.why { font-size: 13px; color: #444; line-height: 1.5; min-height: 78px; margin-bottom: 12px; }
+  .phone { width: 340px; height: 700px; border-radius: 36px; border: 10px solid #111; background: #fff; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+  .status { height: 24px; font-size: 11px; padding: 4px 18px; display: flex; justify-content: space-between; }
+  .rows { flex: 1; overflow: hidden; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+  .ico { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .meta { flex: 1; }
+  .meta b { display: block; font-size: 15px; font-weight: 600; }
+  .meta span { font-size: 12px; color: #6B7280; }
+  .amt { font-size: 16px; font-weight: 700; direction: ltr; }
+  .new { animation: slidein 1.2s ease-out infinite alternate; }
+  @keyframes slidein { from { opacity: .3; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #6B7280; text-align: center; margin-top: 8px; }
+
+  /* ===== A: Color Block =====
+     primary #1E3A8A (deep blue) → #0EA5E9 (sky) gradient header
+     accent  #F97316 (orange) primary button
+     surface #FFFFFF, text #1A1D24 */
+  .a .head { background: linear-gradient(135deg, #1E3A8A, #0EA5E9); color: #fff; padding: 12px 20px 28px; }
+  .a .head .top { display: flex; justify-content: space-between; font-size: 14px; opacity: .9; }
+  .a .head .name { font-size: 22px; font-weight: 700; margin-top: 10px; }
+  .a .head .tot { font-size: 40px; font-weight: 800; margin-top: 6px; direction: ltr; text-align: right; }
+  .a .head .sub { font-size: 13px; opacity: .85; }
+  .a .rows { background: #fff; border-radius: 24px 24px 0 0; margin-top: -16px; padding-top: 8px; }
+  .a .row + .row { border-top: 1px solid #F1F2F4; }
+  .a .bar { display: flex; gap: 10px; padding: 12px 16px 20px; }
+  .a .fab { flex: 2; height: 64px; border-radius: 32px; border: 0; background: #F97316; color: #fff; font-size: 18px; font-weight: 700; box-shadow: 0 6px 16px rgba(249,115,22,.35); }
+  .a .sec { flex: 1; height: 64px; border-radius: 32px; border: 2px solid #1E3A8A; background: #fff; color: #1E3A8A; font-size: 16px; font-weight: 600; }
+
+  /* ===== B: Quiet Minimal =====
+     single accent #7C3AED (violet); everything else white/gray
+     background #FFFFFF, hairlines #EEE, muted #6B7280 */
+  .b { background: #fff; }
+  .b .head { padding: 16px 20px 20px; }
+  .b .head .top { display: flex; justify-content: space-between; font-size: 14px; color: #6B7280; }
+  .b .head .name { font-size: 16px; color: #6B7280; margin-top: 20px; }
+  .b .head .tot { font-size: 48px; font-weight: 300; direction: ltr; text-align: right; letter-spacing: -1px; }
+  .b .head .sub { font-size: 13px; color: #7C3AED; font-weight: 600; margin-top: 4px; }
+  .b .ico { background: #F5F3FF; }
+  .b .row { border-bottom: 1px solid #F3F4F6; }
+  .b .amt { font-weight: 500; }
+  .b .bar { padding: 12px 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .b .fab { height: 60px; border-radius: 16px; border: 0; background: #7C3AED; color: #fff; font-size: 18px; font-weight: 600; }
+  .b .sec { height: 44px; border: 0; background: none; color: #7C3AED; font-size: 15px; font-weight: 600; }
+
+  /* ===== C: Category Rainbow =====
+     each category its own color:
+     Flight #3B82F6, Hotel #8B5CF6, Car #14B8A6, Fuel #F59E0B,
+     Restaurant #EF4444, Food&drink #22C55E, Attractions #EC4899, Other #64748B
+     total card #0F172A, button #0F172A */
+  .c { background: #F7F7FB; }
+  .c .head { padding: 12px 16px; }
+  .c .head .top { display: flex; justify-content: space-between; font-size: 14px; color: #475569; }
+  .c .head .name { font-size: 22px; font-weight: 800; margin: 10px 0; }
+  .c .card { background: #0F172A; color: #fff; border-radius: 20px; padding: 16px; }
+  .c .card .tot { font-size: 34px; font-weight: 800; direction: ltr; text-align: right; }
+  .c .card .sub { font-size: 12px; opacity: .7; }
+  .c .stripe { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 12px; }
+  .c .rows { padding: 4px 12px; }
+  .c .row { background: #fff; border-radius: 16px; margin-bottom: 8px; border-inline-start: 6px solid var(--k); }
+  .c .ico { background: color-mix(in srgb, var(--k) 15%, white); }
+  .c .bar { padding: 8px 16px 20px; display: flex; gap: 10px; }
+  .c .fab { flex: 1; height: 64px; border-radius: 20px; border: 0; background: #0F172A; color: #fff; font-size: 18px; font-weight: 700; }
+  .c .sec { width: 64px; height: 64px; border-radius: 20px; border: 0; background: #fff; font-size: 22px; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+</style>
+</head>
+<body>
+<h1>GrouPay: שלושה כיווני עיצוב</h1>
+<p class="lead">אותו מסך (עמוד הקבוצה "רומא דצמבר") בשלוש אישיויות שונות. השורה העליונה בכל טלפון היא ההוצאה שנשמרה זה עתה, עם האנימציה העדינה. אפשר לבחור כיוון אחד, לשלב בין כמה, או לפסול את כולם.</p>
+
+<div class="grid">
+
+<!-- A -->
+<div class="dir">
+  <h2>א. בלוק צבע</h2>
+  <p class="why">ראש עמוד צבעוני וחזק בהשראת PassportCard, עם סה״כ הטיול גדול באמצע. הרשימה לבנה ונקייה, וכפתור כתום ענק בתחתית בסגנון Bit. הצבע נמצא בעיקר בראש המסך ובכפתור הפעולה.</p>
+  <div class="phone a">
+    <div class="head">
+      <div class="top"><span>☰ הקבוצות שלי</span><span>⋮</span></div>
+      <div class="name">רומא דצמבר</div>
+      <div class="tot">₪8,400.00</div>
+      <div class="sub">4 משתתפים · 23 הוצאות</div>
+    </div>
+    <div class="rows">
+      <div class="row new"><div class="ico" style="background:#DCFCE7">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+      <div class="row"><div class="ico" style="background:#FEF3C7">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+      <div class="row"><div class="ico" style="background:#FEE2E2">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+      <div class="row"><div class="ico" style="background:#EDE9FE">🏨</div><div class="meta"><b>מלון</b><span>דנה · 02.12 18:40</span></div><div class="amt">₪2,400.00</div></div>
+      <div class="row"><div class="ico" style="background:#DBEAFE">✈️</div><div class="meta"><b>טיסה</b><span>מוטי · 03.11 22:15</span></div><div class="amt">₪4,200.00</div></div>
+    </div>
+    <div class="bar"><button class="sec">סיכום</button><button class="fab">+ הוספת הוצאה</button></div>
+  </div>
+</div>
+
+<!-- B -->
+<div class="dir">
+  <h2>ב. מינימל שקט</h2>
+  <p class="why">מסך לבן כמעט לגמרי, עם צבע הדגשה אחד בלבד. הסה״כ כתוב בספרות גדולות ודקות, והכפתור הראשי רחב על כל רוחב המסך בתחתית. זה הכיוון הכי פחות עמוס, וכמעט ההפך הגמור מ-PayBox.</p>
+  <div class="phone b">
+    <div class="head">
+      <div class="top"><span>‹ קבוצות</span><span>⋮</span></div>
+      <div class="name">רומא דצמבר · 4 משתתפים</div>
+      <div class="tot">₪8,400.00</div>
+      <div class="sub">סה״כ טיול</div>
+    </div>
+    <div class="rows">
+      <div class="row new"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+      <div class="row"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+      <div class="row"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+      <div class="row"><div class="ico">🏨</div><div class="meta"><b>מלון</b><span>דנה · 02.12 18:40</span></div><div class="amt">₪2,400.00</div></div>
+      <div class="row"><div class="ico">✈️</div><div class="meta"><b>טיסה</b><span>מוטי · 03.11 22:15</span></div><div class="amt">₪4,200.00</div></div>
+    </div>
+    <div class="bar"><button class="fab">+ הוספת הוצאה</button><button class="sec">מי מעביר למי ←</button></div>
+  </div>
+</div>
+
+<!-- C -->
+<div class="dir">
+  <h2>ג. קטגוריות צבעוניות</h2>
+  <p class="why">הצבעוניות מגיעה מהתוכן עצמו: לכל קטגוריה יש צבע קבוע. פס צבע מתחת לסה״כ מראה לאן הלך הכסף. הרקע והכפתור כהים ורציניים, כדי לשמור על מראה מקצועי.</p>
+  <div class="phone c">
+    <div class="head">
+      <div class="top"><span>☰</span><span>⋮</span></div>
+      <div class="name">רומא דצמבר</div>
+      <div class="card">
+        <div class="sub">סה״כ טיול · 4 משתתפים</div>
+        <div class="tot">₪8,400.00</div>
+        <div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:5;background:#EF4444"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:8;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i></div>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row new" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+      <div class="row" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+      <div class="row" style="--k:#EF4444"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+      <div class="row" style="--k:#8B5CF6"><div class="ico">🏨</div><div class="meta"><b>מלון</b><span>דנה · 02.12 18:40</span></div><div class="amt">₪2,400.00</div></div>
+    </div>
+    <div class="bar"><button class="sec" title="סיכום">⇄</button><button class="fab">+ הוספת הוצאה</button></div>
+  </div>
+</div>
+
+</div>
+<p class="label">מקור: .working/directions-1.html · טיוטה לבחירה בלבד</p>
+</body>
+</html>

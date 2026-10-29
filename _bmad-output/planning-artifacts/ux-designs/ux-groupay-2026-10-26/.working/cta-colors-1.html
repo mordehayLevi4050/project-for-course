@@ -1,0 +1,99 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GrouPay Button Colors</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background: #E5E7EB; color: #1A1D24; padding: 24px 16px; }
+h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px; max-width: 900px; }
+.grid { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+.dir { width: 330px; } .dir h2 { font-size: 18px; } .why { font-size: 13px; color: #444; margin: 4px 0 10px; min-height: 40px; }
+.phone { width: 330px; height: 780px; border-radius: 36px; border: 10px solid #111; background: #F3F8F7; overflow: hidden; display: flex; flex-direction: column; }
+/* Lagoon header #0F766E -> #0D9488 */
+.head { background: linear-gradient(135deg, #0F766E, #0D9488); color: #fff; padding: 16px 20px 30px; }
+.head .top { display: flex; justify-content: space-between; font-size: 14px; opacity: .9; }
+.head .name { font-size: 22px; font-weight: 700; margin-top: 8px; }
+.head .tot { font-size: 38px; font-weight: 800; direction: ltr; text-align: right; }
+.head .sub { font-size: 13px; opacity: .9; }
+.stripe { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 10px; gap: 2px; }
+.rows { flex: 1; overflow: hidden; padding: 10px 12px 0; margin-top: -16px; }
+.row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fff; border-radius: 14px; margin-bottom: 6px; border-inline-start: 6px solid var(--k); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.ico { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; background: color-mix(in srgb, var(--k) 15%, white); }
+.meta { flex: 1; } .meta b { display: block; font-size: 14px; } .meta span { font-size: 11px; color: #6B7280; }
+.amt { font-size: 15px; font-weight: 700; direction: ltr; color: #0B2B28; }
+.new { animation: slidein 1.2s ease-out infinite alternate; }
+@keyframes slidein { from { opacity: .3; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+.bar { display: flex; gap: 10px; padding: 10px 16px 18px; background: #F3F8F7; }
+.fab { flex: 2; height: 64px; border-radius: 32px; border: 0; background: var(--cta); color: var(--ink); font-size: 18px; font-weight: 700; box-shadow: 0 6px 16px color-mix(in srgb, var(--cta) 35%, transparent); }
+.sec { flex: 1; height: 64px; border-radius: 32px; border: 1.5px solid #99CFC9; background: #fff; color: #0F766E; font-size: 16px; font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; margin-top: 24px; font-size: 13px; }
+.legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--k); margin-inline-end: 6px; vertical-align: -1px; }
+/* CTA a: orange   #EA580C, white text (3.6:1, AA large) */
+.c1 { --cta:#EA580C; --ink:#fff; }
+/* CTA b: midnight #0F172A, white text (17:1) */
+.c2 { --cta:#0F172A; --ink:#fff; }
+/* CTA c: sun      #FACC15, dark text #1A1D24 (12:1) */
+.c3 { --cta:#FACC15; --ink:#1A1D24; }
+/* CTA d: deep teal #115E59 (monochrome with header), white text (7.6:1) */
+.c4 { --cta:#115E59; --ink:#fff; }
+</style></head><body>
+<h1>GrouPay: צבע לכפתור "הוספת הוצאה"</h1>
+<p class="lead">ראש עמוד בצבע לגונה, ועכשיו גם כל 8 הקטגוריות ברשימה ובפס. רק צבע הכפתור הראשי משתנה בין האפשרויות. שים לב: כל צבע כפתור קרוב במידה מסוימת לצבע של קטגוריה כלשהי, כי 8 הקטגוריות כבר תופסות כמעט את כל הגוונים.</p>
+<div class="grid">
+<div class="dir c1"><h2>א. כתום</h2><p class="why">חם ובולט מאוד על רקע טורקיז, כי אלה צבעים משלימים. קצת קרוב לדלק ולמסעדה.</p>
+<div class="phone"><div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span>⋮</span></div><div class="name">רומא דצמבר</div><div class="tot">₪8,400.00</div><div class="sub">4 משתתפים · 8 הוצאות</div>
+<div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+<div class="rows">
+<div class="row new" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+<div class="row" style="--k:#64748B"><div class="ico">📝</div><div class="meta"><b>כרטיסי SIM</b><span>דנה · היום 11:02 · אחר</span></div><div class="amt">₪72.60</div></div>
+<div class="row" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+<div class="row" style="--k:#EC4899"><div class="ico">🎡</div><div class="meta"><b>אטרקציות</b><span>נועה · אתמול 15:40</span></div><div class="amt">₪340.00</div></div>
+<div class="row" style="--k:#EF4444"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+<div class="row" style="--k:#14B8A6"><div class="ico">🚗</div><div class="meta"><b>רכב</b><span>יוסי · 02.12 10:20</span></div><div class="amt">₪470.00</div></div>
+<div class="row" style="--k:#8B5CF6"><div class="ico">🏨</div><div class="meta"><b>מלון</b><span>דנה · 02.12 18:40</span></div><div class="amt">₪2,400.00</div></div>
+<div class="row" style="--k:#3B82F6"><div class="ico">✈️</div><div class="meta"><b>טיסה</b><span>מוטי · 03.11 22:15</span></div><div class="amt">₪4,200.00</div></div>
+</div>
+<div class="bar"><button class="fab">+ הוספת הוצאה</button><button class="sec">סיכום</button></div></div></div>
+<div class="dir c2"><h2>ב. לילה כהה</h2><p class="why">כמעט שחור. הכי מקצועי ואלגנטי, ולא מתחרה בצבעי הקטגוריות.</p>
+<div class="phone"><div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span>⋮</span></div><div class="name">רומא דצמבר</div><div class="tot">₪8,400.00</div><div class="sub">4 משתתפים · 8 הוצאות</div>
+<div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+<div class="rows">
+<div class="row new" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+<div class="row" style="--k:#64748B"><div class="ico">📝</div><div class="meta"><b>כרטיסי SIM</b><span>דנה · היום 11:02 · אחר</span></div><div class="amt">₪72.60</div></div>
+<div class="row" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+<div class="row" style="--k:#EC4899"><div class="ico">🎡</div><div class="meta"><b>אטרקציות</b><span>נועה · אתמול 15:40</span></div><div class="amt">₪340.00</div></div>
+<div class="row" style="--k:#EF4444"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+<div class="row" style="--k:#14B8A6"><div class="ico">🚗</div><div class="meta"><b>רכב</b><span>יוסי · 02.12 10:20</span></div><div class="amt">₪470.00</div></div>
+<div class="row" style="--k:#8B5CF6"><div class="ico">🏨</div><div class="meta"><b>מלון</b><span>דנה · 02.12 18:40</span></div><div class="amt">₪2,400.00</div></div>
+<div class="row" style="--k:#3B82F6"><div class="ico">✈️</div><div class="meta"><b>טיסה</b><span>מוטי · 03.11 22:15</span></div><div class="amt">₪4,200.00</div></div>
+</div>
+<div class="bar"><button class="fab">+ הוספת הוצאה</button><button class="sec">סיכום</button></div></div></div>
+<div class="dir c3"><h2>ג. צהוב שמש</h2><p class="why">שמח וקיצי, עם טקסט כהה. הכי צבעוני מבין האפשרויות. קרוב לדלק.</p>
+<div class="phone"><div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span>⋮</span></div><div class="name">רומא דצמבר</div><div class="tot">₪8,400.00</div><div class="sub">4 משתתפים · 8 הוצאות</div>
+<div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+<div class="rows">
+<div class="row new" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+<div class="row" style="--k:#64748B"><div class="ico">📝</div><div class="meta"><b>כרטיסי SIM</b><span>דנה · היום 11:02 · אחר</span></div><div class="amt">₪72.60</div></div>
+<div class="row" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+<div class="row" style="--k:#EC4899"><div class="ico">🎡</div><div class="meta"><b>אטרקציות</b><span>נועה · אתמול 15:40</span></div><div class="amt">₪340.00</div></div>
+<div class="row" style="--k:#EF4444"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+<div class="row" style="--k:#14B8A6"><div class="ico">🚗</div><div class="meta"><b>רכב</b><span>יוסי · 02.12 10:20</span></div><div class="amt">₪470.00</div></div>
+<div class="row" style="--k:#8B5CF6"><div class="ico">🏨</div><div class="meta"><b>מלון</b><span>דנה · 02.12 18:40</span></div><div class="amt">₪2,400.00</div></div>
+<div class="row" style="--k:#3B82F6"><div class="ico">✈️</div><div class="meta"><b>טיסה</b><span>מוטי · 03.11 22:15</span></div><div class="amt">₪4,200.00</div></div>
+</div>
+<div class="bar"><button class="fab">+ הוספת הוצאה</button><button class="sec">סיכום</button></div></div></div>
+<div class="dir c4"><h2>ד. טורקיז עמוק</h2><p class="why">באותו צבע כמו ראש העמוד, רק כהה יותר. אחיד ושקט, פחות צבעוני.</p>
+<div class="phone"><div class="head"><div class="top"><span>☰ הקבוצות שלי</span><span>⋮</span></div><div class="name">רומא דצמבר</div><div class="tot">₪8,400.00</div><div class="sub">4 משתתפים · 8 הוצאות</div>
+<div class="stripe"><i style="flex:50;background:#3B82F6"></i><i style="flex:29;background:#8B5CF6"></i><i style="flex:6;background:#14B8A6"></i><i style="flex:4;background:#F59E0B"></i><i style="flex:5;background:#EF4444"></i><i style="flex:1;background:#22C55E"></i><i style="flex:4;background:#EC4899"></i><i style="flex:1;background:#64748B"></i></div></div>
+<div class="rows">
+<div class="row new" style="--k:#22C55E"><div class="ico">🛒</div><div class="meta"><b>אוכל ושתייה</b><span>מוטי · היום 14:32</span></div><div class="amt">₪87.40</div></div>
+<div class="row" style="--k:#64748B"><div class="ico">📝</div><div class="meta"><b>כרטיסי SIM</b><span>דנה · היום 11:02 · אחר</span></div><div class="amt">₪72.60</div></div>
+<div class="row" style="--k:#F59E0B"><div class="ico">⛽</div><div class="meta"><b>דלק</b><span>יוסי · היום 09:10</span></div><div class="amt">₪320.00</div></div>
+<div class="row" style="--k:#EC4899"><div class="ico">🎡</div><div class="meta"><b>אטרקציות</b><span>נועה · אתמול 15:40</span></div><div class="amt">₪340.00</div></div>
+<div class="row" style="--k:#EF4444"><div class="ico">🍝</div><div class="meta"><b>מסעדה</b><span>נועה · אתמול 21:05</span></div><div class="amt">₪410.00</div></div>
+<div class="row" style="--k:#14B8A6"><div class="ico">🚗</div><div class="meta"><b>רכב</b><span>יוסי · 02.12 10:20</span></div><div class="amt">₪470.00</div></div>
+<div class="row" style="--k:#8B5CF6"><div class="ico">🏨</div><div class="meta"><b>מלון</b><span>דנה · 02.12 18:40</span></div><div class="amt">₪2,400.00</div></div>
+<div class="row" style="--k:#3B82F6"><div class="ico">✈️</div><div class="meta"><b>טיסה</b><span>מוטי · 03.11 22:15</span></div><div class="amt">₪4,200.00</div></div>
+</div>
+<div class="bar"><button class="fab">+ הוספת הוצאה</button><button class="sec">סיכום</button></div></div></div>
+</div>
+<div class="legend">
+<span style="--k:#3B82F6">✈️ טיסה</span><span style="--k:#8B5CF6">🏨 מלון</span><span style="--k:#14B8A6">🚗 רכב</span><span style="--k:#F59E0B">⛽ דלק</span><span style="--k:#EF4444">🍝 מסעדה</span><span style="--k:#22C55E">🛒 אוכל ושתייה</span><span style="--k:#EC4899">🎡 אטרקציות</span><span style="--k:#64748B">📝 אחר (מציג את התיאור)</span>
+</div></body></html>
