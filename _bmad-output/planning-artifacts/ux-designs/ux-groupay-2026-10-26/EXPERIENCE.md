@@ -28,7 +28,7 @@ sources:
 | Group list (home) | Launch with no Active group · "☰ הקבוצות שלי" on Group page | All non-archived Groups | FR-1, FR-6, FR-9 |
 | Archive | "🗂 ארכיון (n)" link at the bottom of the Group list | View and restore archived Groups. Same layout as the Group list, with Group cards in gray. Tapping a card opens that Group's page read-only | FR-6 |
 | Create group | "+ קבוצה חדשה" on the Group list | Two stages on one screen: name the Group and save it, then add Members | FR-1, FR-2, FR-7 |
-| Active-group sheet | Right after the Group is saved on Create group, before any Members are added | Offer to make the new Group active | FR-7 |
+| Active-group sheet | Right after the Group is saved on Create group, before any Members are added · switching the Active toggle on in Group settings while another Group is active | Offer to make the Group active, warning when another Group stops being active | FR-7, FR-8 |
 | Group page | Launch with an Active group (no intermediate screen) · "סיום" on Create group · tap a Group card · tap an archived card in Archive (read-only) | Trip total, category stripe, Expense list, Add expense, Summary | FR-6, FR-9, FR-10, FR-12, FR-16 |
 | Add expense | "+ הוספת הוצאה" on the Group page (enabled from 2 Members) | Record an Expense in ≤4 taps (≤5 with a changed Payer) | FR-10, FR-11 |
 | Edit expense | Tap an Expense row (non-archived Group) | Change any field, or delete | FR-13, FR-14 |
@@ -117,9 +117,10 @@ Behavioral only. Visual specs live in `DESIGN.md` › Components.
 | Member list (Create group, Group settings) | Each added name appears at once as a colored avatar row. At 10 Members, adding another is refused with "קבוצות מוגבלות ל-10 משתתפים" inline under the field, and nothing is added. |
 | Transfer card (FR-16) | One card per Transfer, showing the line "תשלום נדרש מ{debtor} ל{receiver} ₪N". **Direction is carried by the words only:** no arrow or other direction symbol appears anywhere in the card (NFR-6). Each name is isolated for bidirectional display, so a Latin or mixed name never reorders the line, and a name that does not start with a Hebrew letter takes a hyphen after the prefix ("מ-Dan לדנה", "מדנה ל-Zoe"). A pair of small avatars (debtor, then receiver) sits at the start of the card as decoration only, with nothing between them. The card is not tappable and has no toggle. Long names wrap inside the card; the amount always ends the line. |
 | Transfer list (FR-16) | Ordered by debtor name, then receiver name, under the FR-15 alphabetical rule. Up to 6 Members: everything fits on one screen. 7–10 Members: only the Transfer list scrolls, while the header and the "מי מעביר למי" title stay in view. |
-| Bottom sheet | Used for the Active-group prompt, Exit confirmation, Delete confirmation (the founder accepts the sheet as the FR-14 confirmation dialog; and, confirmed on 2026-10-29, as the FR-10 Exit dialog), Archive confirmation, Remove-member warning and Rename (with a text field and the Name-field rules). Dismiss by the cancel button, tapping the scrim, or system back. Dismissing changes nothing. |
+| Bottom sheet | Used for the Active-group prompt (on Create group, and from the Active toggle when another Group is active), Exit confirmation, Delete confirmation (the founder accepts the sheet as the FR-14 confirmation dialog; and, confirmed on 2026-10-29, as the FR-10 Exit dialog), Archive confirmation, Remove-member warning and Rename (with a text field and the Name-field rules). Dismiss by the cancel button, tapping the scrim, or system back. Dismissing changes nothing. |
 | Snackbar | Shown after a delete only. Disappears automatically. There is no undo action. |
 | Archive note + restore (FR-6) | On an archived Group page, "↩ שחזור מהארכיון" takes the primary slot of the bottom bar (instead of *Add expense*), with "סיכום" beside it as usual. The archive note sits directly above the bar. Restore needs no confirmation: it is not destructive. After a restore the same page stays open, the badge and note disappear, and the page shows exactly the state the Group had before archiving. Back now leads to the Group list. The "↩ שחזור" button on archived cards in Archive does the same. |
+| Active toggle (FR-8) | One row in Group settings: "קבוצה פעילה" with the Toggle. It shows whether this Group is the Active group. **Switch on, no other Group active:** the Group becomes the Active group at once, with no sheet. **Switch on, another Group active:** the Active-group sheet opens, with the warning "הקבוצה '{name}' תפסיק להיות הקבוצה הפעילה" naming the current Active group, exactly as on Create group (FR-7). The Toggle stays off until "כן, להפוך לפעילה" is tapped; then this Group becomes the only Active group and the other one stops being active. "לא עכשיו", the scrim or back closes the sheet, the Toggle returns to off, and the current Active group is unchanged. **Switch off:** the Active group is unset at once, with no sheet (not destructive, and switching it back on undoes it). The Group list then shows no "⭐ פעילה", and the next launch opens the Group list (EARS l.53). Every change is saved at once; there is no separate Save. Not shown for an archived Group (Group settings is not reachable). |
 | FR-4 refusal (Group settings) | Shown inline under the Member row whose ✕ was tapped, in `{colors.danger}`, and replaces any previous message. Nothing is removed. |
 
 ## State Patterns
@@ -151,6 +152,9 @@ Behavioral only. Visual specs live in `DESIGN.md` › Components.
 | Summary | No Transfers (FR-16) | "החשבון מאוזן, אין צורך בהעברות" in place of the cards |
 | Summary | Archived (FR-6) | Badge "🗂 בארכיון" and the archive note under the cards. Everything else as in the matching unarchived state |
 | Group settings | Archived | Not reachable: the "⚙ ✎" chip is hidden (FR-6). Nothing in it could change while archived, including the Active toggle |
+| Group settings | Active toggle on, no other Group active | Toggle on. Switching it off unsets the Active group at once, with no sheet |
+| Group settings | Active toggle off, no Group active | Toggle off. Switching it on makes this Group active at once, with no sheet |
+| Group settings | Active toggle off, another Group active | Toggle off. Switching it on opens the Active-group sheet with "הקבוצה '{name}' תפסיק להיות הקבוצה הפעילה". Nothing changes until the Organizer confirms; on cancel the Toggle returns to off |
 | Group settings | Remove a Member who paid | Refused with "לא ניתן להסיר משתתף שיש הוצאה על שמו", inline under the row. Nothing changes |
 | Group settings | Remove a Member, Group has Expenses | Remove-member sheet warns that Expenses will be split among the remaining Members. "ביטול" changes nothing |
 | Group settings | Remove a Member, no Expenses | Removed immediately, no sheet |
@@ -210,6 +214,7 @@ Names mirror the PRD journeys verbatim. The protagonist is **Motty**, the Organi
 6. He types "דנה" again. The inline message "כבר יש משתתף בשם הזה" appears and nothing is added.
 7. He taps "סיום" and lands on the Group page.
 8. **Climax:** from now on every launch opens straight into "בודפשט דצמבר". He records the flights right away.
+9. **Resolution:** he can still change this at any time. In "⚙ ✎" › Group settings, switching "קבוצה פעילה" off unsets the Active group, so the next launch opens the Group list. Switching it on for another Group shows the same warning as in step 3 before the change is applied (FR-8).
 
 Failure: an empty group name → "נדרש שם", and no Group is created.
 

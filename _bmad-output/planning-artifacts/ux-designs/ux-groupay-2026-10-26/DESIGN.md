@@ -34,7 +34,7 @@ colors:
   archived-card-ink: '#4B5563'
   badge-active-surface: '#FFEDD5'
   badge-active-ink: '#9A3412'
-  badge-on-header-surface: 'rgba(255,255,255,0.22)'
+  badge-on-header-surface: '#0B2B2840'
   danger: '#B91C1C'
   on-danger: '#FFFFFF'
   scrim: 'rgba(11,43,40,0.45)'
@@ -212,7 +212,7 @@ Light theme only. There is no dark mode in v1.
 - **Category colors** are fixed and never change meaning: Flight `{colors.category-flight}`, Hotel `{colors.category-hotel}`, Car `{colors.category-car}`, Fuel `{colors.category-fuel}`, Restaurant `{colors.category-restaurant}`, Food & drink `{colors.category-food-drink}`, Attractions `{colors.category-attractions}`, Other `{colors.category-other}`. They are used only as non-text marks: the row's start-edge stripe, the 15% tint behind the emoji, the selected category tile, and segments of the category share stripe. Never as text color.
 - **Member colors (`{colors.member-1}` … `{colors.member-6}`)** fill member avatar circles. They are assigned automatically in the order members were added; member 7 starts again at `{colors.member-1}`, so in a 10-Member Group members 7–10 repeat colors 1–4 and the initial letter and name tell them apart. All pass AA with white initials (≥4.9:1). They are darker than the category hues on purpose, so a person never reads as a category.
 - **Transfer card:** `{colors.transfer-surface}` with a `{colors.transfer-edge}` start edge and `{colors.ink}` text. There is a single Transfer style in v1 (no paid state).
-- **Status badges:** active (`{colors.badge-active-surface}` / `{colors.badge-active-ink}`) and archived (`{colors.archived-surface}` / `{colors.archived-ink}`). On the gradient, badges use `{colors.badge-on-header-surface}` with white text.
+- **Status badges:** active (`{colors.badge-active-surface}` / `{colors.badge-active-ink}`) and archived (`{colors.archived-surface}` / `{colors.archived-ink}`). On the gradient, badges and the "⚙ ✎" chip use `{colors.badge-on-header-surface}` (`{colors.ink}` at 25% opacity) with white text. This overlay darkens the gradient, so white text on it is 7.07:1 over `{colors.header-start}` and 5.22:1 over `{colors.header-end}` (worst case), above the 4.5:1 AA floor even for normal-size text. Never use a light (white) overlay on the gradient: it lowers contrast (22% white gave 2.74:1 over `{colors.header-end}`).
 - **Archived surfaces:** archived Group cards use `{colors.archived-card-surface}` with `{colors.archived-card-ink}` text (6.8:1); the archive note uses `{colors.archived-surface}` with `{colors.archived-ink}`.
 - **Removed on 2026-10-29 (deferred to the next version, PRD §6.2):** the paid-transfer, locked and settled-badge colors and the Payment row. Their values are kept with the earlier design in the PRD `addendum.md`. The archived colors above reuse two of the old values under new names.
 - **Danger (`{colors.danger}`)** is only for delete actions and validation messages.
