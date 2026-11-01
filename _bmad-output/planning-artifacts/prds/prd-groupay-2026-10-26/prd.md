@@ -383,7 +383,7 @@ The EARS document predates the brief and this PRD. To keep "every EARS test case
 - **SM-C1 Edits after save:** the number of Expenses whose last-modification time differs from their creation time (NFR-12). A high count means speed is costing accuracy. Threshold: more than 15% of the trip's Expenses is too high. Counterbalances SM-2.
 - **SM-C2 Share of *Other*:** the fraction of Expenses in Category *Other*. A high share means the Category list does not fit real spending and would undermine future Category analytics. Target: under 10%. Counterbalances SM-2.
 
-Both counter-metrics are read by hand from the trip's data after the trip. The trip phone runs a debug build, so the Organizer can copy the app's database to a computer with `adb` and count from it; v1 adds no export, statistics screen or analytics for this (§7).
+Both counter-metrics are read by hand from the trip's data after the trip. The trip phone runs a release-mode build marked debuggable (architecture spine AD-19), so it keeps release speed (NFR-5) while the Organizer can copy the app's database to a computer with `adb` and count from it; v1 adds no export, statistics screen or analytics for this (§7).
 
 ## 10. Open Questions
 
