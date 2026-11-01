@@ -1,0 +1,50 @@
+- id: "1"
+  title: Groups and Members
+  description: >-
+    Create, rename and archive/restore Groups; add, rename and remove Members
+    (SPEC CAP-1 to CAP-6, functional-rules.md FR-1 to FR-6). First half of
+    course Story 1.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    This story also lays the project base per ARCHITECTURE-SPINE.md: the
+    Structural Seed, core/db with the single data-access boundary (AD-4),
+    core/money (integer tenths, AD-12), core/i18n with the Hebrew strings from
+    ui-messages.md (AD-14), core/policy (AD-7), and name text rules in one
+    place (AD-13).
+- id: "2"
+  title: Active Group and Launch
+  description: >-
+    Offer to set a new Group active, set/unset the Active group at any time,
+    and launch straight into it (SPEC CAP-7 to CAP-9, FR-7 to FR-9). Second
+    half of course Story 1.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Active group storage per AD-17; navigation and back behavior per AD-16
+    and EXPERIENCE.md. Cold launch to the Active group page must meet ≤2 s on
+    the Galaxy S25 (NFR-5).
+- id: "3"
+  title: Add Expenses
+  description: >-
+    Add, validate, list, edit and delete Expenses within the tap budget
+    (SPEC CAP-10 to CAP-14, FR-10 to FR-14). Course Story 2.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Verify the tap budget against UJ-2 and its edge cases in user-journeys.md
+    on the Galaxy S25 (≤4 taps default Payer, ≤5 changed, swipe counts).
+    Save-once per AD-23; save order by sequence number, never clock (AD-9).
+- id: "4"
+  title: Settle Up
+  description: >-
+    Compute the minimal Transfer list and show the screenshot-ready Summary
+    (SPEC CAP-15 and CAP-16, transfer-calculation.md, FR-16). Course Story 3.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Use exhaustive search over zero-sum partitions, not greedy matching (greedy
+    fails EARS T3.6 and T3.31). Tests must cover every worked example in
+    transfer-calculation.md, all EARS Story 3 cases, and the NFR-16 list,
+    including the 10-Member ≤1 s timing. Verify one-screen fit for 6 Members
+    on the Galaxy S25.

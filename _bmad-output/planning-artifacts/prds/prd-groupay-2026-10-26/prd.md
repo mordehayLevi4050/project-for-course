@@ -2,7 +2,7 @@
 title: "PRD: GrouPay"
 status: final
 created: 2026-10-26
-updated: 2026-10-29
+updated: 2026-11-01
 ---
 
 # PRD: GrouPay
@@ -23,7 +23,7 @@ v1 runs entirely on one phone, offline, operated by the group's organizer. It is
 
 **Positioning.** Offline use and no signup are table stakes, not an edge: Splid already offers both for free, and a one-device v1 risks looking like Splid's offline mode. GrouPay's bet is narrower: Hebrew-first RTL for Israeli groups, and speed as the core design rule. None of this is a moat; the advantage is focus and execution speed for one audience in one situation: short trips.
 
-**Look and feel.** The visual design draws on the feel of PassportCard: travel and financial confidence together. This is inspiration only; v1 does not copy that brand.
+**Look and feel.** The visual design follows the founder's own mockups (`ux-designs/ux-groupay-2026-10-26/mockups/`). They win over any third-party touchstone (set by the founder on 2026-11-01).
 
 ## 2. Target User
 
@@ -233,7 +233,7 @@ The Organizer can open the Summary of any Group with at least two Members. Reali
 - The Summary shows the Group name, the Trip total and the Transfer list.
 - Each Transfer is shown as one line in the form "תשלום נדרש מ{debtor} ל{receiver} ₪N" (EARS reference: "Payment due from {debtor} to {receiver} ₪N"). The direction is carried by the words only; no arrow or other direction symbol is used.
 - Each Member name in a Transfer line is isolated for bidirectional display, so a Latin-script or mixed name never reorders the line. When a name does not start with a Hebrew letter, a hyphen follows the prefix ("מ-Dan לדנה", "מדנה ל-Zoe").
-- For groups of up to 6 Members, the Group name, Trip total and Transfer list fit on one phone screen without scrolling, on the founder's trip phone at the default font size. For 7 to 10 Members, only the Transfer list may scroll; the Group name and Trip total stay in view.
+- For groups of up to 6 Members, the Group name, Trip total and Transfer list fit on one phone screen without scrolling, on the reference device (Samsung Galaxy S25) at the default font size. For 7 to 10 Members, only the Transfer list may scroll; the Group name and Trip total stay in view.
 - The Summary is understandable from a screenshot alone, by someone who has never seen the app.
 - Transfers are shown in the FR-15 order: by debtor name, then receiver name, under its alphabetical rule.
 - When no Transfers are needed, the Summary shows "Everyone is settled up".
@@ -249,7 +249,7 @@ The Organizer can open the Summary of any Group with at least two Members. Reali
 - **NFR-2 Right-thumb zone:** primary actions (*Add expense*, *Save*) sit in the lower half of the screen, reachable by a right thumb on a typical 6–6.7" Android phone held in one hand.
 - **NFR-3 Touch targets:** every tappable control is at least 48×48 dp; primary actions and Category options are larger than that minimum.
 - **NFR-4 Contrast:** text and controls meet WCAG 2.1 AA contrast. No dedicated low-vision mode is required.
-- **NFR-5 Responsiveness:** cold launch to the Active group page within 2 seconds on a mid-range Android phone; saving an Expense returns to the Group page with no perceptible delay (under 300 ms); the Summary of a 10-Member Group appears within 1 second.
+- **NFR-5 Responsiveness:** cold launch to the Active group page within 2 seconds on the reference device (Samsung Galaxy S25); saving an Expense returns to the Group page with no perceptible delay (under 300 ms); the Summary of a 10-Member Group appears within 1 second.
 
 ### 5.2 Hebrew-First
 
@@ -372,7 +372,7 @@ The EARS document predates the brief and this PRD. To keep "every EARS test case
 
 **Primary (December 2026 trip)**
 - **SM-1 Calculation completeness:** every Expense recorded in the Group is counted in the Transfer list. Checked by hand after the trip: an independent calculation from the Expense list gives the same Transfers. Whether expenses went unrecorded cannot be measured and is not a metric. Validates FR-10, FR-15, NFR-8.
-- **SM-2 Speed:** recording an Expense takes at most 4 taps from launch with the default Payer, and at most 5 with a changed Payer, excluding typing the Amount. Checked by walking the UJ-2 flow and its fuel edge case on the trip phone. Validates FR-9, FR-10, NFR-1.
+- **SM-2 Speed:** recording an Expense takes at most 4 taps from launch with the default Payer, and at most 5 with a changed Payer, excluding typing the Amount. Checked by walking the UJ-2 flow and its fuel edge case on the trip phone (Samsung Galaxy S25 Ultra). Validates FR-9, FR-10, NFR-1.
 - **SM-3 Accuracy:** no friend disputes an amount on the Summary (exchange-rate disagreements excluded, NFR-7). Validates FR-15, NFR-15.
 - **SM-4 Clarity:** friends settle up from the screenshot alone, with no explanation needed. Validates FR-16.
 
@@ -388,7 +388,7 @@ Both counter-metrics are read by hand from the trip's data after the trip. The t
 ## 10. Open Questions
 
 1. From the brief, still open for later phases: long-term positioning (trip hub vs. group finance), Bit integration feasibility, admin roles in the multi-user phase.
-2. **Reference device** (FR-16, NFR-2, NFR-5): the trip phone model and a mid-range benchmark device are not yet named. Owner: founder. Revisit: before the UX specification.
+2. ~~**Reference device**~~ Resolved 2026-11-01: the trip phone is the Samsung Galaxy S25 Ultra (6.9"). The reference device for FR-16, NFR-2 and NFR-5 is the Samsung Galaxy S25 (6.2"), which replaces the unnamed mid-range benchmark. Whether 5 long-name Transfers fit on one S25 screen still needs measuring on the device (EXPERIENCE.md OQ1).
 3. **Archived group, per screen** (FR-6): what tapping or long-pressing an Expense does, how *Add expense* appears, and the empty Archive view. Owner: UX (bmad-ux). Revisit: during the UX specification.
 
 ## 11. Assumptions Index

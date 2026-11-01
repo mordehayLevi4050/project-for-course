@@ -45,7 +45,7 @@ graph TD
   SU --> CORE[core]
   EX --> CORE
   GR --> CORE
-  EX -. implements .-> PORT[core/ports: PayerUsagePort]
+  EX -. implements .-> PORT[core/ports: PayerUsagePort, GroupTotalsPort]
   GR -. consumes .-> PORT
 ```
 
@@ -59,7 +59,7 @@ graph TD
 
 - **Binds:** all features
 - **Prevents:** an import cycle between `groups` and `expenses`, and features reaching into each other's internals.
-- **Rule:** There are three features: `groups` (FR-1..9), `expenses` (FR-10..14, which includes the Group page), and `settle_up` (FR-15..16). Direct imports go downward only: `settle_up → expenses → groups`, following the layer table. A lower feature gets a fact owned by a higher one through a **port**: an interface in `core/ports/`, implemented in the higher feature's `data/`. Navigation between features uses route paths, never imports.
+- **Rule:** There are three features: `groups` (FR-1..9), `expenses` (FR-10..14, which includes the Group page), and `settle_up` (FR-15..16). Direct imports go downward only: `settle_up → expenses → groups`, following the layer table. A lower feature gets a fact owned by a higher one through a **port**: an interface in `core/ports/`, implemented in the higher feature's `data/`. v1 has two ports, both implemented in `expenses/data` and consumed by `groups`: `PayerUsagePort` (is a Member the Payer of any Expense, for FR-4) and `GroupTotalsPort` (each Group's Trip total, for the group-list card). Navigation between features uses route paths, never imports.
 
 ### AD-3: Table ownership means write rights
 
@@ -294,7 +294,7 @@ lib/
   shell/                    # main, ProviderScope overrides, go_router, launch route
   core/
     db/                     # AppDatabase, tables/ (all tables, indexes, FKs), migrations
-    ports/                  # PayerUsagePort + its provider declaration
+    ports/                  # PayerUsagePort, GroupTotalsPort + their provider declarations
     policy/                 # pure rules + fact records, Verdict
     result/                 # Result, Failure
     money/                  # Tenths, parsing and bounds, formatShekel
