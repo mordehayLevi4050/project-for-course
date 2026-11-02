@@ -1,10 +1,11 @@
 ---
 name: GrouPay
 description: Hebrew-first Android app for splitting trip expenses. Minimalist, professional, colorful. Big buttons, few taps, light theme only.
-status: draft
+status: final
 created: 2026-10-26
-updated: 2026-10-29
+updated: 2026-11-02
 sources:
+  - ../../../specs/spec-groupay/SPEC.md
   - ../../briefs/brief-groupay-2026-10-26/brief.md
   - ../../prds/prd-groupay-2026-10-26/prd.md
   - ../../../../ears-requirements.md
@@ -23,6 +24,7 @@ colors:
   secondary-border: '#99CFC9'
   input-border: '#CDE3DF'
   input-border-focus: '#0D9488'
+  divider: '#EEF2F1'
   currency-mark: '#0D9488'
   transfer-surface: '#E6F4F1'
   transfer-edge: '#EA580C'
@@ -37,7 +39,7 @@ colors:
   badge-on-header-surface: '#0B2B2840'
   danger: '#B91C1C'
   on-danger: '#FFFFFF'
-  scrim: 'rgba(11,43,40,0.45)'
+  scrim: '#0B2B2873'
   category-flight: '#3B82F6'
   category-hotel: '#8B5CF6'
   category-car: '#14B8A6'
@@ -110,6 +112,10 @@ typography:
     fontFamily: Heebo
     fontSize: 14sp
     fontWeight: 400
+  section-title:
+    fontFamily: Heebo
+    fontSize: 15sp
+    fontWeight: 700
 rounded:
   sm: 10dp
   md: 14dp
@@ -148,28 +154,66 @@ components:
     background: '{colors.surface-raised}'
     minHeight: 72dp
     rounded: '{rounded.lg}'
-    edge: '6dp start-edge, category color'
-    iconCircle: '46dp, category color @15% tint'
+    edgeWidth: 6dp
+    iconCircleSize: 46dp
+    note: 'Start edge in the category color; icon circle in the category color at 15% tint.'
   category-tile:
     background: '{colors.surface-raised}'
     height: 64dp
     rounded: '{rounded.lg}'
-    selectedBorder: '2dp category color'
-    selectedBackground: 'category color @16% tint'
+    labelTypography: '{typography.label}'
+    selectedBorderWidth: 2dp
+    note: 'Selected: border in the category color, background at 16% tint, bold label.'
   member-avatar:
     size: 44dp
-    slot: 48dp wide, 48dp hit area
-    background: '{colors.member-1}..{colors.member-6} by add order'
+    slotWidth: 48dp
+    hitArea: 48dp
     textColor: '{colors.on-member}'
     typography: '{typography.avatar-initial}'
     rounded: '{rounded.full}'
+    note: 'Background cycles {colors.member-1} to {colors.member-6} by add order.'
+  member-row:
+    background: '{colors.surface-raised}'
+    minHeight: 56dp
+    avatarSize: 36dp
+    typography: '{typography.row-title}'
+    iconColor: '{colors.ink-secondary}'
+  settings-row:
+    background: '{colors.surface-raised}'
+    minHeight: 56dp
+    typography: '{typography.row-title}'
+    valueTypography: '{typography.meta}'
+    divider: '{colors.divider}'
+  text-field:
+    background: '{colors.surface-raised}'
+    border: '2dp {colors.input-border}'
+    borderFocus: '2dp {colors.input-border-focus}'
+    height: 52dp
+    rounded: '{rounded.md}'
+    typography: '{typography.row-title}'
+  button-danger:
+    background: '{colors.danger}'
+    textColor: '{colors.on-danger}'
+    typography: '{typography.button-primary}'
+    height: 64dp
+    rounded: '{rounded.full}'
+    shadow: none
+  button-save:
+    background: '{colors.primary}'
+    textColor: '{colors.on-primary}'
+    typography: '{typography.button-primary}'
+    height: 64dp
+    rounded: '{rounded.full}'
+    note: 'The wide Save under the keypad is a full-width button-primary.'
   payer-picker:
     columns: 6
     rowGap: '{spacing.2}'
-    rows: '1 for up to 6 Members, 2 for 7-10'
+    maxRows: 2
+    note: 'One row for up to 6 Members, two rows for 7-10.'
   transfer-card:
     background: '{colors.transfer-surface}'
-    edge: '6dp start-edge {colors.transfer-edge}'
+    edgeWidth: 6dp
+    edgeColor: '{colors.transfer-edge}'
     textColor: '{colors.ink}'
     typography: '{typography.row-title}'
     amountTypography: '{typography.transfer-amount}'
@@ -214,8 +258,8 @@ Light theme only. There is no dark mode in v1.
 - **Transfer card:** `{colors.transfer-surface}` with a `{colors.transfer-edge}` start edge and `{colors.ink}` text. There is a single Transfer style in v1 (no paid state).
 - **Status badges:** active (`{colors.badge-active-surface}` / `{colors.badge-active-ink}`) and archived (`{colors.archived-surface}` / `{colors.archived-ink}`). On the gradient, badges and the "⚙ ✎" chip use `{colors.badge-on-header-surface}` (`{colors.ink}` at 25% opacity) with white text. This overlay darkens the gradient, so white text on it is 7.07:1 over `{colors.header-start}` and 5.22:1 over `{colors.header-end}` (worst case), above the 4.5:1 AA floor even for normal-size text. Never use a light (white) overlay on the gradient: it lowers contrast (22% white gave 2.74:1 over `{colors.header-end}`).
 - **Archived surfaces:** archived Group cards use `{colors.archived-card-surface}` with `{colors.archived-card-ink}` text (6.8:1); the archive note uses `{colors.archived-surface}` with `{colors.archived-ink}`.
-- **Removed on 2026-10-29 (deferred to the next version, PRD §6.2):** the paid-transfer, locked and settled-badge colors and the Payment row. Their values are kept with the earlier design in the PRD `addendum.md`. The archived colors above reuse two of the old values under new names.
-- **Danger (`{colors.danger}`)** is only for delete actions and validation messages.
+- **Danger (`{colors.danger}`)** is only for destructive actions (delete, remove, discard input) and validation messages. White on danger (`{colors.on-danger}`) is 6.47:1.
+- **Other contrast pairs (all pass AA):** `{colors.badge-active-ink}` on `{colors.badge-active-surface}` 6.38:1, `{colors.archived-ink}` on `{colors.archived-surface}` 8.4:1, `{colors.danger}` on canvas 6.03:1, the hint in `{colors.ink-muted}` 7.07:1. Several category hues fall below the 3:1 non-text floor on white (Food & drink 2.28:1, Fuel 2.15:1), so a selected Category tile never relies on its border alone: the 16% tint and the bold label also mark it.
 
 ## Typography
 
@@ -230,9 +274,10 @@ One family: **Heebo** (Google Fonts), bundled with the app so it works offline. 
 | Header secondary | `{typography.header-secondary}` | "4 משתתפים · 8 הוצאות", share line. Large on purpose (contrast rule). |
 | Button primary / secondary | `{typography.button-primary}` / `{typography.button-secondary}` | Pill buttons |
 | Row title / amount | `{typography.row-title}` / `{typography.row-amount}` | Expense rows, group cards |
-| Keypad digit | `{typography.keypad-digit}` | Custom keypad |
+| Keypad digit | `{typography.keypad-digit}` | Keypad |
 | Avatar initial | `{typography.avatar-initial}` | Letter inside member circle, enlarged so members stay distinct when colors repeat |
-| Label / meta / message | `{typography.label}` / `{typography.meta}` / `{typography.message}` | Field labels, row meta, inline messages |
+| Label / meta / message | `{typography.label}` / `{typography.meta}` / `{typography.message}` | Field labels and Category tile labels, row meta, inline messages |
+| Section title | `{typography.section-title}` | "מי מעביר למי" on the Summary, "משתתפים" section labels |
 
 **Font scaling.** All sizes are `sp` and follow the system font scale up to 150%. Every fixed height in this file (buttons, rows, tiles, keypad keys, top bar) is a minimum: it grows with its text, and labels wrap to a second line instead of truncating. Category tile labels and avatar names may take two lines.
 
@@ -250,9 +295,9 @@ Scale: 4 / 8 / 12 / 16 / 20 / 24 dp. Side margin `{spacing.margin-mobile}`. Sing
 
 **Home screen exception.** The header titles are centered, and the group list starts with a clear gap below the header. Cards do not overlap it.
 
-**Summary composition** (top to bottom; PRD FR-16): header block → "מי מעביר למי" title → Transfer cards with an 8dp gap, or "החשבון מאוזן, אין צורך בהעברות" when there are none → archive note, when archived. There is no bottom button bar on the Summary. Up to 6 Members everything is fixed. For 7–10 Members the header and the title stay fixed, and the Transfer cards scroll inside the remaining height; their bottom edge fades into `{colors.surface-base}` over `{spacing.list-fade}` when more cards exist.
+**Summary composition** (top to bottom; FR-16): header block (with the category stripe, without the "⚙ ✎" chip) → "מי מעביר למי" title in `{typography.section-title}` → Transfer cards with an 8dp gap, or "החשבון מאוזן, אין צורך בהעברות" when there are none → archive note, when archived. There is no bottom button bar on the Summary. Up to 6 Members everything is fixed. For 7–10 Members the header and the title stay fixed, and the Transfer cards scroll inside the remaining height; their bottom edge fades into `{colors.surface-base}` over `{spacing.list-fade}` when more cards exist.
 
-**Add/edit expense composition** (top to bottom): compact top bar → amount → payer picker (`components.payer-picker`: 6 avatars per row, one row up to 6 Members, two rows for 7–10, never scrolls) → 4×2 category grid → custom keypad (3×4) → wide Save button. No section labels above the payer picker or the grid. The keypad and Save are pinned to the bottom inside the system insets (Android 15 draws edge-to-edge). The region above them never scrolls. Estimated height at default font is about 655dp before insets with one payer row, which fits 360×780dp phones with either navigation mode. A second payer row adds about 70dp (about 725dp), which fits gesture navigation only; when it does not fit, the two-page Category row below takes over and saves about 50dp. Six 48dp slots with 8dp gaps fill the 328dp content width of a 360dp phone exactly. If the 4×2 grid does not fit at the required touch-target size (small screen or enlarged font), the Categories switch to a sideways row of at most two pages, and one swipe shows the second page (PRD FR-10). The row keeps the tile size, and the first tile of the other page peeks in about a quarter tile at the edge. Two page dots (`components.page-dot`) sit centered under the row, `{spacing.2}` below it. The *Other* state swaps the keypad for a description field plus the system text keyboard, with Save just above it.
+**Add/edit expense composition** (top to bottom): compact top bar → amount → message slot (one reserved line in `{typography.message}`, about 20dp, empty unless there is an FR-11 error) → payer picker (`components.payer-picker`: 6 avatars per row, one row up to 6 Members, two rows for 7–10, never scrolls) → 4×2 category grid → keypad (3×4) → wide Save button (`components.button-save`). No section labels above the payer picker or the grid. The keypad and Save are pinned to the bottom inside the system insets (Android 15 draws edge-to-edge). The region above them never scrolls. Estimated height at default font is about 675dp before insets with one payer row, which fits 360×780dp phones with either navigation mode. A second payer row adds about 70dp (about 745dp); when that does not fit, the two-page Category row below takes over and saves about 50dp. Fit is checked on the reference device (Galaxy S25). Six 48dp slots with 8dp gaps fill the 328dp content width of a 360dp phone exactly. **Two-page Category row** (when it applies and how it behaves: EXPERIENCE.md › Component Patterns): the row keeps the tile size, and the first tile of the other page peeks in about a quarter tile at the edge. Two page dots (`components.page-dot`) sit centered under the row, `{spacing.2}` below it. The *Other* state swaps the keypad for a description field plus the system text keyboard, with Save just above it.
 
 ## Elevation & Depth
 
@@ -275,23 +320,29 @@ Soft and friendly, never sharp.
 
 ## Components
 
-- **Header block.** Lagoon gradient. Contents: nav line (back or "☰ הקבוצות שלי", plus the badge "🗂 בארכיון" when archived) → group name with a **"⚙ ✎" tap affordance chip** (hidden on an archived Group) → Trip total in `{typography.trip-total}` → secondary line in `{typography.header-secondary}` → **category share stripe**: 8dp tall, segments proportional to each category's share of the Trip total, in category colors, with 2dp gaps. The stripe appears on the Group page and the Summary.
+- **Header block.** Lagoon gradient. Contents: nav line (back or "☰ הקבוצות שלי", plus the badge "🗂 בארכיון" when archived) → group name with a **"⚙ ✎" tap affordance chip** (Group page only; never on the Summary, hidden on an archived Group) → Trip total in `{typography.trip-total}` → secondary line in `{typography.header-secondary}` → **category share stripe**: 8dp tall, segments proportional to each category's share of the Trip total, in category colors, with 2dp gaps. The stripe appears on the Group page and the Summary, archived or not.
 - **Compact top bar** (add/edit, create group). Gradient, 56dp. ✕ close on the start side, the group name centered. On edit, a red **"🗑 מחיקה"** chip on the end side (`{colors.danger}`).
 - **Button primary / secondary.** See tokens. They always carry a text label. Never icon-only. **Disabled** (`components.button-disabled`): the same button at 40% opacity with no shadow, label unchanged. Used for "+ הוספת הוצאה" and "סיכום" while the Group has fewer than 2 Members; the fixed hint sits above the bar in `{typography.message}`, `{colors.ink-muted}`.
-- **Expense row.** White card, 6dp start-edge stripe and 46dp tinted emoji circle in the category color, title (category name, or the Description for *Other*), meta line "payer · date time", amount on the end side.
+- **Expense row.** White card, 6dp start-edge stripe and 46dp tinted emoji circle in the category color, title (category name, or the Description for *Other*), meta line "payer · time" in `{typography.meta}` (the time format is in EXPERIENCE.md › Voice and Tone), amount on the end side.
+- **Button danger** (`components.button-danger`). The primary-button shape in `{colors.danger}` with `{colors.on-danger}` text and no glow. Used only as the confirm button of destructive sheets: "מחיקה" (Delete), "יציאה" (Exit), "הסרה" (Remove member).
+- **Button save** (`components.button-save`). The wide Save under the keypad: a full-width primary button, 64dp tall.
+- **Text field** (`components.text-field`). White, 52dp, `{rounded.md}`, 2dp `{colors.input-border}` border that turns `{colors.input-border-focus}` on focus. Placeholder in `{colors.ink-secondary}`. Used for the Group name, add-member, Rename sheet and Description. On add-member, a 36dp teal "+" button (`{colors.header-end}`, white "+") sits on the end side inside the field. Validation messages sit directly under the field in `{typography.message}`, `{colors.danger}`.
+- **Member row** (`components.member-row`). In Create group and Group settings: 36dp member avatar with its initial, the name in `{typography.row-title}`, and ✎ and ✕ on the end side in `{colors.ink-secondary}`. The FR-4 refusal sits under the row in `{typography.message}`, `{colors.danger}`. The last row of the list is "+ הוספת משתתף" in `{colors.secondary-ink}`.
+- **Settings row** (`components.settings-row`). White grouped card, 56dp rows separated by a 1dp `{colors.divider}` line. Label on the start side; value ("בודפשט דצמבר ›") in `{typography.meta}` `{colors.ink-secondary}`, or the Toggle, on the end side. "🗂 העברה לארכיון" is a single-row card in `{colors.secondary-ink}`.
+- **Archive link.** "🗂 ארכיון (n)" under the last Group card, centered, 14sp semibold in `{colors.secondary-ink}`, with a 48dp hit area. Hidden when n is 0.
 - **Category tile.** Emoji (22sp) above the name. When selected: 2dp border and 16% tint in the category color, bold label. Emoji: ✈️ Flight · 🏨 Hotel · 🚗 Car · ⛽ Fuel · 🍝 Restaurant · 🛒 Food & drink · 🎡 Attractions · 📝 Other.
 - **Member avatar.** Circle in the member color, showing the first letter of the first name in `{typography.avatar-initial}`. **The first name always appears under the circle.** If two members share a first name, both show first and last name. Selected state (payer picker): a 3dp canvas gap ring plus a 2dp ring in the member's color. Unselected avatars are shown at 55% opacity.
 - **Payer picker** (PRD FR-10). A grid of member avatars, 6 per row, each in a 48dp-wide slot (`components.payer-picker`). One row up to 6 Members; a second row, aligned to the start side, for 7–10. A name of up to 10 characters wraps to two lines under the circle and is never truncated. No horizontal scroll and no edge fade.
-- **Transfer card** (PRD FR-16). One line per Transfer: from the start side, a decorative pair of 32dp member avatars (debtor, then receiver, 4dp apart, with **nothing between them**), then the sentence "תשלום נדרש מ{debtor} ל{receiver}" in `{typography.row-title}`, then the amount in `{typography.transfer-amount}` closing the line on the end side. **No arrow and no other direction symbol** anywhere in the card (NFR-6). Names are bidi-isolated runs. Long names wrap to a second line inside the card; the amount stays at the end. The small avatars show only the initial; the names are in the sentence, so no name is printed under them. No toggle, no stamp, not tappable.
+- **Transfer card** (PRD FR-16). One line per Transfer: from the start side, a decorative pair of 32dp member avatars (debtor, then receiver, 4dp apart, with **nothing between them**), then the sentence "תשלום נדרש מ{debtor} ל{receiver}" in `{typography.row-title}`, then the amount in `{typography.transfer-amount}` closing the line on the end side. **No arrow and no other direction symbol** anywhere in the card (NFR-6). Names are bidi-isolated runs. Long names wrap to a second line inside the card; the amount stays at the end. The small avatars show only the initial; the names are in the sentence, so no name is printed under them.
 - **Toggle.** 52×30dp, `{colors.toggle-off}` / `{colors.toggle-on}`. Used only for the Active setting in Group settings.
 - **Group card** (home). Name, member count, total. The active group gets a 6dp orange start edge plus the badge "⭐ פעילה".
-- **Bottom sheet.** Grab handle, title, body, optional warning strip (`{colors.badge-active-surface}`), and a button row with primary on the start side. The Exit sheet uses the Delete sheet's anatomy, with "יציאה" in `{colors.danger}` and "המשך עריכה" as the secondary button.
-- **Archived group card.** Same anatomy as the Group card, but with `{colors.archived-card-surface}` background, `{colors.archived-card-ink}` text and no colored edge.
+- **Bottom sheet.** Grab handle, title, body, optional warning strip (`{colors.badge-active-surface}`), and a button row with primary on the start side. The Delete, Exit and Remove-member sheets use `components.button-danger` for the confirm ("מחיקה", "יציאה", "הסרה") and a secondary button for the cancel ("ביטול", "המשך עריכה").
+- **Archived group card.** Same anatomy as the Group card, but with `{colors.archived-card-surface}` background, `{colors.archived-card-ink}` text and no colored edge. A "↩ שחזור" text button in `{typography.button-secondary}` `{colors.secondary-ink}` sits on the end side.
 - **Archive note** (PRD FR-6). On an archived Group page and Summary: a strip in `{colors.archived-surface}` with `{colors.archived-ink}` text in `{typography.message}`, starting with 🗂. On the Group page it sits right above the bottom bar, where "↩ שחזור מהארכיון" is the orange primary button. On the Summary it sits under the Transfer cards. The header shows the badge "🗂 בארכיון".
 - **Page dots** (PRD FR-10). Two 8dp dots per `components.page-dot`: current page filled `{colors.secondary-ink}`, other page an outlined ring in `{colors.ink-secondary}`. Shown only for the two-page Category row.
 - **Snackbar.** Pill in `{colors.ink}` with white text, at the bottom above the button bar. Used for "ההוצאה נמחקה".
-- **Keypad.** White panel with `{rounded.xl}` top corners. Keys 1–9, `.`, 0, ⌫, in LTR digit order. There is no "00" key. Below it is the wide Save button.
-- **Deferred to the next version (2026-10-29).** The Transfer toggle and paid card, Payments section, Payment row, Clear-mark sheet, Payment delete sheet, Lock box and the "🔒 נעולה" / "✓ מסולקת" badges are removed from v1 (PRD §6.2). Their earlier specs are preserved in the PRD `addendum.md` and in the marked screens of `mockups/settle-up-screens.html`.
+- **Keypad.** White panel with `{rounded.xl}` top corners. Keys 1–9, `.`, 0, ⌫, in LTR digit order. There is no "00" key. Below it is the wide Save button (`components.button-save`).
+- **Not in v1.** Paid-transfer, lock, Payments and settled-status components and colors are deferred (`specs/spec-groupay/future-phases.md`). Their earlier look survives only in the gray, flagged screens of `mockups/settle-up-screens.html` (its CSS holds the old colors); no token spec was kept.
 
 ## Do's and Don'ts
 

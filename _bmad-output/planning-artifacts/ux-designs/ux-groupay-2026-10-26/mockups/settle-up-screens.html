@@ -4,10 +4,7 @@
 <style>
 /* 2026-10-29: screens 1-4 and 7 are DEFERRED to the next version (PRD §6.2: Paid marks, lock, Payments, settled status).
    They are kept for reference only and do not describe v1. Screens 5, 6 and 8 are updated and still valid for v1.
-   Governing spine sections (2026-10-27 update, superseded where marked):
-   DESIGN.md: Colors (Payments, Status badges), Layout & Spacing (Summary composition, two-page Category row), Components (Payment row, Clear-mark sheet, Payment delete sheet, Archive note, Page dots)
-   EXPERIENCE.md: Information Architecture, Voice and Tone, Component Patterns, State Patterns, Screenshot Contract, Key Flows UJ-2 / UJ-3 / UJ-4
-   PRD: FR-4, FR-6, FR-10, FR-16, FR-17, FR-18, FR-19. Spines win on conflict with this mock. */
+   v1 screens 5, 6 and 8 are governed by DESIGN.md (Colors, Layout & Spacing, Components: Archive note, Page dots) and EXPERIENCE.md (IA, State Patterns, Component Patterns, Key Flows). Spines win on conflict with this mock. */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Heebo, "Segoe UI", Roboto, Arial, sans-serif; background: #E5E7EB; color: #0B2B28; padding: 24px 16px; }
 h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px; max-width: 900px; }
@@ -92,7 +89,7 @@ h1 { font-size: 22px; } .lead { color: #555; font-size: 14px; margin: 4px 0 24px
 .pad { margin-top: auto; background: #fff; border-radius: 24px 24px 0 0; padding: 10px 10px 12px; box-shadow: 0 -4px 14px rgba(11,43,40,.06); }
 .keys { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 48px; gap: 8px; direction: ltr; }
 .k { border-radius: 14px; background: #F3F8F7; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; }
-.wsave { margin-top: 10px; height: 60px; border-radius: 30px; background: #EA580C; color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.wsave { margin-top: 10px; height: 64px; border-radius: 32px; background: #EA580C; color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 </style></head><body>
 <h1>GrouPay: סגירת חשבון, תשלומים וארכיון (עדכון 27.10, סומן מחדש 29.10)</h1>
 <p class="lead" style="color:#B91C1C;font-weight:700">29.10: מסכים 1–4 ו-7 (סימון "שולם", תשלומים, "מסולקת", נעילה) נדחו לגרסה הבאה ואינם חלק מ-v1. הם נשמרים כאן לעיון בלבד, באפור. מסכים 5, 6 ו-8 עודכנו ותקפים ל-v1.</p>

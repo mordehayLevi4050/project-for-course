@@ -13,6 +13,7 @@ None of this is built in v1. It is recorded so that v1 does not make it expensiv
   - Location permission is optional, and declining it never blocks recording an Expense.
   - Offline, the app stores coordinates; showing place names or a map needs a connection.
 - **Text export of the Summary** for Groups too large for one screenshot.
+- **Optional Description for any Category** (founder idea, 2026-11-02). v1 stores a Description only for *Other*, where it is required. To decide when building it: how the field is reached for a regular Category without breaking the NFR-1 tap budget or the Add expense height budget, what the Expense row shows (Category plus Description, or Description only), and whether it appears on the Summary.
 - **Unequal splits.**
   - A Member who joins mid-trip can share earlier Expenses or only later ones (v1 always shares all).
   - A Member who drops out is excluded from later Expenses (v1 only blocks removing a Payer).
