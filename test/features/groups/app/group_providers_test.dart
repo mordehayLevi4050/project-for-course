@@ -36,6 +36,37 @@ final class _SlowRepos implements GroupRepository, MemberRepository {
     return c.future;
   }
 
+  final renameGroupCalls = <Completer<Result<Group>>>[];
+  final renameMemberCalls = <Completer<Result<Member>>>[];
+  final removeCalls = <Completer<Result<void>>>[];
+
+  @override
+  Future<Result<Group>> renameGroup({
+    required String id,
+    required String name,
+  }) {
+    final c = Completer<Result<Group>>();
+    renameGroupCalls.add(c);
+    return c.future;
+  }
+
+  @override
+  Future<Result<Member>> renameMember({
+    required String id,
+    required String name,
+  }) {
+    final c = Completer<Result<Member>>();
+    renameMemberCalls.add(c);
+    return c.future;
+  }
+
+  @override
+  Future<Result<void>> removeMember({required String id}) {
+    final c = Completer<Result<void>>();
+    removeCalls.add(c);
+    return c.future;
+  }
+
   @override
   Stream<List<GroupListItem>> watchGroups() => const Stream.empty();
 
@@ -115,5 +146,48 @@ void main() {
     // The next add goes through.
     unawaited(notifier.submit(id: 'm2', name: 'Yossi'));
     expect(repos.memberCalls, hasLength(2));
+  });
+
+  test('RenameGroup ignores calls while a save is in flight', () async {
+    final sub = container.listen(renameGroupProvider, (_, _) {});
+    addTearDown(sub.close);
+    final notifier = container.read(renameGroupProvider.notifier);
+
+    final first = notifier.submit(id: 'g', name: 'Eilat 2026');
+    expect(container.read(renameGroupProvider), isTrue);
+    expect(await notifier.submit(id: 'g', name: 'Eilat 2026'), isNull);
+    expect(repos.renameGroupCalls, hasLength(1));
+
+    repos.renameGroupCalls.single.complete(const Ok(group));
+    expect(await first, const Ok(group));
+    expect(container.read(renameGroupProvider), isFalse);
+  });
+
+  test('RenameMember ignores calls while a save is in flight', () async {
+    final sub = container.listen(renameMemberProvider, (_, _) {});
+    addTearDown(sub.close);
+    final notifier = container.read(renameMemberProvider.notifier);
+
+    final first = notifier.submit(id: 'm', name: 'Danna');
+    expect(await notifier.submit(id: 'm', name: 'Danna'), isNull);
+    expect(repos.renameMemberCalls, hasLength(1));
+
+    repos.renameMemberCalls.single.complete(const Ok(member));
+    expect(await first, const Ok(member));
+    expect(container.read(renameMemberProvider), isFalse);
+  });
+
+  test('RemoveMember ignores calls while a removal is in flight', () async {
+    final sub = container.listen(removeMemberProvider, (_, _) {});
+    addTearDown(sub.close);
+    final notifier = container.read(removeMemberProvider.notifier);
+
+    final first = notifier.submit(id: 'm');
+    expect(await notifier.submit(id: 'm'), isNull);
+    expect(repos.removeCalls, hasLength(1));
+
+    repos.removeCalls.single.complete(const Ok<void>(null));
+    expect((await first)!.isOk, isTrue);
+    expect(container.read(removeMemberProvider), isFalse);
   });
 }

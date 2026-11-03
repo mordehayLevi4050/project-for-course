@@ -29,8 +29,7 @@ class GroupPage extends ConsumerWidget {
               onNav: () => context.go('/'),
               name: group.name,
               chipLabel: MessageKey.groupSettingsChip.text,
-              // Group settings arrive in part 2b.
-              onChip: null,
+              onChip: () => context.go('/group/$groupId/settings'),
               // The Trip total comes from GroupTotalsPort with Expenses.
               total: formatShekel(Tenths.zero),
               secondaryLine: memberCountText(memberCount),

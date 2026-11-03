@@ -20,6 +20,7 @@ import 'package:groupay/shell/router.dart';
 
 import '../../../support/app_harness.dart';
 import '../../../support/fake_clock.dart';
+import '../../../support/fake_payer_usage.dart';
 
 /// A [GroupRepository] whose createGroup completes only when the test says so.
 final class _PendingGroupRepository implements GroupRepository {
@@ -34,6 +35,12 @@ final class _PendingGroupRepository implements GroupRepository {
     calls++;
     return pending.future;
   }
+
+  @override
+  Future<Result<Group>> renameGroup({
+    required String id,
+    required String name,
+  }) => throw UnimplementedError();
 
   @override
   Stream<List<GroupListItem>> watchGroups() => Stream.value(const []);
@@ -305,7 +312,7 @@ void main() {
         overrides: [
           groupRepositoryProvider.overrideWithValue(repo),
           memberRepositoryProvider.overrideWithValue(
-            DriftMemberRepository(db, FakeClock()),
+            DriftMemberRepository(db, FakeClock(), FakePayerUsage()),
           ),
         ],
         child: GrouPayApp(router: buildRouter()),

@@ -67,6 +67,22 @@ enum MessageKey {
   removeMemberBody('ההוצאות יתחלקו מחדש בין {n} המשתתפים הנותרים.'),
   removeMemberConfirm('הסרה'),
 
+  /// The compact top bar back control (start side, RTL).
+  back('→'),
+
+  /// The Members section label in Group settings.
+  membersCount('משתתפים ({n})'),
+
+  /// A settings-row value that opens more. {value} is a name, so it must be
+  /// the result of `isolateName()`.
+  rowValue('{value} ›'),
+
+  /// The rename control on a Member row.
+  renameGlyph('✎'),
+
+  /// The remove control on a Member row.
+  removeGlyph('✕'),
+
   // --- Exit sheet --------------------------------------------------------
   exitTitle('לצאת ללא שמירה?'),
   exitBody('מה שהזנת לא יישמר.'),

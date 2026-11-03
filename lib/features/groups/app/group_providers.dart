@@ -71,3 +71,67 @@ class AddMember extends _$AddMember {
     }
   }
 }
+
+/// Renames a Group. The state is `true` while a save is in flight; calls made
+/// meanwhile are ignored and return `null`.
+@riverpod
+class RenameGroup extends _$RenameGroup {
+  @override
+  bool build() => false;
+
+  Future<Result<Group>?> submit({
+    required String id,
+    required String name,
+  }) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref
+          .read(groupRepositoryProvider)
+          .renameGroup(id: id, name: name);
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+/// Renames a Member. The state is `true` while a save is in flight; calls
+/// made meanwhile are ignored and return `null`.
+@riverpod
+class RenameMember extends _$RenameMember {
+  @override
+  bool build() => false;
+
+  Future<Result<Member>?> submit({
+    required String id,
+    required String name,
+  }) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref
+          .read(memberRepositoryProvider)
+          .renameMember(id: id, name: name);
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+/// Removes a Member. The state is `true` while a removal is in flight; calls
+/// made meanwhile are ignored and return `null`.
+@riverpod
+class RemoveMember extends _$RemoveMember {
+  @override
+  bool build() => false;
+
+  Future<Result<void>?> submit({required String id}) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref.read(memberRepositoryProvider).removeMember(id: id);
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}

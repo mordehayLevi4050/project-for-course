@@ -9,11 +9,10 @@ import '../../../core/text/names.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
 import '../../../core/ui/widgets/compact_top_bar.dart';
-import '../../../core/ui/widgets/member_avatar.dart';
 import '../../../core/ui/widgets/name_field.dart';
 import '../app/group_providers.dart';
 import '../domain/group.dart';
-import '../domain/member.dart';
+import 'member_list.dart';
 
 /// Create group (FR-1, FR-2): two stages on one screen.
 ///
@@ -99,61 +98,24 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   }
 }
 
-/// Stage 2: the Members section of the Group just created.
-class _MembersStage extends ConsumerStatefulWidget {
+/// Stage 2: the Members section of the Group just created. Each added name
+/// appears at once as a row with ✎ and ✕ (shared with Group settings).
+class _MembersStage extends ConsumerWidget {
   const _MembersStage({required this.group});
 
   final Group group;
 
   @override
-  ConsumerState<_MembersStage> createState() => _MembersStageState();
-}
-
-class _MembersStageState extends ConsumerState<_MembersStage> {
-  /// Generated when the field opens and again after each successful add.
-  String _memberFormId = newId();
-  final _controller = TextEditingController();
-  final _focusNode = FocusNode();
-  MessageKey? _error;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  Future<void> _addMember() async {
-    final result = await ref
-        .read(addMemberProvider(widget.group.id).notifier)
-        .submit(id: _memberFormId, name: _controller.text);
-    if (!mounted || result == null) return;
-    setState(() {
-      switch (result) {
-        case Ok():
-          _memberFormId = newId();
-          _controller.clear();
-          _error = null;
-        case Failure(:final message):
-          _error = message;
-      }
-    });
-    _focusNode.requestFocus();
-  }
-
-  void _finish() => context.go('/group/${widget.group.id}');
-
-  @override
-  Widget build(BuildContext context) {
-    final members = ref.watch(membersProvider(widget.group.id)).value ?? [];
-    final saving = ref.watch(addMemberProvider(widget.group.id));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final members = ref.watch(membersProvider(group.id)).value ?? [];
+    void finish() => context.go('/group/${group.id}');
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _finish();
+        if (!didPop) finish();
       },
       child: AppScaffold(
-        header: CompactTopBar(title: widget.group.name),
+        header: CompactTopBar(title: group.name),
         // At most 10 rows: built eagerly, so the add field always exists
         // and can scroll itself into view while typing.
         body: SingleChildScrollView(
@@ -168,60 +130,15 @@ class _MembersStageState extends ConsumerState<_MembersStage> {
                 ),
               ),
               const SizedBox(height: AppSpacing.s2),
-              for (final member in members) ...[
-                _MemberRow(
-                  member: member,
-                  groupNames: members.map((m) => m.name),
-                ),
-                const SizedBox(height: AppSpacing.s2),
+              if (members.isNotEmpty) ...[
+                MemberList(members: members),
+                const SizedBox(height: AppSpacing.s3),
               ],
-              NameField(
-                controller: _controller,
-                focusNode: _focusNode,
-                maxLength: maxMemberNameLength,
-                autofocus: true,
-                hint: MessageKey.memberNamePlaceholder.text,
-                error: _error,
-                onChanged: (_) {
-                  if (_error != null) setState(() => _error = null);
-                },
-                onSubmit: saving ? () {} : _addMember,
-                onAdd: saving ? () {} : _addMember,
-              ),
+              MemberAddField(groupId: group.id),
             ],
           ),
         ),
-        bottomBar: _PrimaryBar(label: MessageKey.done.text, onPressed: _finish),
-      ),
-    );
-  }
-}
-
-/// A Member row: the colored avatar with the first word under it. Rename
-/// (✎) and remove (✕) join the row with Group settings (part 2b).
-class _MemberRow extends StatelessWidget {
-  const _MemberRow({required this.member, required this.groupNames});
-
-  final Member member;
-  final Iterable<String> groupNames;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: AppSizes.rowMinHeight),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s3,
-        vertical: AppSpacing.s2,
-      ),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceRaised,
-        borderRadius: BorderRadius.all(Radius.circular(AppRadii.md)),
-      ),
-      alignment: AlignmentDirectional.centerStart,
-      child: MemberAvatar(
-        name: member.name,
-        memberSeq: member.memberSeq,
-        label: avatarLabel(member.name, groupNames),
+        bottomBar: _PrimaryBar(label: MessageKey.done.text, onPressed: finish),
       ),
     );
   }

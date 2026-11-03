@@ -8,6 +8,7 @@ import 'package:groupay/features/groups/data/drift_member_repository.dart';
 import 'package:groupay/features/groups/domain/group.dart';
 
 import '../../../support/fake_clock.dart';
+import '../../../support/fake_payer_usage.dart';
 import '../../../support/uuid_v7.dart';
 
 void main() {
@@ -41,7 +42,7 @@ void main() {
   test('the list carries the Member count of each Group', () async {
     final eilat = await create('Eilat');
     await create('Budapest');
-    final members = DriftMemberRepository(db, clock);
+    final members = DriftMemberRepository(db, clock, FakePayerUsage());
     await members.addMember(id: newId(), groupId: eilat.id, name: 'Dana');
     await members.addMember(id: newId(), groupId: eilat.id, name: 'Yossi');
 
@@ -129,5 +130,77 @@ void main() {
     final g = await create('Eilat');
     expect(await repo.watchGroup(g.id).first, g);
     expect(await repo.watchGroup('missing').first, isNull);
+  });
+
+  group('renameGroup', () {
+    Future<Result<Group>> rename(Group g, String name) =>
+        repo.renameGroup(id: g.id, name: name);
+
+    Future<GroupRow> rowOf(Group g) =>
+        (db.select(db.groups)..where((r) => r.id.equals(g.id))).getSingle();
+
+    test('"Budapest" → "Budapest 2026": shown in the list and by id; '
+        'createdAt and groupSeq do not change', () async {
+      clock.now = 1000;
+      final g = await create('Budapest');
+      clock.now = 6000;
+      final renamed = ((await rename(g, 'Budapest 2026')) as Ok<Group>).value;
+
+      expect(renamed.name, 'Budapest 2026');
+      final row = await rowOf(g);
+      expect(row.nameKey, 'budapest 2026');
+      expect(row.modifiedAt, 6000);
+      expect(row.createdAt, 1000);
+      expect(row.groupSeq, g.groupSeq);
+      expect(await repo.watchGroup(g.id).first, renamed);
+      expect((await repo.watchGroups().first).single.group, renamed);
+    });
+
+    test(
+      'unchanged "Budapest" → "Budapest" is Ok and writes nothing',
+      () async {
+        clock.now = 1000;
+        final g = await create('Budapest');
+        clock.now = 6000;
+        expect(await rename(g, 'Budapest'), Ok(g));
+        expect((await rowOf(g)).modifiedAt, 1000);
+      },
+    );
+
+    test('case-only "budapest" → "Budapest" is saved', () async {
+      final g = await create('budapest');
+      expect((await rename(g, 'Budapest')).isOk, isTrue);
+      expect((await rowOf(g)).name, 'Budapest');
+    });
+
+    for (final blank in ['', '  ']) {
+      test('"Budapest" → "$blank": nameRequired, name unchanged', () async {
+        final g = await create('Budapest');
+        expect(
+          await rename(g, blank),
+          const Failure<Group>(MessageKey.nameRequired),
+        );
+        expect((await rowOf(g)).name, 'Budapest');
+      });
+    }
+
+    test(
+      '"Eilat" → " budapest " when "Budapest" exists: groupNameTaken',
+      () async {
+        await create('Budapest');
+        final eilat = await create('Eilat');
+        expect(
+          await rename(eilat, ' budapest '),
+          const Failure<Group>(MessageKey.groupNameTaken),
+        );
+        expect((await rowOf(eilat)).name, 'Eilat');
+      },
+    );
+
+    test('the name is trimmed and cut to 20 grapheme clusters', () async {
+      final g = await create('Eilat');
+      final renamed = ((await rename(g, ' ${'y' * 25} ')) as Ok<Group>).value;
+      expect(renamed.name, 'y' * 20);
+    });
   });
 }

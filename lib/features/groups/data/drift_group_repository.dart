@@ -84,6 +84,44 @@ final class DriftGroupRepository implements GroupRepository {
     await _db.into(_db.groups).insert(row);
     return Ok(groupFromRow(row));
   });
+
+  @override
+  Future<Result<Group>> renameGroup({
+    required String id,
+    required String name,
+  }) => _db.transaction(() async {
+    final current = await (_db.select(
+      _db.groups,
+    )..where((g) => g.id.equals(id))).getSingleOrNull();
+    if (current == null) throw StateError('No Group $id to rename');
+
+    if (isBlankName(name)) return const Failure(MessageKey.nameRequired);
+    final normalized = normalizeNameWithin(name, maxGroupNameLength);
+    final key = nameKey(normalized);
+
+    // Checked against every Group except this one (FR-5).
+    final taken = await (_db.select(
+      _db.groups,
+    )..where((g) => g.nameKey.equals(key) & g.id.equals(id).not())).get();
+    if (taken.isNotEmpty) return const Failure(MessageKey.groupNameTaken);
+
+    // An unchanged name writes nothing.
+    if (normalized == current.name) return Ok(groupFromRow(current));
+
+    final now = _clock.nowUtcMillis();
+    await (_db.update(_db.groups)..where((g) => g.id.equals(id))).write(
+      GroupsCompanion(
+        name: Value(normalized),
+        nameKey: Value(key),
+        modifiedAt: Value(now),
+      ),
+    );
+    return Ok(
+      groupFromRow(
+        current.copyWith(name: normalized, nameKey: key, modifiedAt: now),
+      ),
+    );
+  });
 }
 
 /// Maps a drift row to the domain entity (rows never leave `data/`).

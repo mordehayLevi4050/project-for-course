@@ -18,4 +18,23 @@ abstract interface class MemberRepository {
     required String groupId,
     required String name,
   });
+
+  /// Renames the Member [id] to [name], in one transaction (FR-3).
+  ///
+  /// Blank → `nameRequired`; taken by another Member of the same Group (by
+  /// `nameKey`) → `memberNameTaken`. The Member's own name is never a
+  /// duplicate, so an unchanged or case-only rename succeeds. Updates `name`,
+  /// `nameKey` and `modifiedAt`; never `createdAt` or `memberSeq`. An unknown
+  /// [id] is a bug and throws a [StateError].
+  Future<Result<Member>> renameMember({
+    required String id,
+    required String name,
+  });
+
+  /// Removes the Member [id], in one transaction (FR-4).
+  ///
+  /// A Member who is the Payer of any Expense (asked through
+  /// `PayerUsagePort`) is refused with `memberIsPayer`. A Member that no
+  /// longer exists returns [Ok] and writes nothing.
+  Future<Result<void>> removeMember({required String id});
 }

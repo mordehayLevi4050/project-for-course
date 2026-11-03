@@ -1,0 +1,48 @@
+import 'package:flutter/material.dart';
+
+import '../../i18n/message_key.dart';
+import '../theme/tokens.dart';
+import 'app_sheet.dart';
+
+/// The confirm button of destructive sheets (`components.button-danger`):
+/// the primary pill in danger red, with no glow.
+final ButtonStyle dangerButtonStyle = FilledButton.styleFrom(
+  backgroundColor: AppColors.danger,
+  foregroundColor: AppColors.onDanger,
+  shadowColor: Colors.transparent,
+  elevation: 0,
+);
+
+/// A destructive confirmation sheet (Remove member; later Delete and Exit):
+/// the [title], an optional [body], the danger [confirmLabel] button on the
+/// start side and "ביטול" beside it.
+///
+/// Resolves to `true` when confirmed and `null` when dismissed ("ביטול", the
+/// scrim or system back). It writes nothing itself: the caller runs the
+/// action, whose policy check stays in the repository transaction.
+Future<bool?> showConfirmSheet(
+  BuildContext context, {
+  required String title,
+  required String confirmLabel,
+  String? body,
+}) => showAppSheet<bool>(
+  context,
+  builder: (context) => AppSheetLayout(
+    title: title,
+    body: body == null
+        ? null
+        : Text(
+            body,
+            style: AppTextStyles.message.copyWith(color: AppColors.ink),
+          ),
+    primary: FilledButton(
+      style: dangerButtonStyle,
+      onPressed: () => Navigator.of(context).pop(true),
+      child: Text(confirmLabel),
+    ),
+    secondary: OutlinedButton(
+      onPressed: () => Navigator.of(context).pop(),
+      child: Text(MessageKey.cancel.text),
+    ),
+  ),
+);

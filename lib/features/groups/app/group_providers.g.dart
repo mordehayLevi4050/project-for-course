@@ -380,3 +380,186 @@ abstract class _$AddMember extends $Notifier<bool> {
     return element.handleCreate(ref, () => build(_$args));
   }
 }
+
+/// Renames a Group. The state is `true` while a save is in flight; calls made
+/// meanwhile are ignored and return `null`.
+
+@ProviderFor(RenameGroup)
+final renameGroupProvider = RenameGroupProvider._();
+
+/// Renames a Group. The state is `true` while a save is in flight; calls made
+/// meanwhile are ignored and return `null`.
+final class RenameGroupProvider extends $NotifierProvider<RenameGroup, bool> {
+  /// Renames a Group. The state is `true` while a save is in flight; calls made
+  /// meanwhile are ignored and return `null`.
+  RenameGroupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'renameGroupProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$renameGroupHash();
+
+  @$internal
+  @override
+  RenameGroup create() => RenameGroup();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$renameGroupHash() => r'f870f30f04dd95718e61a4d0a04faf8d5a4be80a';
+
+/// Renames a Group. The state is `true` while a save is in flight; calls made
+/// meanwhile are ignored and return `null`.
+
+abstract class _$RenameGroup extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Renames a Member. The state is `true` while a save is in flight; calls
+/// made meanwhile are ignored and return `null`.
+
+@ProviderFor(RenameMember)
+final renameMemberProvider = RenameMemberProvider._();
+
+/// Renames a Member. The state is `true` while a save is in flight; calls
+/// made meanwhile are ignored and return `null`.
+final class RenameMemberProvider extends $NotifierProvider<RenameMember, bool> {
+  /// Renames a Member. The state is `true` while a save is in flight; calls
+  /// made meanwhile are ignored and return `null`.
+  RenameMemberProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'renameMemberProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$renameMemberHash();
+
+  @$internal
+  @override
+  RenameMember create() => RenameMember();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$renameMemberHash() => r'b546d2ad6af0d5af8cdeb04bad933e19daf8f360';
+
+/// Renames a Member. The state is `true` while a save is in flight; calls
+/// made meanwhile are ignored and return `null`.
+
+abstract class _$RenameMember extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Removes a Member. The state is `true` while a removal is in flight; calls
+/// made meanwhile are ignored and return `null`.
+
+@ProviderFor(RemoveMember)
+final removeMemberProvider = RemoveMemberProvider._();
+
+/// Removes a Member. The state is `true` while a removal is in flight; calls
+/// made meanwhile are ignored and return `null`.
+final class RemoveMemberProvider extends $NotifierProvider<RemoveMember, bool> {
+  /// Removes a Member. The state is `true` while a removal is in flight; calls
+  /// made meanwhile are ignored and return `null`.
+  RemoveMemberProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'removeMemberProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$removeMemberHash();
+
+  @$internal
+  @override
+  RemoveMember create() => RemoveMember();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$removeMemberHash() => r'932b4f4eb59ef6d4fd1e25d9baa0bbdebcf7ff4b';
+
+/// Removes a Member. The state is `true` while a removal is in flight; calls
+/// made meanwhile are ignored and return `null`.
+
+abstract class _$RemoveMember extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

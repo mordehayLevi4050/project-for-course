@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/misc.dart';
 
 import '../core/db/app_database.dart';
 import '../core/db/database_provider.dart';
+import '../core/ports/payer_usage_port.dart';
 import '../core/ports/port_providers.dart';
 import '../core/time/clock.dart';
 import '../core/time/clock_provider.dart';
@@ -12,13 +13,17 @@ import 'payer_usage_stand_in.dart';
 
 /// Binds every interface provider to its implementation (AD-21). This is the
 /// only place that knows the concrete classes.
+///
+/// [payerUsage] defaults to the stand-in until Story 1.3; tests may pass a
+/// fake.
 List<Override> appOverrides({
   required AppDatabase database,
   Clock clock = const SystemClock(),
+  PayerUsagePort payerUsage = const NoPayerUsage(),
 }) => [
   appDatabaseProvider.overrideWithValue(database),
   clockProvider.overrideWithValue(clock),
-  payerUsagePortProvider.overrideWithValue(const NoPayerUsage()),
+  payerUsagePortProvider.overrideWithValue(payerUsage),
   groupRepositoryProvider.overrideWith(
     (ref) => DriftGroupRepository(
       ref.watch(appDatabaseProvider),
@@ -29,6 +34,7 @@ List<Override> appOverrides({
     (ref) => DriftMemberRepository(
       ref.watch(appDatabaseProvider),
       ref.watch(clockProvider),
+      ref.watch(payerUsagePortProvider),
     ),
   ),
 ];
