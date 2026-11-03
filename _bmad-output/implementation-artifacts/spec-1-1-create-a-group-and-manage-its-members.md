@@ -2,7 +2,8 @@
 title: 'Story 1.1 (part 1): Project foundation and shared kernel'
 type: 'feature'
 created: '2026-11-02'
-status: 'ready-for-dev'
+status: 'done'
+baseline_commit: 'b9ea561f698c8eef22924d779d50d49d88c3be5b'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -70,20 +71,20 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `pubspec.yaml`, `build.yaml`, `analysis_options.yaml`, `assets/fonts/` -- pin the stack, register Heebo, register `AppDatabase` in `build.yaml` for drift's `make-migrations`, enable `riverpod_generator`.
-- [ ] `%USERPROFILE%\.groupay\groupay-release.jks`, `android/key.properties` -- create an RSA 2048 key valid for 10000 days with alias `groupay` and random passwords via `keytool`. Write `storeFile` (absolute path), `storePassword`, `keyAlias` and `keyPassword`.
-- [ ] `android/app/build.gradle.kts`, `MainActivity.kt`, `AndroidManifest.xml`, `res/xml/*` -- apply the AR4 config. The release `signingConfig` reads `key.properties` and throws a `GradleException` when the file is missing and a release task runs.
-- [ ] `lib/core/result/` -- `Result<T>` = `Ok(T)` | `Failure(MessageKey)`.
-- [ ] `lib/core/money/` -- `Tenths` extension type, keypad parsing and bounds (>0, ≤ ₪1,000,000, ≤1 decimal), `formatShekel()`.
-- [ ] `lib/core/text/` -- `normalizeName`, `nameKey`, `graphemeLength`, a `GraphemeLimitFormatter` (`TextInputFormatter`; it lives under `core/text` but may import `flutter/services`), `compareNames` (FR15).
-- [ ] `lib/core/i18n/` -- `MessageKey` enum with Hebrew text for this story's and Story 1.1's keys (including `nameRequired`, `groupNameTaken`, `memberNameTaken`, `membersLimit`, `emptyGroupList`, `newGroup`), and `isolateName()`.
-- [ ] `lib/core/policy/` -- `Verdict` (Allow/Deny(MessageKey)), `mayAddMember`, `mayRemoveMember`, `nextMemberSeq`.
-- [ ] `lib/core/ports/payer_usage_port.dart`, `lib/core/time/clock.dart` -- the port interface (`Future<bool> isPayer(groupId, memberId)`) and the `Clock` interface returning UTC epoch ms.
-- [ ] `lib/core/db/` -- `AppDatabase`, `tables/{groups,members}.dart`, pragmas, a connection via drift_flutter, a `NativeDatabase.memory()` test hook, `drift_schemas/` and the generated migration test.
-- [ ] `lib/core/ui/theme/`, `lib/core/ui/widgets/app_scaffold.dart`, `motion.dart` -- tokens, the light `ThemeData` with Heebo, `AppScaffold`, and the animation helper that honors `disableAnimations`.
-- [ ] `lib/features/{groups,expenses}/{ui,app,domain,data}/.gitkeep`, `lib/features/groups/ui/group_list_screen.dart` -- empty layer folders plus a static empty-state list screen ("כאן תופיע רשימת הקבוצות" and the "+ קבוצה חדשה" button; tapping it does nothing yet).
-- [ ] `lib/shell/` -- `main()`, the `ProviderScope` with `AppDatabase`, `Clock` and a `PayerUsagePort` stand-in that returns false, a `go_router` `/` route using `NoTransitionPage`, locale `he` with RTL and the delegates, and the text scale clamped to 1.5.
-- [ ] `test/core/**`, `test/shell/app_test.dart` -- unit tests for every matrix row and every public core function; a DB test (pragmas on, constraints rejecting a duplicate `nameKey` and `memberSeq`); a widget smoke test (RTL, empty state shown, text scale clamped).
+- [x] `pubspec.yaml`, `build.yaml`, `analysis_options.yaml`, `assets/fonts/` -- pin the stack, register Heebo, register `AppDatabase` in `build.yaml` for drift's `make-migrations`, enable `riverpod_generator`.
+- [x] `%USERPROFILE%\.groupay\groupay-release.jks`, `android/key.properties` -- create an RSA 2048 key valid for 10000 days with alias `groupay` and random passwords via `keytool`. Write `storeFile` (absolute path), `storePassword`, `keyAlias` and `keyPassword`.
+- [x] `android/app/build.gradle.kts`, `MainActivity.kt`, `AndroidManifest.xml`, `res/xml/*` -- apply the AR4 config. The release `signingConfig` reads `key.properties` and throws a `GradleException` when the file is missing and a release task runs.
+- [x] `lib/core/result/` -- `Result<T>` = `Ok(T)` | `Failure(MessageKey)`.
+- [x] `lib/core/money/` -- `Tenths` extension type, keypad parsing and bounds (>0, ≤ ₪1,000,000, ≤1 decimal), `formatShekel()`.
+- [x] `lib/core/text/` -- `normalizeName`, `nameKey`, `graphemeLength`, a `GraphemeLimitFormatter` (`TextInputFormatter`; it lives under `core/text` but may import `flutter/services`), `compareNames` (FR15).
+- [x] `lib/core/i18n/` -- `MessageKey` enum with Hebrew text for this story's and Story 1.1's keys (including `nameRequired`, `groupNameTaken`, `memberNameTaken`, `membersLimit`, `emptyGroupList`, `newGroup`), and `isolateName()`.
+- [x] `lib/core/policy/` -- `Verdict` (Allow/Deny(MessageKey)), `mayAddMember`, `mayRemoveMember`, `nextMemberSeq`.
+- [x] `lib/core/ports/payer_usage_port.dart`, `lib/core/time/clock.dart` -- the port interface (`Future<bool> isPayer(groupId, memberId)`) and the `Clock` interface returning UTC epoch ms.
+- [x] `lib/core/db/` -- `AppDatabase`, `tables/{groups,members}.dart`, pragmas, a connection via drift_flutter, a `NativeDatabase.memory()` test hook, `drift_schemas/` and the generated migration test.
+- [x] `lib/core/ui/theme/`, `lib/core/ui/widgets/app_scaffold.dart`, `motion.dart` -- tokens, the light `ThemeData` with Heebo, `AppScaffold`, and the animation helper that honors `disableAnimations`.
+- [x] `lib/features/{groups,expenses}/{ui,app,domain,data}/.gitkeep`, `lib/features/groups/ui/group_list_screen.dart` -- empty layer folders plus a static empty-state list screen ("כאן תופיע רשימת הקבוצות" and the "+ קבוצה חדשה" button; tapping it does nothing yet).
+- [x] `lib/shell/` -- `main()`, the `ProviderScope` with `AppDatabase`, `Clock` and a `PayerUsagePort` stand-in that returns false, a `go_router` `/` route using `NoTransitionPage`, locale `he` with RTL and the delegates, and the text scale clamped to 1.5.
+- [x] `test/core/**`, `test/shell/app_test.dart` -- unit tests for every matrix row and every public core function; a DB test (pragmas on, constraints rejecting a duplicate `nameKey` and `memberSeq`); a widget smoke test (RTL, empty state shown, text scale clamped).
 
 **Acceptance Criteria:**
 - Given the finished part, when `flutter analyze` and `flutter test` run, then both pass with zero issues.
@@ -93,9 +94,38 @@ context:
 
 ## Implementation Notes
 
+- Heebo: google/fonts ships only the variable `Heebo[wght].ttf`. It is bundled as `assets/fonts/Heebo-VariableFont_wght.ttf` (+ `OFL.txt`), registered for weights 400/600/700/800, and every `AppTextStyles` token also sets `FontVariation.weight(...)` so the right instance renders.
+- Keystore: PKCS12 (keytool's default) requires store password = key password, so `key.properties` holds one random 32-char password for both. Alias `groupay`, RSA 2048, 10000 days, `C:/Users/Windows 11/.groupay/groupay-release.jks`. SHA-256 `3C:1B:B0:F2:5A:11:85:FB:3F:68:59:AB:0D:2C:63:ED:E6:A8:55:81:6F:2F:8C:E6:65:CB:F5:A3:D1:56:0F:B8`.
+- Migrations: with one schema version `make-migrations` writes only `drift_schemas/app_database/drift_schema_v1.json`; drift emits the steps file and its migration test from v2 on. Until then `test/core/db/app_database/migration_test.dart` validates the live schema against the v1 snapshot via the helpers from `drift_dev schema generate` (`test/core/db/app_database/generated/`). Re-run `make-migrations` at v2; it will add its own generated test next to it.
+- Provider declarations for the kernel interfaces live beside them in separate files (`core/db/database_provider.dart`, `core/time/clock_provider.dart`, `core/ports/port_providers.dart`) using pure-Dart `riverpod_annotation`; the interface files themselves import nothing. All three throw until `shell/overrides.dart` binds them.
+- `lib/main.dart` is `export 'shell/main.dart' show main;`.
+- Release buildType does not set `isDebuggable = true` (AD-19 trip build); left for the trip-build story since this spec's AR4 list does not include it.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---------|---------|-------|----------|
+| 1 | Profile build installs as `com.mordehay.groupay` signed with the debug key | medium | patch | FlutterPlugin.kt:207-210 creates `profile` via `initWith(debug)` at plugin apply, before our `debug { applicationIdSuffix }` runs, so profile has no suffix and the debug signing config; violates "builds installed as com.mordehay.groupay are release-signed". |
+| 2 | Release guard ignores profile tasks | medium | patch (same root as 1) | Fixed by giving profile the `.dev` suffix, so it never claims the release id. |
+| 3 | `characters: any` not pinned | low | patch | pubspec.lock resolves 1.4.1; spec says pin the stack; direct correction. |
+| 4 | `invalid_annotation_target: ignore` project-wide with no user | low | patch | No freezed/json_serializable in the diff; delete if analyze stays clean. |
+| 5 | `removeMemberBody` ungrammatical when n=1 | medium | defer | Text is copied verbatim from EXPERIENCE.md:99; the UX copy needs a singular variant; not used until part 2. |
+| 6 | GraphemeLimitFormatter mid-text paste drops trailing original text | low | reject | Real, but mid-text paste into a 10/20-grapheme name field is rare and the fix adds segment-trimming logic. |
+| 7 | Formatter blocks backspace on an over-limit preset value | false | reject | All text enters through the formatter and stored names are within limits; no path shown that presets an over-limit value. |
+| 8 | Formatter drops IME composing range on truncation | low | reject | Same behavior as Flutter's own LengthLimitingTextInputFormatter; only on over-limit input. |
+| 9 | Names: invisible/bidi chars and NFC not normalized (uniqueness bypass, blank name, broken isolation) | low | reject | Real only for pasted control chars or mixed normalization forms; spec/epics define normalization as trim; fix adds stripping rules. |
+| 10 | isolateName: presentation forms / leading combining mark get a hyphen | low | reject | Negligible; phone keyboards emit U+05D0-05EA letters. |
+| 11 | Partial key.properties gives an unclear null error | low | reject | Only reachable with a hand-corrupted file; fix adds guards. |
+| 12 | Debug and release share the launcher label | low | reject | Spec fixes label "GrouPay"; cosmetic. |
+| 13 | memberCountZero missing | false | reject | No caller exists; nothing displays a zero count. |
+| 14 | Fixed-message test does not parse ui-messages.md | low | reject | Strings verified equal to ui-messages.md during triage; parsing docs in tests adds coupling. |
+| 15 | No UUID v7 helper | false | reject | Not a task of this part; ids are generated in part 2 repositories. |
+| 16 | No CHECK constraints | false | reject | Spec requires the tables exactly as epics.md defines them. |
+| 17 | Heebo loading not tested | low | reject | Golden tests with bundled Heebo belong to the Summary story; release APK contains the font asset. |
+| 18 | Accented Latin collates as "other" | false | reject | Matches FR15 / spec: Latin A–Z only. |
+| 19 | Verification gaps: release-without-key, backup flags/minSdk, cursor test | low | reject | Fix is to edit this spec's Verification; release-without-key was run during step 3 and failed with the GradleException as required. |
 
 ## Verification
 

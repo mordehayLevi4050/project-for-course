@@ -1,4 +1,4 @@
-package com.example.groupay
+package com.mordehay.groupay
 
 import io.flutter.embedding.android.FlutterActivity
 

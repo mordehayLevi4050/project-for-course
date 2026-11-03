@@ -1,0 +1,10 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          databases:
+            app_database: lib/core/db/app_database.dart
+          test_dir: test/core/db/
+          schema_dir: drift_schemas/
+          store_date_time_values_as_text: false

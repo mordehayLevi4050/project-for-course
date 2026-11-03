@@ -1,11 +1,23 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// AD-19: the release keystore lives outside git. android/key.properties (gitignored)
+// points at it. Release builds never fall back to the debug key.
+val keyPropertiesFile = rootProject.file("key.properties")
+val keyProperties = Properties().apply {
+    if (keyPropertiesFile.exists()) {
+        keyPropertiesFile.inputStream().use { load(it) }
+    }
+}
+
 android {
-    namespace = "com.example.groupay"
+    // applicationId never changes (AD-19).
+    namespace = "com.mordehay.groupay"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,26 +27,52 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.groupay"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        applicationId = "com.mordehay.groupay"
+        minSdk = 35
         targetSdk = flutter.targetSdkVersion
-        // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
-        // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
-        // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
-        // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+    signingConfigs {
+        create("release") {
+            if (keyPropertiesFile.exists()) {
+                storeFile = file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+            }
         }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".dev"
+        }
+        // Flutter's plugin creates `profile` via initWith(debug) before the
+        // block above runs, so it needs the suffix too: it must never install
+        // as com.mordehay.groupay signed with the debug key.
+        getByName("profile") {
+            applicationIdSuffix = ".dev"
+        }
+        release {
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+}
+
+// Fail loudly when a release task runs without key.properties.
+gradle.taskGraph.whenReady {
+    val needsReleaseKey = allTasks.any { task ->
+        task.project == project && task.name.contains("Release")
+    }
+    if (needsReleaseKey && !keyPropertiesFile.exists()) {
+        throw GradleException(
+            "Release signing requires android/key.properties " +
+                "(storeFile, storePassword, keyAlias, keyPassword) pointing at the " +
+                "GrouPay release keystore. It is missing at ${keyPropertiesFile.absolutePath}. " +
+                "Restore it from backup; never sign a release with the debug key."
+        )
     }
 }
 
