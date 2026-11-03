@@ -44,6 +44,17 @@ void main() {
     });
   });
 
+  group('nextGroupSeq', () {
+    test('first Group gets 1', () {
+      expect(nextGroupSeq(const []), 1);
+    });
+
+    test('MAX + 1, gaps are not filled', () {
+      expect(nextGroupSeq(const [1, 2]), 3);
+      expect(nextGroupSeq(const [4, 1]), 5);
+    });
+  });
+
   test('Verdict equality and toString', () {
     expect(
       const Deny(MessageKey.membersLimit),

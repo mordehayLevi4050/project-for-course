@@ -33,6 +33,14 @@ class Groups extends Table with TableInfo {
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL UNIQUE',
   );
+  late final GeneratedColumn<int> groupSeq = GeneratedColumn<int>(
+    'group_seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL UNIQUE',
+  );
   late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
     'created_at',
     aliasedName,
@@ -54,6 +62,7 @@ class Groups extends Table with TableInfo {
     id,
     name,
     nameKey,
+    groupSeq,
     createdAt,
     modifiedAt,
   ];

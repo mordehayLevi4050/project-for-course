@@ -13,6 +13,11 @@ class Groups extends Table {
   /// Groups, including archived ones (AD-13).
   TextColumn get nameKey => text().unique()();
 
+  /// MAX + 1 across all Groups, assigned once on insert (`core/policy`
+  /// nextGroupSeq). Drives the group list order, newest first; never the
+  /// clock or the row id.
+  IntColumn get groupSeq => integer().unique()();
+
   /// UTC epoch millis, set once on insert by the repository (AD-8).
   IntColumn get createdAt => integer()();
 

@@ -52,6 +52,22 @@
             ]
           },
           {
+            "name": "group_seq",
+            "getter_name": "groupSeq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
             "name": "created_at",
             "getter_name": "createdAt",
             "moor_type": "int",
@@ -206,7 +222,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"groups\" (\"id\" TEXT NOT NULL, \"name\" TEXT NOT NULL, \"name_key\" TEXT NOT NULL UNIQUE, \"created_at\" INTEGER NOT NULL, \"modified_at\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"groups\" (\"id\" TEXT NOT NULL, \"name\" TEXT NOT NULL, \"name_key\" TEXT NOT NULL UNIQUE, \"group_seq\" INTEGER NOT NULL UNIQUE, \"created_at\" INTEGER NOT NULL, \"modified_at\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
         }
       ]
     },

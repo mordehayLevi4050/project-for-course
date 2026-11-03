@@ -95,4 +95,12 @@ void main() {
       expect(out.text, '👍🏽👍🏽');
     });
   });
+
+  group('normalizeNameWithin', () {
+    test('trims, then cuts to the limit, then trims again', () {
+      expect(normalizeNameWithin('  Dana  ', 10), 'Dana');
+      expect(normalizeNameWithin(' Alexandrina ', 10), 'Alexandrin');
+      expect(normalizeNameWithin('Dana Levi Cohen', 10), 'Dana Levi');
+    });
+  });
 }

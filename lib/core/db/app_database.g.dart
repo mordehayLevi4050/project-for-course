@@ -38,6 +38,18 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, GroupRow> {
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
+  static const VerificationMeta _groupSeqMeta = const VerificationMeta(
+    'groupSeq',
+  );
+  @override
+  late final GeneratedColumn<int> groupSeq = GeneratedColumn<int>(
+    'group_seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -65,6 +77,7 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, GroupRow> {
     id,
     name,
     nameKey,
+    groupSeq,
     createdAt,
     modifiedAt,
   ];
@@ -100,6 +113,14 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, GroupRow> {
       );
     } else if (isInserting) {
       context.missing(_nameKeyMeta);
+    }
+    if (data.containsKey('group_seq')) {
+      context.handle(
+        _groupSeqMeta,
+        groupSeq.isAcceptableOrUnknown(data['group_seq']!, _groupSeqMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_groupSeqMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(
@@ -138,6 +159,10 @@ class $GroupsTable extends Groups with TableInfo<$GroupsTable, GroupRow> {
         DriftSqlType.string,
         data['${effectivePrefix}name_key'],
       )!,
+      groupSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_seq'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}created_at'],
@@ -166,6 +191,11 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
   /// Groups, including archived ones (AD-13).
   final String nameKey;
 
+  /// MAX + 1 across all Groups, assigned once on insert (`core/policy`
+  /// nextGroupSeq). Drives the group list order, newest first; never the
+  /// clock or the row id.
+  final int groupSeq;
+
   /// UTC epoch millis, set once on insert by the repository (AD-8).
   final int createdAt;
 
@@ -175,6 +205,7 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
     required this.id,
     required this.name,
     required this.nameKey,
+    required this.groupSeq,
     required this.createdAt,
     required this.modifiedAt,
   });
@@ -184,6 +215,7 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['name_key'] = Variable<String>(nameKey);
+    map['group_seq'] = Variable<int>(groupSeq);
     map['created_at'] = Variable<int>(createdAt);
     map['modified_at'] = Variable<int>(modifiedAt);
     return map;
@@ -194,6 +226,7 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
       id: Value(id),
       name: Value(name),
       nameKey: Value(nameKey),
+      groupSeq: Value(groupSeq),
       createdAt: Value(createdAt),
       modifiedAt: Value(modifiedAt),
     );
@@ -208,6 +241,7 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       nameKey: serializer.fromJson<String>(json['nameKey']),
+      groupSeq: serializer.fromJson<int>(json['groupSeq']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
       modifiedAt: serializer.fromJson<int>(json['modifiedAt']),
     );
@@ -219,6 +253,7 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'nameKey': serializer.toJson<String>(nameKey),
+      'groupSeq': serializer.toJson<int>(groupSeq),
       'createdAt': serializer.toJson<int>(createdAt),
       'modifiedAt': serializer.toJson<int>(modifiedAt),
     };
@@ -228,12 +263,14 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
     String? id,
     String? name,
     String? nameKey,
+    int? groupSeq,
     int? createdAt,
     int? modifiedAt,
   }) => GroupRow(
     id: id ?? this.id,
     name: name ?? this.name,
     nameKey: nameKey ?? this.nameKey,
+    groupSeq: groupSeq ?? this.groupSeq,
     createdAt: createdAt ?? this.createdAt,
     modifiedAt: modifiedAt ?? this.modifiedAt,
   );
@@ -242,6 +279,7 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       nameKey: data.nameKey.present ? data.nameKey.value : this.nameKey,
+      groupSeq: data.groupSeq.present ? data.groupSeq.value : this.groupSeq,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       modifiedAt: data.modifiedAt.present
           ? data.modifiedAt.value
@@ -255,6 +293,7 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('nameKey: $nameKey, ')
+          ..write('groupSeq: $groupSeq, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt')
           ..write(')'))
@@ -262,7 +301,8 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, name, nameKey, createdAt, modifiedAt);
+  int get hashCode =>
+      Object.hash(id, name, nameKey, groupSeq, createdAt, modifiedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -270,6 +310,7 @@ class GroupRow extends DataClass implements Insertable<GroupRow> {
           other.id == this.id &&
           other.name == this.name &&
           other.nameKey == this.nameKey &&
+          other.groupSeq == this.groupSeq &&
           other.createdAt == this.createdAt &&
           other.modifiedAt == this.modifiedAt);
 }
@@ -278,6 +319,7 @@ class GroupsCompanion extends UpdateCompanion<GroupRow> {
   final Value<String> id;
   final Value<String> name;
   final Value<String> nameKey;
+  final Value<int> groupSeq;
   final Value<int> createdAt;
   final Value<int> modifiedAt;
   final Value<int> rowid;
@@ -285,6 +327,7 @@ class GroupsCompanion extends UpdateCompanion<GroupRow> {
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.nameKey = const Value.absent(),
+    this.groupSeq = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.modifiedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -293,18 +336,21 @@ class GroupsCompanion extends UpdateCompanion<GroupRow> {
     required String id,
     required String name,
     required String nameKey,
+    required int groupSeq,
     required int createdAt,
     required int modifiedAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name),
        nameKey = Value(nameKey),
+       groupSeq = Value(groupSeq),
        createdAt = Value(createdAt),
        modifiedAt = Value(modifiedAt);
   static Insertable<GroupRow> custom({
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? nameKey,
+    Expression<int>? groupSeq,
     Expression<int>? createdAt,
     Expression<int>? modifiedAt,
     Expression<int>? rowid,
@@ -313,6 +359,7 @@ class GroupsCompanion extends UpdateCompanion<GroupRow> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (nameKey != null) 'name_key': nameKey,
+      if (groupSeq != null) 'group_seq': groupSeq,
       if (createdAt != null) 'created_at': createdAt,
       if (modifiedAt != null) 'modified_at': modifiedAt,
       if (rowid != null) 'rowid': rowid,
@@ -323,6 +370,7 @@ class GroupsCompanion extends UpdateCompanion<GroupRow> {
     Value<String>? id,
     Value<String>? name,
     Value<String>? nameKey,
+    Value<int>? groupSeq,
     Value<int>? createdAt,
     Value<int>? modifiedAt,
     Value<int>? rowid,
@@ -331,6 +379,7 @@ class GroupsCompanion extends UpdateCompanion<GroupRow> {
       id: id ?? this.id,
       name: name ?? this.name,
       nameKey: nameKey ?? this.nameKey,
+      groupSeq: groupSeq ?? this.groupSeq,
       createdAt: createdAt ?? this.createdAt,
       modifiedAt: modifiedAt ?? this.modifiedAt,
       rowid: rowid ?? this.rowid,
@@ -348,6 +397,9 @@ class GroupsCompanion extends UpdateCompanion<GroupRow> {
     }
     if (nameKey.present) {
       map['name_key'] = Variable<String>(nameKey.value);
+    }
+    if (groupSeq.present) {
+      map['group_seq'] = Variable<int>(groupSeq.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<int>(createdAt.value);
@@ -367,6 +419,7 @@ class GroupsCompanion extends UpdateCompanion<GroupRow> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('nameKey: $nameKey, ')
+          ..write('groupSeq: $groupSeq, ')
           ..write('createdAt: $createdAt, ')
           ..write('modifiedAt: $modifiedAt, ')
           ..write('rowid: $rowid')
@@ -868,6 +921,7 @@ typedef $$GroupsTableCreateCompanionBuilder = GroupsCompanion Function({
   required String id,
   required String name,
   required String nameKey,
+  required int groupSeq,
   required int createdAt,
   required int modifiedAt,
   Value<int> rowid,
@@ -876,6 +930,7 @@ typedef $$GroupsTableUpdateCompanionBuilder = GroupsCompanion Function({
   Value<String> id,
   Value<String> name,
   Value<String> nameKey,
+  Value<int> groupSeq,
   Value<int> createdAt,
   Value<int> modifiedAt,
   Value<int> rowid,
@@ -926,6 +981,11 @@ class $$GroupsTableFilterComposer
 
   ColumnFilters<String> get nameKey => $composableBuilder(
     column: $table.nameKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get groupSeq => $composableBuilder(
+    column: $table.groupSeq,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -989,6 +1049,11 @@ class $$GroupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get groupSeq => $composableBuilder(
+    column: $table.groupSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1017,6 +1082,9 @@ class $$GroupsTableAnnotationComposer
 
   GeneratedColumn<String> get nameKey =>
       $composableBuilder(column: $table.nameKey, builder: (column) => column);
+
+  GeneratedColumn<int> get groupSeq =>
+      $composableBuilder(column: $table.groupSeq, builder: (column) => column);
 
   GeneratedColumn<int> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -1083,6 +1151,7 @@ class $$GroupsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> nameKey = const Value.absent(),
+                Value<int> groupSeq = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
                 Value<int> modifiedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -1090,6 +1159,7 @@ class $$GroupsTableTableManager
                 id: id,
                 name: name,
                 nameKey: nameKey,
+                groupSeq: groupSeq,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
                 rowid: rowid,
@@ -1099,6 +1169,7 @@ class $$GroupsTableTableManager
                 required String id,
                 required String name,
                 required String nameKey,
+                required int groupSeq,
                 required int createdAt,
                 required int modifiedAt,
                 Value<int> rowid = const Value.absent(),
@@ -1106,6 +1177,7 @@ class $$GroupsTableTableManager
                 id: id,
                 name: name,
                 nameKey: nameKey,
+                groupSeq: groupSeq,
                 createdAt: createdAt,
                 modifiedAt: modifiedAt,
                 rowid: rowid,

@@ -1,0 +1,119 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:groupay/core/result/result.dart';
+import 'package:groupay/features/groups/app/group_providers.dart';
+import 'package:groupay/features/groups/app/repository_providers.dart';
+import 'package:groupay/features/groups/domain/group.dart';
+import 'package:groupay/features/groups/domain/group_repository.dart';
+import 'package:groupay/features/groups/domain/member.dart';
+import 'package:groupay/features/groups/domain/member_repository.dart';
+
+/// Repositories whose writes complete only when the test says so.
+final class _SlowRepos implements GroupRepository, MemberRepository {
+  final groupCalls = <Completer<Result<Group>>>[];
+  final memberCalls = <Completer<Result<Member>>>[];
+
+  @override
+  Future<Result<Group>> createGroup({
+    required String id,
+    required String name,
+  }) {
+    final c = Completer<Result<Group>>();
+    groupCalls.add(c);
+    return c.future;
+  }
+
+  @override
+  Future<Result<Member>> addMember({
+    required String id,
+    required String groupId,
+    required String name,
+  }) {
+    final c = Completer<Result<Member>>();
+    memberCalls.add(c);
+    return c.future;
+  }
+
+  @override
+  Stream<List<GroupListItem>> watchGroups() => const Stream.empty();
+
+  @override
+  Stream<Group?> watchGroup(String id) => const Stream.empty();
+
+  @override
+  Stream<List<Member>> watchMembers(String groupId) => const Stream.empty();
+}
+
+void main() {
+  const group = Group(
+    id: 'g',
+    name: 'Eilat',
+    groupSeq: 1,
+    createdAt: 1,
+    modifiedAt: 1,
+  );
+  const member = Member(
+    id: 'm',
+    groupId: 'g',
+    name: 'Dana',
+    memberSeq: 1,
+    createdAt: 1,
+    modifiedAt: 1,
+  );
+
+  late _SlowRepos repos;
+  late ProviderContainer container;
+
+  setUp(() {
+    repos = _SlowRepos();
+    container = ProviderContainer(
+      overrides: [
+        groupRepositoryProvider.overrideWithValue(repos),
+        memberRepositoryProvider.overrideWithValue(repos),
+      ],
+    );
+  });
+  tearDown(() => container.dispose());
+
+  test('repository providers throw until shell binds them', () {
+    final bare = ProviderContainer();
+    addTearDown(bare.dispose);
+    expect(() => bare.read(groupRepositoryProvider), throwsA(anything));
+    expect(() => bare.read(memberRepositoryProvider), throwsA(anything));
+  });
+
+  test('CreateGroup ignores calls while a save is in flight', () async {
+    final sub = container.listen(createGroupProvider, (_, _) {});
+    addTearDown(sub.close);
+    final notifier = container.read(createGroupProvider.notifier);
+
+    final first = notifier.submit(id: 'g', name: 'Eilat');
+    expect(container.read(createGroupProvider), isTrue);
+    expect(await notifier.submit(id: 'g', name: 'Eilat'), isNull);
+    expect(repos.groupCalls, hasLength(1));
+
+    repos.groupCalls.single.complete(const Ok(group));
+    expect(await first, const Ok(group));
+    expect(container.read(createGroupProvider), isFalse);
+  });
+
+  test('AddMember ignores calls while a save is in flight', () async {
+    final sub = container.listen(addMemberProvider('g'), (_, _) {});
+    addTearDown(sub.close);
+    final notifier = container.read(addMemberProvider('g').notifier);
+
+    final first = notifier.submit(id: 'm', name: 'Dana');
+    expect(await notifier.submit(id: 'm', name: 'Dana'), isNull);
+    expect(repos.memberCalls, hasLength(1));
+
+    repos.memberCalls.single.complete(const Ok(member));
+    expect(await first, const Ok(member));
+    expect(container.read(addMemberProvider('g')), isFalse);
+
+    // The next add goes through.
+    unawaited(notifier.submit(id: 'm2', name: 'Yossi'));
+    expect(repos.memberCalls, hasLength(2));
+  });
+}

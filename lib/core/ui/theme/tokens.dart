@@ -88,6 +88,9 @@ abstract final class AppSpacing {
   static const double s5 = 20;
   static const double s6 = 24;
   static const double listFade = 56;
+
+  /// Bottom padding of the header block (`components.header-block`).
+  static const double headerBottom = 30;
   static const double marginMobile = 16;
 }
 
@@ -100,6 +103,23 @@ abstract final class AppSizes {
   static const double avatar = 44;
   static const double avatarSlot = 48;
   static const double textFieldHeight = 52;
+
+  /// The teal "+" inside the add-member field (48dp hit area around it).
+  static const double inlineAddButton = 36;
+
+  /// Member rows and settings rows (`components.member-row`).
+  static const double rowMinHeight = 56;
+
+  /// Group cards and Expense rows (`components.expense-row`).
+  static const double cardMinHeight = 72;
+}
+
+/// Elevation (DESIGN.md › Elevation & Depth).
+abstract final class AppShadows {
+  /// Cards lift slightly off the canvas: `0 1dp 3dp` at 6%.
+  static const List<BoxShadow> card = [
+    BoxShadow(color: Color(0x0F000000), offset: Offset(0, 1), blurRadius: 3),
+  ];
 }
 
 /// The bundled font family (no runtime font fetching, NFR-8).

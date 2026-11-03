@@ -34,6 +34,13 @@ enum MessageKey {
   myGroups('הקבוצות שלי'),
   newGroup('+ קבוצה חדשה'),
 
+  // --- Group page header ---------------------------------------------------
+  /// The header nav back to the group list.
+  groupListNav('☰ הקבוצות שלי'),
+
+  /// The tap-affordance chip next to the group name (opens Group settings).
+  groupSettingsChip('⚙ ✎'),
+
   // --- Create group ------------------------------------------------------
   newGroupTitle('קבוצה חדשה'),
   groupNameLabel('שם הקבוצה'),
@@ -41,6 +48,12 @@ enum MessageKey {
   membersSection('משתתפים'),
   memberNamePlaceholder('שם המשתתף'),
   done('סיום'),
+
+  /// The add-member button inside the field.
+  addMemberButton('+'),
+
+  /// The compact top bar close control.
+  close('✕'),
 
   // --- Group settings and sheets -----------------------------------------
   groupSettingsTitle('הגדרות קבוצה'),
@@ -92,3 +105,8 @@ enum MessageKey {
 
   static final RegExp _placeholder = RegExp(r'\{(\w+)\}');
 }
+
+/// "משתתף אחד" for one Member, otherwise "{n} משתתפים".
+String memberCountText(int count) => count == 1
+    ? MessageKey.memberCountOne.text
+    : MessageKey.memberCountMany.fill({'n': '$count'});

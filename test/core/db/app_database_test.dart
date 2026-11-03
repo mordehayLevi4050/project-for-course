@@ -4,16 +4,22 @@ import 'package:groupay/core/db/app_database.dart';
 void main() {
   late AppDatabase db;
 
-  setUp(() => db = AppDatabase.memory());
+  var nextSeq = 1;
+
+  setUp(() {
+    db = AppDatabase.memory();
+    nextSeq = 1;
+  });
   tearDown(() => db.close());
 
-  Future<void> insertGroup(String id, String name) => db
+  Future<void> insertGroup(String id, String name, {int? seq}) => db
       .into(db.groups)
       .insert(
         GroupsCompanion.insert(
           id: id,
           name: name,
           nameKey: name.toLowerCase(),
+          groupSeq: seq ?? nextSeq++,
           createdAt: 1,
           modifiedAt: 1,
         ),
@@ -50,6 +56,14 @@ void main() {
   test('groups.nameKey is unique', () async {
     await insertGroup('g1', 'Budapest');
     await expectLater(insertGroup('g2', 'budapest'), throwsA(isA<Exception>()));
+  });
+
+  test('groups.groupSeq is unique', () async {
+    await insertGroup('g1', 'Budapest', seq: 1);
+    await expectLater(
+      insertGroup('g2', 'Eilat', seq: 1),
+      throwsA(isA<Exception>()),
+    );
   });
 
   test('members (groupId, nameKey) is unique within a Group only', () async {
@@ -102,6 +116,7 @@ void main() {
     final GroupRow group = await db.select(db.groups).getSingle();
     final MemberRow member = await db.select(db.members).getSingle();
     expect(group.name, 'Budapest');
+    expect(group.groupSeq, 1);
     expect(member.memberSeq, 1);
     expect(member.groupId, 'g1');
   });

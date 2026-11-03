@@ -50,6 +50,12 @@ void main() {
       );
     });
 
+    test('memberCountText uses the singular for one Member', () {
+      expect(memberCountText(1), 'משתתף אחד');
+      expect(memberCountText(2), '2 משתתפים');
+      expect(memberCountText(0), '0 משתתפים');
+    });
+
     test('fill does not expand braces inside a value', () {
       expect(MessageKey.memberCountMany.fill({'n': '{n}'}), '{n} משתתפים');
     });

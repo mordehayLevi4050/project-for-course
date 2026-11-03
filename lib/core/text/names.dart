@@ -30,3 +30,9 @@ String truncateGraphemes(String text, int max) {
 
 /// Whether [raw] is empty once normalized (FR-1, FR-2: "Name required").
 bool isBlankName(String raw) => normalizeName(raw).isEmpty;
+
+/// The name as it is saved: normalized and cut to [maxLength] grapheme
+/// clusters, so a repository never stores an over-long name even when the
+/// input bypassed the field's formatter.
+String normalizeNameWithin(String raw, int maxLength) =>
+    normalizeName(truncateGraphemes(normalizeName(raw), maxLength));
