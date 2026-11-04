@@ -37,7 +37,7 @@ story_location: _bmad-output/implementation-artifacts
 development_status:
   epic-1: in-progress
   1-1-create-a-group-and-manage-its-members: done
-  1-2-open-straight-into-the-trip-and-archive-old-groups: review
+  1-2-open-straight-into-the-trip-and-archive-old-groups: done
   1-3-record-fix-and-delete-expenses-at-the-checkout: backlog
   1-4-settle-up-with-one-screenshot: backlog
   epic-1-retrospective: optional
