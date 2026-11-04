@@ -4,6 +4,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 import 'app_database.steps.dart';
 import 'tables/app_settings.dart';
+import 'tables/expenses.dart';
 import 'tables/groups.dart';
 import 'tables/members.dart';
 
@@ -12,7 +13,7 @@ part 'app_database.g.dart';
 /// The app's single database (AD-6, AD-18, AD-20). Every table is declared in
 /// `tables/` and registered here. Only `core/db` and feature `data/` import
 /// drift.
-@DriftDatabase(tables: [Groups, Members, AppSettings])
+@DriftDatabase(tables: [Groups, Members, AppSettings, Expenses])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
@@ -25,7 +26,7 @@ class AppDatabase extends _$AppDatabase {
   /// Bump on every schema change and run `dart run drift_dev make-migrations`
   /// (AD-18).
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -35,6 +36,10 @@ class AppDatabase extends _$AppDatabase {
       from1To2: (m, schema) async {
         await m.addColumn(schema.groups, schema.groups.archivedAt);
         await m.createTable(schema.appSettings);
+      },
+      // Story 1.3: Expenses.
+      from2To3: (m, schema) async {
+        await m.createTable(schema.expenses);
       },
     ),
     beforeOpen: (details) async {

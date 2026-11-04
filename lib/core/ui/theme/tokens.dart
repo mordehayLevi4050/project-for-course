@@ -115,6 +115,49 @@ abstract final class AppSizes {
 
   /// The start-edge stripe of the Active group's card and of Expense rows.
   static const double startEdge = 6;
+
+  /// The 46dp tinted emoji circle of an Expense row.
+  static const double expenseIconCircle = 46;
+
+  /// Expense cards overlap the header's bottom edge by this much.
+  static const double headerOverlap = 16;
+
+  /// The category share stripe: 8dp tall, 2dp gaps between segments.
+  static const double stripeHeight = 8;
+  static const double stripeGap = 2;
+
+  /// Category tiles (`components.category-tile`) and their selected border.
+  static const double categoryTileHeight = 64;
+  static const double selectedBorder = 2;
+
+  /// Keypad keys (`components.keypad-key`).
+  static const double keypadKeyHeight = 48;
+
+  /// The selected payer: a 3dp canvas gap ring plus a 2dp member-color ring.
+  static const double payerGapRing = 3;
+  static const double payerRing = 2;
+
+  /// Page dots (`components.page-dot`) and the inactive ring width.
+  static const double pageDot = 8;
+  static const double pageDotRing = 1.5;
+
+  /// The static caret of the Amount entry.
+  static const double caretWidth = 2;
+}
+
+/// Opacities from DESIGN.md.
+abstract final class AppOpacity {
+  /// `components.button-disabled`.
+  static const double disabled = 0.4;
+
+  /// Unselected avatars in the payer picker.
+  static const double unselectedAvatar = 0.55;
+
+  /// The emoji circle tint of an Expense row.
+  static const double categoryTint = 0.15;
+
+  /// The background tint of a selected Category tile.
+  static const double selectedTileTint = 0.16;
 }
 
 /// Elevation (DESIGN.md › Elevation & Depth).
@@ -231,5 +274,11 @@ abstract final class AppTextStyles {
     fontSize: 15,
     fontWeight: FontWeight.w700,
     fontVariations: [FontVariation.weight(700)],
+  );
+
+  /// The emoji of a Category tile and of an Expense row's icon circle.
+  static const TextStyle categoryEmoji = TextStyle(
+    fontFamily: appFontFamily,
+    fontSize: 22,
   );
 }

@@ -6,7 +6,7 @@ import 'package:groupay/core/result/result.dart';
 import 'package:groupay/features/groups/data/drift_group_repository.dart';
 import 'package:groupay/features/groups/domain/group.dart';
 import 'package:groupay/features/groups/ui/group_list_screen.dart';
-import 'package:groupay/features/groups/ui/group_page.dart';
+import 'package:groupay/features/expenses/ui/group_page.dart';
 import 'package:groupay/shell/bootstrap.dart';
 
 import '../support/app_harness.dart';

@@ -935,3 +935,55 @@ abstract class _$RestoreGroup extends $Notifier<bool> {
     return element.handleCreate(ref, build);
   }
 }
+
+/// Each Group's Trip total for the group cards, from `GroupTotalsPort`
+/// (AD-2: `groups` never imports `expenses`). A Group with no Expenses is
+/// absent.
+
+@ProviderFor(groupTotals)
+final groupTotalsProvider = GroupTotalsProvider._();
+
+/// Each Group's Trip total for the group cards, from `GroupTotalsPort`
+/// (AD-2: `groups` never imports `expenses`). A Group with no Expenses is
+/// absent.
+
+final class GroupTotalsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, Tenths>>,
+          Map<String, Tenths>,
+          Stream<Map<String, Tenths>>
+        >
+    with
+        $FutureModifier<Map<String, Tenths>>,
+        $StreamProvider<Map<String, Tenths>> {
+  /// Each Group's Trip total for the group cards, from `GroupTotalsPort`
+  /// (AD-2: `groups` never imports `expenses`). A Group with no Expenses is
+  /// absent.
+  GroupTotalsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'groupTotalsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$groupTotalsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<Map<String, Tenths>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<Map<String, Tenths>> create(Ref ref) {
+    return groupTotals(ref);
+  }
+}
+
+String _$groupTotalsHash() => r'83aeca3cce2b39ee20f2df755609e556f237a04c';

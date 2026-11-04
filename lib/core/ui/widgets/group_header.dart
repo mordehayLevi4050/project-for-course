@@ -9,7 +9,7 @@ import '../theme/tokens.dart';
 /// Top to bottom: the [navLabel] line (with the optional [badgeLabel], such
 /// as "🗂 בארכיון"), the [name] with the optional
 /// [chipLabel] chip (Group page only), the [total] and the [secondaryLine].
-/// The category share stripe arrives with Expenses.
+/// The optional [stripe] (the category share stripe) closes the block.
 class GroupHeader extends StatelessWidget {
   const GroupHeader({
     super.key,
@@ -21,6 +21,7 @@ class GroupHeader extends StatelessWidget {
     this.chipLabel,
     this.onChip,
     this.badgeLabel,
+    this.stripe,
   });
 
   final String navLabel;
@@ -31,6 +32,7 @@ class GroupHeader extends StatelessWidget {
   final String? chipLabel;
   final VoidCallback? onChip;
   final String? badgeLabel;
+  final Widget? stripe;
 
   static const TextStyle _onHeader = TextStyle(color: AppColors.onHeader);
 
@@ -38,6 +40,7 @@ class GroupHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final chipLabel = this.chipLabel;
     final badgeLabel = this.badgeLabel;
+    final stripe = this.stripe;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.s5,
@@ -50,26 +53,29 @@ class GroupHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              // The nav line keeps a 48dp hit area.
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onNav,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: AppSizes.minTouchTarget,
-                  ),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    widthFactor: 1,
-                    child: Text(
-                      navLabel,
-                      style: AppTextStyles.headerSecondary.merge(_onHeader),
+              // The nav line keeps a 48dp hit area, and wraps rather than
+              // overflowing at a large text scale.
+              Flexible(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onNav,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: AppSizes.minTouchTarget,
+                    ),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      widthFactor: 1,
+                      child: Text(
+                        navLabel,
+                        style: AppTextStyles.headerSecondary.merge(_onHeader),
+                      ),
                     ),
                   ),
                 ),
               ),
               if (badgeLabel != null) ...[
-                const Spacer(),
+                const SizedBox(width: AppSpacing.s2),
                 _HeaderBadge(label: badgeLabel),
               ],
             ],
@@ -93,6 +99,10 @@ class GroupHeader extends StatelessWidget {
             secondaryLine,
             style: AppTextStyles.headerSecondary.merge(_onHeader),
           ),
+          if (stripe != null) ...[
+            const SizedBox(height: AppSpacing.s3),
+            stripe,
+          ],
         ],
       ),
     );

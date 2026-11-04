@@ -100,6 +100,82 @@ void main() {
       expect(memberCountText(0), '0 משתתפים');
     });
 
+    test('Story 1.3 fixed messages match ui-messages.md exactly', () {
+      expect(MessageKey.noExpenses.text, 'עדיין אין הוצאות');
+      expect(
+        MessageKey.needTwoMembers.text,
+        'יש להוסיף לפחות שני משתתפים כדי לרשום הוצאות',
+      );
+      expect(MessageKey.chooseCategory.text, 'נא לבחור קטגוריה');
+      expect(
+        MessageKey.descriptionRequired.text,
+        'נדרש תיאור או בחירת קטגוריה',
+      );
+      expect(MessageKey.exitTitle.text, 'לצאת ללא שמירה?');
+    });
+
+    test('Story 1.3 free texts match EXPERIENCE.md and DESIGN.md', () {
+      expect(MessageKey.addExpense.text, '+ הוספת הוצאה');
+      expect(MessageKey.descriptionHint.text, 'מה קנית?');
+      expect(MessageKey.save.text, 'שמירה');
+      expect(MessageKey.exitBody.text, 'מה שהזנת לא יישמר.');
+      expect(MessageKey.exitConfirm.text, 'יציאה');
+      expect(MessageKey.keepEditing.text, 'המשך עריכה');
+      expect(
+        [
+          MessageKey.categoryFlight,
+          MessageKey.categoryHotel,
+          MessageKey.categoryCar,
+          MessageKey.categoryFuel,
+          MessageKey.categoryRestaurant,
+          MessageKey.categoryFoodDrink,
+          MessageKey.categoryAttractions,
+          MessageKey.categoryOther,
+        ].map((k) => k.text),
+        [
+          'טיסה',
+          'מלון',
+          'רכב',
+          'דלק',
+          'מסעדה',
+          'אוכל ושתייה',
+          'אטרקציות',
+          'אחר',
+        ],
+      );
+    });
+
+    test('expenseCountText uses the singular for one Expense', () {
+      expect(expenseCountText(1), 'הוצאה אחת');
+      expect(expenseCountText(2), '2 הוצאות');
+      expect(expenseCountText(0), '0 הוצאות');
+    });
+
+    test('the Group page header line joins both counts', () {
+      expect(
+        groupHeaderLineText(memberCount: 4, expenseCount: 8),
+        '4 משתתפים · 8 הוצאות',
+      );
+      expect(
+        groupHeaderLineText(memberCount: 1, expenseCount: 1),
+        'משתתף אחד · הוצאה אחת',
+      );
+      expect(
+        groupHeaderLineText(memberCount: 2, expenseCount: 0),
+        '2 משתתפים · 0 הוצאות',
+      );
+    });
+
+    test('the Expense meta line isolates the Payer name', () {
+      expect(
+        MessageKey.expenseMeta.fill({
+          'payer': isolateName('Dana'),
+          'time': '14:32',
+        }),
+        '${iso('Dana')} · 14:32',
+      );
+    });
+
     test('fill does not expand braces inside a value', () {
       expect(MessageKey.memberCountMany.fill({'n': '{n}'}), '{n} משתתפים');
     });

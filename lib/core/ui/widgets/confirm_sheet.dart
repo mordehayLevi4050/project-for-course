@@ -14,7 +14,8 @@ final ButtonStyle dangerButtonStyle = FilledButton.styleFrom(
 );
 
 /// A confirmation sheet: the [title], an optional [body], the [confirmLabel]
-/// button on the start side and "ביטול" beside it.
+/// button on the start side and the [cancelLabel] (default "ביטול") beside
+/// it.
 ///
 /// When [destructive] (Remove member; later Delete and Exit) the confirm is
 /// the danger button; otherwise (Archive) it is the orange primary.
@@ -27,6 +28,7 @@ Future<bool?> showConfirmSheet(
   required String title,
   required String confirmLabel,
   String? body,
+  String? cancelLabel,
   bool destructive = true,
 }) => showAppSheet<bool>(
   context,
@@ -45,7 +47,7 @@ Future<bool?> showConfirmSheet(
     ),
     secondary: OutlinedButton(
       onPressed: () => Navigator.of(context).pop(),
-      child: Text(MessageKey.cancel.text),
+      child: Text(cancelLabel ?? MessageKey.cancel.text),
     ),
   ),
 );

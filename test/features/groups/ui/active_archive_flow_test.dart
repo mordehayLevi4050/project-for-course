@@ -12,7 +12,7 @@ import 'package:groupay/features/groups/ui/archive_screen.dart';
 import 'package:groupay/features/groups/ui/create_group_screen.dart';
 import 'package:groupay/features/groups/ui/group_card.dart';
 import 'package:groupay/features/groups/ui/group_list_screen.dart';
-import 'package:groupay/features/groups/ui/group_page.dart';
+import 'package:groupay/features/expenses/ui/group_page.dart';
 import 'package:groupay/features/groups/ui/group_settings_screen.dart';
 import 'package:groupay/features/groups/ui/member_list.dart';
 
@@ -337,7 +337,7 @@ void main() {
         expect(find.text(MessageKey.archiveNote.text), findsNothing);
         expect(find.text(MessageKey.groupSettingsChip.text), findsOneWidget);
         expect(find.text(MessageKey.groupListNav.text), findsOneWidget);
-        expect(find.text('2 משתתפים'), findsOneWidget);
+        expect(find.text('2 משתתפים · 0 הוצאות'), findsOneWidget);
         expect(await activeName(), isNull);
 
         // Back leads to the group list, with no Archive link.

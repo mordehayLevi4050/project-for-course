@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/money/tenths.dart';
+import '../../../core/ports/port_providers.dart';
 import '../../../core/result/result.dart';
 import '../domain/group.dart';
 import '../domain/member.dart';
@@ -227,3 +229,10 @@ class RestoreGroup extends _$RestoreGroup {
     }
   }
 }
+
+/// Each Group's Trip total for the group cards, from `GroupTotalsPort`
+/// (AD-2: `groups` never imports `expenses`). A Group with no Expenses is
+/// absent.
+@riverpod
+Stream<Map<String, Tenths>> groupTotals(Ref ref) =>
+    ref.watch(groupTotalsPortProvider).watchTotals();

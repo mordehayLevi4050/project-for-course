@@ -44,8 +44,8 @@ void main() {
       (await db.customSelect('PRAGMA $name').getSingle()).data.values.first
           as int;
 
-  test('schemaVersion is 2', () {
-    expect(db.schemaVersion, 2);
+  test('schemaVersion is 3', () {
+    expect(db.schemaVersion, 3);
   });
 
   test('beforeOpen turns on foreign keys and synchronous = FULL', () async {
@@ -108,6 +108,64 @@ void main() {
     expect(columnSets, contains('group_id,id'));
     expect(columnSets, contains('group_id,name_key'));
     expect(columnSets, contains('group_id,member_seq'));
+  });
+
+  Future<void> insertExpense(
+    String id,
+    String groupId,
+    String payerId, {
+    int seq = 1,
+  }) => db
+      .into(db.expenses)
+      .insert(
+        ExpensesCompanion.insert(
+          id: id,
+          groupId: groupId,
+          payerId: payerId,
+          amount: 3000,
+          category: 'hotel',
+          saveSeq: seq,
+          createdAt: 1,
+          modifiedAt: 1,
+        ),
+      );
+
+  test('expenses (groupId, saveSeq) is unique', () async {
+    await insertGroup('g1', 'Budapest');
+    await insertMember('m1', 'g1', 'Dana', 1);
+    await insertExpense('e1', 'g1', 'm1', seq: 1);
+    await expectLater(
+      insertExpense('e2', 'g1', 'm1', seq: 1),
+      throwsA(isA<Exception>()),
+    );
+  });
+
+  test('an Expense Payer must be a Member of the same Group', () async {
+    await insertGroup('g1', 'Budapest');
+    await insertGroup('g2', 'Eilat');
+    await insertMember('m1', 'g1', 'Dana', 1);
+    await expectLater(
+      insertExpense('e1', 'g2', 'm1'),
+      throwsA(isA<Exception>()),
+    );
+    await expectLater(
+      insertExpense('e2', 'g1', 'missing'),
+      throwsA(isA<Exception>()),
+    );
+  });
+
+  test('ON DELETE RESTRICT keeps a Member who paid', () async {
+    await insertGroup('g1', 'Budapest');
+    await insertMember('m1', 'g1', 'Dana', 1);
+    await insertMember('m2', 'g1', 'Yossi', 2);
+    await insertExpense('e1', 'g1', 'm1');
+    await expectLater(
+      (db.delete(db.members)..where((m) => m.id.equals('m1'))).go(),
+      throwsA(isA<Exception>()),
+    );
+    // A Member who paid for nothing can go.
+    await (db.delete(db.members)..where((m) => m.id.equals('m2'))).go();
+    expect(await db.select(db.members).get(), hasLength(1));
   });
 
   test('rows map to GroupRow and MemberRow', () async {

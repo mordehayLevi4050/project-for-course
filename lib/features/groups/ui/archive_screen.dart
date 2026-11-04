@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/message_key.dart';
+import '../../../core/money/tenths.dart';
 import '../../../core/result/result.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
@@ -25,6 +26,7 @@ class ArchiveScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final items = ref.watch(archivedGroupListProvider).value ?? const [];
+    final totals = ref.watch(groupTotalsProvider).value ?? const {};
     // Keeps the notifier (and its in-flight guard) alive.
     final restoring = ref.watch(restoreGroupProvider);
     return AppScaffold(
@@ -79,6 +81,7 @@ class ArchiveScreen extends ConsumerWidget {
           final id = items[i].group.id;
           return ArchivedGroupCard(
             item: items[i],
+            total: totals[id] ?? Tenths.zero,
             onTap: () => context.go('/archive/group/$id'),
             onRestore: restoring ? null : () => _restore(context, ref, id),
           );

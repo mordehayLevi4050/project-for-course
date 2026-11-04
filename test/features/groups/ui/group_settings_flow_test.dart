@@ -11,7 +11,7 @@ import 'package:groupay/features/groups/domain/group.dart';
 import 'package:groupay/features/groups/domain/member.dart';
 import 'package:groupay/features/groups/ui/create_group_screen.dart';
 import 'package:groupay/features/groups/ui/group_list_screen.dart';
-import 'package:groupay/features/groups/ui/group_page.dart';
+import 'package:groupay/features/expenses/ui/group_page.dart';
 import 'package:groupay/features/groups/ui/group_settings_screen.dart';
 import 'package:groupay/features/groups/ui/member_list.dart';
 
@@ -146,7 +146,10 @@ void main() {
     await tapAndSettle(tester, find.text(MessageKey.back.text));
     expect(find.byType(GroupPage), findsOneWidget);
     expect(find.text('Eilat 2026'), findsOneWidget);
-    expect(find.text(MessageKey.memberCountOne.text), findsOneWidget);
+    expect(
+      find.text(groupHeaderLineText(memberCount: 1, expenseCount: 0)),
+      findsOneWidget,
+    );
 
     // The group list card matches.
     await tapAndSettle(tester, find.text(MessageKey.groupListNav.text));

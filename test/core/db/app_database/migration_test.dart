@@ -9,6 +9,7 @@ import 'generated/schema.dart';
 
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -98,6 +99,72 @@ void main() {
         expect(expectedNewGroupsData, await newDb.select(newDb.groups).get());
         expect(expectedNewMembersData, await newDb.select(newDb.members).get());
         expect(await newDb.select(newDb.appSettings).get(), isEmpty);
+      },
+    );
+  });
+
+  // Story 1.3 only adds the expenses table, so existing Groups, Members and
+  // the Active-group row come through unchanged, with no Expenses.
+  test('migration from v2 to v3 does not corrupt data', () async {
+    const groups = <v2.GroupsData>[
+      v2.GroupsData(
+        id: 'g1',
+        name: 'Eilat',
+        nameKey: 'eilat',
+        groupSeq: 1,
+        createdAt: 10,
+        modifiedAt: 20,
+        archivedAt: 30,
+      ),
+      v2.GroupsData(
+        id: 'g2',
+        name: 'Budapest',
+        nameKey: 'budapest',
+        groupSeq: 2,
+        createdAt: 40,
+        modifiedAt: 40,
+      ),
+    ];
+    const members = <v2.MembersData>[
+      v2.MembersData(
+        id: 'm1',
+        groupId: 'g2',
+        name: 'Dana',
+        nameKey: 'dana',
+        memberSeq: 1,
+        createdAt: 40,
+        modifiedAt: 40,
+      ),
+    ];
+    const settings = <v2.AppSettingsData>[
+      v2.AppSettingsData(id: 1, activeGroupId: 'g2'),
+    ];
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 2,
+      newVersion: 3,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v3.DatabaseAtV3.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insertAll(oldDb.groups, groups);
+        batch.insertAll(oldDb.members, members);
+        batch.insertAll(oldDb.appSettings, settings);
+      },
+      validateItems: (newDb) async {
+        expect(
+          (await newDb.select(newDb.groups).get()).map((g) => g.toJson()),
+          groups.map((g) => g.toJson()),
+        );
+        expect(
+          (await newDb.select(newDb.members).get()).map((m) => m.toJson()),
+          members.map((m) => m.toJson()),
+        );
+        expect(
+          (await newDb.select(newDb.appSettings).get()).map((s) => s.toJson()),
+          settings.map((s) => s.toJson()),
+        );
+        expect(await newDb.select(newDb.expenses).get(), isEmpty);
       },
     );
   });

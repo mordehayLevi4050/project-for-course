@@ -6,12 +6,16 @@ import 'package:groupay/core/db/database_provider.dart';
 import 'package:groupay/core/i18n/message_key.dart';
 import 'package:groupay/core/ports/port_providers.dart';
 import 'package:groupay/core/time/clock_provider.dart';
+import 'package:groupay/features/expenses/app/expense_providers.dart';
+import 'package:groupay/features/expenses/data/drift_expense_repository.dart';
+import 'package:groupay/features/expenses/data/drift_group_totals.dart';
+import 'package:groupay/features/expenses/data/drift_payer_usage.dart';
 import 'package:groupay/features/groups/app/repository_providers.dart';
 import 'package:groupay/features/groups/data/drift_group_repository.dart';
 import 'package:groupay/features/groups/data/drift_member_repository.dart';
 import 'package:groupay/features/groups/ui/create_group_screen.dart';
 import 'package:groupay/features/groups/ui/group_list_screen.dart';
-import 'package:groupay/features/groups/ui/group_page.dart';
+import 'package:groupay/features/expenses/ui/group_page.dart';
 import 'package:groupay/shell/overrides.dart';
 
 import '../support/app_harness.dart';
@@ -77,12 +81,14 @@ void main() {
     expect(() => container.read(appDatabaseProvider), throwsA(anything));
     expect(() => container.read(clockProvider), throwsA(anything));
     expect(() => container.read(payerUsagePortProvider), throwsA(anything));
+    expect(() => container.read(groupTotalsPortProvider), throwsA(anything));
+    expect(() => container.read(expenseRepositoryProvider), throwsA(anything));
     expect(() => container.read(groupRepositoryProvider), throwsA(anything));
     expect(() => container.read(memberRepositoryProvider), throwsA(anything));
   });
 
   test(
-    'shell binds the database, a clock and the PayerUsagePort stand-in',
+    'shell binds the database, a clock, both ports and the repositories',
     () async {
       final container = ProviderContainer(
         overrides: appOverrides(database: db),
@@ -90,9 +96,15 @@ void main() {
       addTearDown(container.dispose);
       expect(container.read(appDatabaseProvider), same(db));
       expect(container.read(clockProvider).nowUtcMillis(), greaterThan(0));
+      expect(container.read(payerUsagePortProvider), isA<DriftPayerUsage>());
       expect(
         await container.read(payerUsagePortProvider).isPayer('g', 'm'),
         isFalse,
+      );
+      expect(container.read(groupTotalsPortProvider), isA<DriftGroupTotals>());
+      expect(
+        container.read(expenseRepositoryProvider),
+        isA<DriftExpenseRepository>(),
       );
       expect(
         container.read(groupRepositoryProvider),

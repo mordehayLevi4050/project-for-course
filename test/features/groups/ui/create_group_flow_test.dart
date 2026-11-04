@@ -14,7 +14,7 @@ import 'package:groupay/features/groups/domain/group.dart';
 import 'package:groupay/features/groups/domain/group_repository.dart';
 import 'package:groupay/features/groups/ui/create_group_screen.dart';
 import 'package:groupay/features/groups/ui/group_list_screen.dart';
-import 'package:groupay/features/groups/ui/group_page.dart';
+import 'package:groupay/features/expenses/ui/group_page.dart';
 import 'package:groupay/shell/app.dart';
 import 'package:groupay/shell/router.dart';
 
@@ -164,7 +164,7 @@ void main() {
     expect(find.text('Trip to Eilat'), findsOneWidget);
     expect(find.text(MessageKey.groupSettingsChip.text), findsOneWidget);
     expect(find.text(formatShekel(Tenths.zero)), findsOneWidget);
-    expect(find.text('2 משתתפים'), findsOneWidget);
+    expect(find.text('2 משתתפים · 0 הוצאות'), findsOneWidget);
 
     // Back from the Group page returns to the group list, with the card.
     await tester.binding.handlePopRoute();
@@ -183,7 +183,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(GroupPage), findsOneWidget);
     expect(
-      find.text(MessageKey.memberCountMany.fill({'n': '0'})),
+      find.text(groupHeaderLineText(memberCount: 0, expenseCount: 0)),
       findsOneWidget,
     );
 
@@ -222,7 +222,10 @@ void main() {
     await tester.tap(find.text('Eilat'));
     await tester.pumpAndSettle();
     expect(find.byType(GroupPage), findsOneWidget);
-    expect(find.text(MessageKey.memberCountOne.text), findsOneWidget);
+    expect(
+      find.text(groupHeaderLineText(memberCount: 1, expenseCount: 0)),
+      findsOneWidget,
+    );
     await unmount(tester);
   });
 

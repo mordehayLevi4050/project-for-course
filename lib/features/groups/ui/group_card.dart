@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/i18n/message_key.dart';
+import '../../../core/money/format_shekel.dart';
+import '../../../core/money/tenths.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/group.dart';
 
-/// A Group card of the group list (DESIGN.md › Group card): the name and the
-/// Member count. The Active group gets a 6dp orange start edge and the badge
-/// "⭐ פעילה". The Trip total joins it with Expenses (Story 1.3).
+/// A Group card of the group list (DESIGN.md › Group card): the name, the
+/// Member count and the Trip total on the end side. The Active group gets a
+/// 6dp orange start edge and the badge "⭐ פעילה".
 class GroupCard extends StatelessWidget {
-  const GroupCard({super.key, required this.item, required this.onTap});
+  const GroupCard({
+    super.key,
+    required this.item,
+    required this.total,
+    required this.onTap,
+  });
 
   final GroupListItem item;
+
+  /// The Trip total, from `GroupTotalsPort`.
+  final Tenths total;
   final VoidCallback onTap;
 
   @override
@@ -34,6 +44,8 @@ class GroupCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.s2),
               const _ActiveBadge(),
             ],
+            const SizedBox(width: AppSpacing.s3),
+            _Total(total: total, color: AppColors.ink),
           ],
         ),
       ),
@@ -48,11 +60,15 @@ class ArchivedGroupCard extends StatelessWidget {
   const ArchivedGroupCard({
     super.key,
     required this.item,
+    required this.total,
     required this.onTap,
     required this.onRestore,
   });
 
   final GroupListItem item;
+
+  /// The Trip total, from `GroupTotalsPort`.
+  final Tenths total;
   final VoidCallback onTap;
   final VoidCallback? onRestore;
 
@@ -72,6 +88,8 @@ class ArchivedGroupCard extends StatelessWidget {
                 countColor: AppColors.archivedCardInk,
               ),
             ),
+            const SizedBox(width: AppSpacing.s3),
+            _Total(total: total, color: AppColors.archivedCardInk),
             const SizedBox(width: AppSpacing.s2),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -203,6 +221,22 @@ class _ActiveBadge extends StatelessWidget {
           style: AppTextStyles.label.copyWith(color: AppColors.badgeActiveInk),
         ),
       ),
+    );
+  }
+}
+
+/// The Trip total on the end side of a card, through `formatShekel()`.
+class _Total extends StatelessWidget {
+  const _Total({required this.total, required this.color});
+
+  final Tenths total;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      formatShekel(total),
+      style: AppTextStyles.rowAmount.copyWith(color: color),
     );
   }
 }

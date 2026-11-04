@@ -53,3 +53,50 @@ final class PayerUsagePortProvider
 }
 
 String _$payerUsagePortHash() => r'd9c046c58d260671b69cdfb615c17b7bcd18c512';
+
+/// Bound by `shell/` (AD-21). Throws until overridden.
+
+@ProviderFor(groupTotalsPort)
+final groupTotalsPortProvider = GroupTotalsPortProvider._();
+
+/// Bound by `shell/` (AD-21). Throws until overridden.
+
+final class GroupTotalsPortProvider
+    extends
+        $FunctionalProvider<GroupTotalsPort, GroupTotalsPort, GroupTotalsPort>
+    with $Provider<GroupTotalsPort> {
+  /// Bound by `shell/` (AD-21). Throws until overridden.
+  GroupTotalsPortProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'groupTotalsPortProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$groupTotalsPortHash();
+
+  @$internal
+  @override
+  $ProviderElement<GroupTotalsPort> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  GroupTotalsPort create(Ref ref) {
+    return groupTotalsPort(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GroupTotalsPort value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GroupTotalsPort>(value),
+    );
+  }
+}
+
+String _$groupTotalsPortHash() => r'91dc906c7c8c2d07c7c46e10e2fad1fadbf8f437';

@@ -8,7 +8,6 @@ import '../features/groups/app/repository_providers.dart';
 import '../features/groups/domain/group_repository.dart';
 import 'app.dart';
 import 'overrides.dart';
-import 'payer_usage_stand_in.dart';
 import 'router.dart';
 
 /// The launch location (FR-9): the Active group's page, or the group list
@@ -25,11 +24,11 @@ Future<bool> isGroupArchived(GroupRepository groups, String id) async =>
 /// Active group before the first frame, and opens the router at its page or
 /// at the group list, so the group list never flashes first (FR-9).
 ///
-/// [initialLocation] overrides the launch location (tests only).
+/// [initialLocation] and [payerUsage] are overrides for tests only.
 Future<Widget> buildGrouPay(
   AppDatabase db, {
   Clock clock = const SystemClock(),
-  PayerUsagePort payerUsage = const NoPayerUsage(),
+  PayerUsagePort? payerUsage,
   String? initialLocation,
 }) async {
   final container = ProviderContainer(

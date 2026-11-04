@@ -6,10 +6,10 @@ import 'package:groupay/core/time/clock.dart';
 import 'package:groupay/shell/bootstrap.dart';
 
 import 'fake_clock.dart';
-import 'fake_payer_usage.dart';
 
 /// Pumps the whole app, built by `shell/` (`buildGrouPay`) on [db], at
-/// [initialLocation].
+/// [initialLocation]. [payerUsage] replaces the drift `PayerUsagePort`
+/// (by default the real one, backed by the Expenses in [db]).
 Future<void> pumpGrouPay(
   WidgetTester tester,
   AppDatabase db, {
@@ -26,8 +26,11 @@ Future<void> pumpGrouPay(
 
 /// Launches the app on [db] exactly as `main()` does: the launch location
 /// comes from the stored Active group (FR-9).
-Future<void> launchGrouPay(WidgetTester tester, AppDatabase db) =>
-    _pump(tester, db);
+Future<void> launchGrouPay(
+  WidgetTester tester,
+  AppDatabase db, {
+  Clock? clock,
+}) => _pump(tester, db, clock: clock);
 
 Future<void> _pump(
   WidgetTester tester,
@@ -39,7 +42,7 @@ Future<void> _pump(
   final app = await buildGrouPay(
     db,
     clock: clock ?? FakeClock(),
-    payerUsage: payerUsage ?? FakePayerUsage(),
+    payerUsage: payerUsage,
     initialLocation: initialLocation,
   );
   await tester.pumpWidget(app);

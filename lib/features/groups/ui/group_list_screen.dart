@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/message_key.dart';
+import '../../../core/money/tenths.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
 import '../app/group_providers.dart';
@@ -17,6 +18,7 @@ class GroupListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final groups = ref.watch(groupListProvider).value;
+    final totals = ref.watch(groupTotalsProvider).value ?? const {};
     final archivedCount = ref.watch(archivedGroupListProvider).value?.length;
     final archiveLink = archivedCount == null || archivedCount == 0
         ? null
@@ -78,6 +80,7 @@ class GroupListScreen extends ConsumerWidget {
               if (i > 0) const SizedBox(height: AppSpacing.s2),
               GroupCard(
                 item: item,
+                total: totals[item.group.id] ?? Tenths.zero,
                 onTap: () => context.go('/group/${item.group.id}'),
               ),
             ],

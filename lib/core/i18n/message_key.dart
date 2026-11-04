@@ -36,6 +36,18 @@ enum MessageKey {
   /// `isolateName()`.
   activeSheetWarning("הקבוצה '{name}' תפסיק להיות הקבוצה הפעילה"),
 
+  /// fixed: "No expenses yet" (FR-12).
+  noExpenses('עדיין אין הוצאות'),
+
+  /// fixed: "Add at least two members to record expenses" (FR-10).
+  needTwoMembers('יש להוסיף לפחות שני משתתפים כדי לרשום הוצאות'),
+
+  /// fixed: "Please choose a category" (FR-11).
+  chooseCategory('נא לבחור קטגוריה'),
+
+  /// fixed: "Description required, or choose a category" (FR-11).
+  descriptionRequired('נדרש תיאור או בחירת קטגוריה'),
+
   // --- Internal failures (repository guards; the UI never offers these) ---
   /// A write on an Archived group (FR-6): the short archive note.
   groupArchived('🗂 הקבוצה בארכיון ולכן לקריאה בלבד.'),
@@ -149,9 +161,41 @@ enum MessageKey {
   exitConfirm('יציאה'),
   keepEditing('המשך עריכה'),
 
+  // --- Group page and Add expense (FR-10–FR-12) --------------------------
+  /// The primary button of the Group page.
+  addExpense('+ הוספת הוצאה'),
+
+  /// The Description field placeholder (*Other*).
+  descriptionHint('מה קנית?'),
+
+  /// The header secondary line: {members} and {expenses} are the count texts.
+  groupHeaderLine('{members} · {expenses}'),
+
+  /// An Expense row's meta line. {payer} must be the result of
+  /// `isolateName()`; {time} comes from `formatExpenseTime()`.
+  expenseMeta('{payer} · {time}'),
+
+  /// The currency mark before the typed Amount.
+  currencyMark('₪'),
+
+  /// The keypad's delete key.
+  keypadBackspace('⌫'),
+
+  // --- Categories (fixed order; DESIGN.md › Category tile) ---------------
+  categoryFlight('טיסה'),
+  categoryHotel('מלון'),
+  categoryCar('רכב'),
+  categoryFuel('דלק'),
+  categoryRestaurant('מסעדה'),
+  categoryFoodDrink('אוכל ושתייה'),
+  categoryAttractions('אטרקציות'),
+  categoryOther('אחר'),
+
   // --- Counts ------------------------------------------------------------
   memberCountOne('משתתף אחד'),
-  memberCountMany('{n} משתתפים');
+  memberCountMany('{n} משתתפים'),
+  expenseCountOne('הוצאה אחת'),
+  expenseCountMany('{n} הוצאות');
 
   const MessageKey(this.text);
 
@@ -186,3 +230,17 @@ enum MessageKey {
 String memberCountText(int count) => count == 1
     ? MessageKey.memberCountOne.text
     : MessageKey.memberCountMany.fill({'n': '$count'});
+
+/// "הוצאה אחת" for one Expense, otherwise "{n} הוצאות" (also for 0).
+String expenseCountText(int count) => count == 1
+    ? MessageKey.expenseCountOne.text
+    : MessageKey.expenseCountMany.fill({'n': '$count'});
+
+/// The Group page header line "{n} משתתפים · {m} הוצאות".
+String groupHeaderLineText({
+  required int memberCount,
+  required int expenseCount,
+}) => MessageKey.groupHeaderLine.fill({
+  'members': memberCountText(memberCount),
+  'expenses': expenseCountText(expenseCount),
+});
