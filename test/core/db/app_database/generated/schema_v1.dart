@@ -4,7 +4,7 @@
 //
 import 'package:drift/drift.dart';
 
-class Groups extends Table with TableInfo {
+class Groups extends Table with TableInfo<Groups, GroupsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -74,8 +74,34 @@ class Groups extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  GroupsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GroupsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      nameKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_key'],
+      )!,
+      groupSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_seq'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      modifiedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}modified_at'],
+      )!,
+    );
   }
 
   @override
@@ -89,7 +115,241 @@ class Groups extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class Members extends Table with TableInfo {
+class GroupsData extends DataClass implements Insertable<GroupsData> {
+  final String id;
+  final String name;
+  final String nameKey;
+  final int groupSeq;
+  final int createdAt;
+  final int modifiedAt;
+  const GroupsData({
+    required this.id,
+    required this.name,
+    required this.nameKey,
+    required this.groupSeq,
+    required this.createdAt,
+    required this.modifiedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['name_key'] = Variable<String>(nameKey);
+    map['group_seq'] = Variable<int>(groupSeq);
+    map['created_at'] = Variable<int>(createdAt);
+    map['modified_at'] = Variable<int>(modifiedAt);
+    return map;
+  }
+
+  GroupsCompanion toCompanion(bool nullToAbsent) {
+    return GroupsCompanion(
+      id: Value(id),
+      name: Value(name),
+      nameKey: Value(nameKey),
+      groupSeq: Value(groupSeq),
+      createdAt: Value(createdAt),
+      modifiedAt: Value(modifiedAt),
+    );
+  }
+
+  factory GroupsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GroupsData(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      nameKey: serializer.fromJson<String>(json['nameKey']),
+      groupSeq: serializer.fromJson<int>(json['groupSeq']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      modifiedAt: serializer.fromJson<int>(json['modifiedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'nameKey': serializer.toJson<String>(nameKey),
+      'groupSeq': serializer.toJson<int>(groupSeq),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'modifiedAt': serializer.toJson<int>(modifiedAt),
+    };
+  }
+
+  GroupsData copyWith({
+    String? id,
+    String? name,
+    String? nameKey,
+    int? groupSeq,
+    int? createdAt,
+    int? modifiedAt,
+  }) => GroupsData(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    nameKey: nameKey ?? this.nameKey,
+    groupSeq: groupSeq ?? this.groupSeq,
+    createdAt: createdAt ?? this.createdAt,
+    modifiedAt: modifiedAt ?? this.modifiedAt,
+  );
+  GroupsData copyWithCompanion(GroupsCompanion data) {
+    return GroupsData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      nameKey: data.nameKey.present ? data.nameKey.value : this.nameKey,
+      groupSeq: data.groupSeq.present ? data.groupSeq.value : this.groupSeq,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      modifiedAt: data.modifiedAt.present
+          ? data.modifiedAt.value
+          : this.modifiedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GroupsData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('nameKey: $nameKey, ')
+          ..write('groupSeq: $groupSeq, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('modifiedAt: $modifiedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, nameKey, groupSeq, createdAt, modifiedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GroupsData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.nameKey == this.nameKey &&
+          other.groupSeq == this.groupSeq &&
+          other.createdAt == this.createdAt &&
+          other.modifiedAt == this.modifiedAt);
+}
+
+class GroupsCompanion extends UpdateCompanion<GroupsData> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> nameKey;
+  final Value<int> groupSeq;
+  final Value<int> createdAt;
+  final Value<int> modifiedAt;
+  final Value<int> rowid;
+  const GroupsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.nameKey = const Value.absent(),
+    this.groupSeq = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.modifiedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GroupsCompanion.insert({
+    required String id,
+    required String name,
+    required String nameKey,
+    required int groupSeq,
+    required int createdAt,
+    required int modifiedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       nameKey = Value(nameKey),
+       groupSeq = Value(groupSeq),
+       createdAt = Value(createdAt),
+       modifiedAt = Value(modifiedAt);
+  static Insertable<GroupsData> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? nameKey,
+    Expression<int>? groupSeq,
+    Expression<int>? createdAt,
+    Expression<int>? modifiedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (nameKey != null) 'name_key': nameKey,
+      if (groupSeq != null) 'group_seq': groupSeq,
+      if (createdAt != null) 'created_at': createdAt,
+      if (modifiedAt != null) 'modified_at': modifiedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GroupsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? nameKey,
+    Value<int>? groupSeq,
+    Value<int>? createdAt,
+    Value<int>? modifiedAt,
+    Value<int>? rowid,
+  }) {
+    return GroupsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameKey: nameKey ?? this.nameKey,
+      groupSeq: groupSeq ?? this.groupSeq,
+      createdAt: createdAt ?? this.createdAt,
+      modifiedAt: modifiedAt ?? this.modifiedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (nameKey.present) {
+      map['name_key'] = Variable<String>(nameKey.value);
+    }
+    if (groupSeq.present) {
+      map['group_seq'] = Variable<int>(groupSeq.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (modifiedAt.present) {
+      map['modified_at'] = Variable<int>(modifiedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GroupsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('nameKey: $nameKey, ')
+          ..write('groupSeq: $groupSeq, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('modifiedAt: $modifiedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class Members extends Table with TableInfo<Members, MembersData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -174,8 +434,38 @@ class Members extends Table with TableInfo {
     {groupId, id},
   ];
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  MembersData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MembersData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      nameKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_key'],
+      )!,
+      memberSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}member_seq'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      modifiedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}modified_at'],
+      )!,
+    );
   }
 
   @override
@@ -192,6 +482,263 @@ class Members extends Table with TableInfo {
   ];
   @override
   bool get dontWriteConstraints => true;
+}
+
+class MembersData extends DataClass implements Insertable<MembersData> {
+  final String id;
+  final String groupId;
+  final String name;
+  final String nameKey;
+  final int memberSeq;
+  final int createdAt;
+  final int modifiedAt;
+  const MembersData({
+    required this.id,
+    required this.groupId,
+    required this.name,
+    required this.nameKey,
+    required this.memberSeq,
+    required this.createdAt,
+    required this.modifiedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['group_id'] = Variable<String>(groupId);
+    map['name'] = Variable<String>(name);
+    map['name_key'] = Variable<String>(nameKey);
+    map['member_seq'] = Variable<int>(memberSeq);
+    map['created_at'] = Variable<int>(createdAt);
+    map['modified_at'] = Variable<int>(modifiedAt);
+    return map;
+  }
+
+  MembersCompanion toCompanion(bool nullToAbsent) {
+    return MembersCompanion(
+      id: Value(id),
+      groupId: Value(groupId),
+      name: Value(name),
+      nameKey: Value(nameKey),
+      memberSeq: Value(memberSeq),
+      createdAt: Value(createdAt),
+      modifiedAt: Value(modifiedAt),
+    );
+  }
+
+  factory MembersData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MembersData(
+      id: serializer.fromJson<String>(json['id']),
+      groupId: serializer.fromJson<String>(json['groupId']),
+      name: serializer.fromJson<String>(json['name']),
+      nameKey: serializer.fromJson<String>(json['nameKey']),
+      memberSeq: serializer.fromJson<int>(json['memberSeq']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      modifiedAt: serializer.fromJson<int>(json['modifiedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'groupId': serializer.toJson<String>(groupId),
+      'name': serializer.toJson<String>(name),
+      'nameKey': serializer.toJson<String>(nameKey),
+      'memberSeq': serializer.toJson<int>(memberSeq),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'modifiedAt': serializer.toJson<int>(modifiedAt),
+    };
+  }
+
+  MembersData copyWith({
+    String? id,
+    String? groupId,
+    String? name,
+    String? nameKey,
+    int? memberSeq,
+    int? createdAt,
+    int? modifiedAt,
+  }) => MembersData(
+    id: id ?? this.id,
+    groupId: groupId ?? this.groupId,
+    name: name ?? this.name,
+    nameKey: nameKey ?? this.nameKey,
+    memberSeq: memberSeq ?? this.memberSeq,
+    createdAt: createdAt ?? this.createdAt,
+    modifiedAt: modifiedAt ?? this.modifiedAt,
+  );
+  MembersData copyWithCompanion(MembersCompanion data) {
+    return MembersData(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      name: data.name.present ? data.name.value : this.name,
+      nameKey: data.nameKey.present ? data.nameKey.value : this.nameKey,
+      memberSeq: data.memberSeq.present ? data.memberSeq.value : this.memberSeq,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      modifiedAt: data.modifiedAt.present
+          ? data.modifiedAt.value
+          : this.modifiedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MembersData(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('name: $name, ')
+          ..write('nameKey: $nameKey, ')
+          ..write('memberSeq: $memberSeq, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('modifiedAt: $modifiedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, groupId, name, nameKey, memberSeq, createdAt, modifiedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MembersData &&
+          other.id == this.id &&
+          other.groupId == this.groupId &&
+          other.name == this.name &&
+          other.nameKey == this.nameKey &&
+          other.memberSeq == this.memberSeq &&
+          other.createdAt == this.createdAt &&
+          other.modifiedAt == this.modifiedAt);
+}
+
+class MembersCompanion extends UpdateCompanion<MembersData> {
+  final Value<String> id;
+  final Value<String> groupId;
+  final Value<String> name;
+  final Value<String> nameKey;
+  final Value<int> memberSeq;
+  final Value<int> createdAt;
+  final Value<int> modifiedAt;
+  final Value<int> rowid;
+  const MembersCompanion({
+    this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.nameKey = const Value.absent(),
+    this.memberSeq = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.modifiedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MembersCompanion.insert({
+    required String id,
+    required String groupId,
+    required String name,
+    required String nameKey,
+    required int memberSeq,
+    required int createdAt,
+    required int modifiedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       groupId = Value(groupId),
+       name = Value(name),
+       nameKey = Value(nameKey),
+       memberSeq = Value(memberSeq),
+       createdAt = Value(createdAt),
+       modifiedAt = Value(modifiedAt);
+  static Insertable<MembersData> custom({
+    Expression<String>? id,
+    Expression<String>? groupId,
+    Expression<String>? name,
+    Expression<String>? nameKey,
+    Expression<int>? memberSeq,
+    Expression<int>? createdAt,
+    Expression<int>? modifiedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
+      if (name != null) 'name': name,
+      if (nameKey != null) 'name_key': nameKey,
+      if (memberSeq != null) 'member_seq': memberSeq,
+      if (createdAt != null) 'created_at': createdAt,
+      if (modifiedAt != null) 'modified_at': modifiedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MembersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? groupId,
+    Value<String>? name,
+    Value<String>? nameKey,
+    Value<int>? memberSeq,
+    Value<int>? createdAt,
+    Value<int>? modifiedAt,
+    Value<int>? rowid,
+  }) {
+    return MembersCompanion(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      name: name ?? this.name,
+      nameKey: nameKey ?? this.nameKey,
+      memberSeq: memberSeq ?? this.memberSeq,
+      createdAt: createdAt ?? this.createdAt,
+      modifiedAt: modifiedAt ?? this.modifiedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (nameKey.present) {
+      map['name_key'] = Variable<String>(nameKey.value);
+    }
+    if (memberSeq.present) {
+      map['member_seq'] = Variable<int>(memberSeq.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (modifiedAt.present) {
+      map['modified_at'] = Variable<int>(modifiedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MembersCompanion(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('name: $name, ')
+          ..write('nameKey: $nameKey, ')
+          ..write('memberSeq: $memberSeq, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('modifiedAt: $modifiedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
 }
 
 class DatabaseAtV1 extends GeneratedDatabase {

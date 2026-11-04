@@ -44,8 +44,8 @@ void main() {
       (await db.customSelect('PRAGMA $name').getSingle()).data.values.first
           as int;
 
-  test('schemaVersion is 1', () {
-    expect(db.schemaVersion, 1);
+  test('schemaVersion is 2', () {
+    expect(db.schemaVersion, 2);
   });
 
   test('beforeOpen turns on foreign keys and synchronous = FULL', () async {

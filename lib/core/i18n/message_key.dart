@@ -29,10 +29,67 @@ enum MessageKey {
   /// fixed: "Please enter a valid amount"
   invalidAmount('סכום לא תקין'),
 
+  /// fixed: the Active-group sheet title (FR-7).
+  activeSheetTitle('להפוך את הקבוצה לקבוצה הפעילה?'),
+
+  /// fixed: another Group is active (FR-7). {name} must be the result of
+  /// `isolateName()`.
+  activeSheetWarning("הקבוצה '{name}' תפסיק להיות הקבוצה הפעילה"),
+
+  // --- Internal failures (repository guards; the UI never offers these) ---
+  /// A write on an Archived group (FR-6): the short archive note.
+  groupArchived('🗂 הקבוצה בארכיון ולכן לקריאה בלבד.'),
+
+  /// Restoring a Group that is not archived.
+  groupNotArchived('הקבוצה לא בארכיון'),
+
   // --- Group list --------------------------------------------------------
   appName('GrouPay'),
   myGroups('הקבוצות שלי'),
   newGroup('+ קבוצה חדשה'),
+
+  /// The link under the last Group card; hidden when {n} is 0.
+  archiveLink('🗂 ארכיון ({n})'),
+
+  /// The badge of the Active group's card.
+  activeBadge('⭐ פעילה'),
+
+  // --- Active-group sheet (FR-7, FR-8) -----------------------------------
+  activeSheetBody('האפליקציה תיפתח ישר לתוך הקבוצה הזו.'),
+  activeSheetConfirm('כן, להפוך לפעילה'),
+  activeSheetDecline('לא עכשיו'),
+
+  // --- Archive (FR-6) ------------------------------------------------------
+  /// The Archive view title.
+  archiveTitle('ארכיון'),
+
+  /// The Archive view nav back to the group list.
+  archiveBackNav('→ הקבוצות שלי'),
+
+  /// The header nav of an archived Group page, back to the Archive view.
+  archiveNav('→ ארכיון'),
+
+  /// The header badge of an archived Group.
+  archivedBadge('🗂 בארכיון'),
+
+  /// The text button on an archived card.
+  restore('↩ שחזור'),
+
+  /// The primary button of an archived Group page.
+  restoreFromArchive('↩ שחזור מהארכיון'),
+
+  /// The strip above the bottom bar of an archived Group page.
+  archiveNote(
+    '🗂 הקבוצה בארכיון ולכן לקריאה בלבד. שחזור יחזיר את האפשרות לערוך.',
+  ),
+
+  /// The Group settings row that opens the Archive sheet.
+  archiveAction('🗂 העברה לארכיון'),
+
+  /// {group} must be the result of `isolateName()`.
+  archiveSheetTitle('להעביר את “{group}” לארכיון?'),
+  archiveSheetBody('הנתונים נשמרים ואפשר לשחזר בכל רגע.'),
+  archiveSheetConfirm('העברה לארכיון'),
 
   // --- Group page header ---------------------------------------------------
   /// The header nav back to the group list.
@@ -57,6 +114,9 @@ enum MessageKey {
 
   // --- Group settings and sheets -----------------------------------------
   groupSettingsTitle('הגדרות קבוצה'),
+
+  /// The Active toggle row in Group settings (FR-8).
+  activeToggle('קבוצה פעילה'),
   addMember('+ הוספת משתתף'),
   renameTitle('שינוי שם'),
   save('שמירה'),

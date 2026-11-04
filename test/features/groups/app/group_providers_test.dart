@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groupay/core/result/result.dart';
 import 'package:groupay/features/groups/app/group_providers.dart';
@@ -72,6 +73,43 @@ final class _SlowRepos implements GroupRepository, MemberRepository {
 
   @override
   Stream<Group?> watchGroup(String id) => const Stream.empty();
+
+  @override
+  Stream<List<GroupListItem>> watchArchivedGroups() => const Stream.empty();
+
+  @override
+  Stream<String?> watchActiveGroupId() => const Stream.empty();
+
+  @override
+  Future<String?> readActiveGroupId() async => null;
+
+  @override
+  Future<Group?> readGroup(String id) async => null;
+
+  final setActiveCalls = <Completer<Result<void>>>[];
+  final unsetActiveCalls = <Completer<Result<void>>>[];
+  final archiveCalls = <Completer<Result<void>>>[];
+  final restoreCalls = <Completer<Result<void>>>[];
+
+  Future<Result<void>> _pending(List<Completer<Result<void>>> calls) {
+    final c = Completer<Result<void>>();
+    calls.add(c);
+    return c.future;
+  }
+
+  @override
+  Future<Result<void>> setActive({required String id}) =>
+      _pending(setActiveCalls);
+
+  @override
+  Future<Result<void>> unsetActive({required String id}) =>
+      _pending(unsetActiveCalls);
+
+  @override
+  Future<Result<void>> archive({required String id}) => _pending(archiveCalls);
+
+  @override
+  Future<Result<void>> restore({required String id}) => _pending(restoreCalls);
 
   @override
   Stream<List<Member>> watchMembers(String groupId) => const Stream.empty();
@@ -189,5 +227,62 @@ void main() {
     repos.removeCalls.single.complete(const Ok<void>(null));
     expect((await first)!.isOk, isTrue);
     expect(container.read(removeMemberProvider), isFalse);
+  });
+
+  /// The in-flight guard shared by the Active-group and archive notifiers:
+  /// while the first write is pending the state is `true`, a second call
+  /// returns `null` and the repository is called once; afterwards the state
+  /// is `false`.
+  Future<void> expectGuarded({
+    required ProviderListenable<bool> state,
+    required Future<Result<void>?> Function() submit,
+    required List<Completer<Result<void>>> calls,
+  }) async {
+    final sub = container.listen(state, (_, _) {});
+    addTearDown(sub.close);
+
+    final first = submit();
+    expect(container.read(state), isTrue);
+    expect(await submit(), isNull);
+    expect(calls, hasLength(1));
+
+    calls.single.complete(const Ok<void>(null));
+    expect((await first)!.isOk, isTrue);
+    expect(container.read(state), isFalse);
+  }
+
+  test('SetActive ignores calls while a write is in flight', () async {
+    await expectGuarded(
+      state: setActiveProvider,
+      submit: () => container.read(setActiveProvider.notifier).submit(id: 'g'),
+      calls: repos.setActiveCalls,
+    );
+  });
+
+  test('UnsetActive ignores calls while a write is in flight', () async {
+    await expectGuarded(
+      state: unsetActiveProvider,
+      submit: () =>
+          container.read(unsetActiveProvider.notifier).submit(id: 'g'),
+      calls: repos.unsetActiveCalls,
+    );
+  });
+
+  test('ArchiveGroup ignores calls while a write is in flight', () async {
+    await expectGuarded(
+      state: archiveGroupProvider,
+      submit: () =>
+          container.read(archiveGroupProvider.notifier).submit(id: 'g'),
+      calls: repos.archiveCalls,
+    );
+  });
+
+  test('RestoreGroup ignores calls while a write is in flight', () async {
+    await expectGuarded(
+      state: restoreGroupProvider,
+      submit: () =>
+          container.read(restoreGroupProvider.notifier).submit(id: 'g'),
+      calls: repos.restoreCalls,
+    );
   });
 }

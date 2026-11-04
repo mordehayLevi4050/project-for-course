@@ -8,12 +8,14 @@ part of 'group_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The group list, newest first.
+/// The group list: the Active group first, then newest first. Archived
+/// Groups are not in it.
 
 @ProviderFor(groupList)
 final groupListProvider = GroupListProvider._();
 
-/// The group list, newest first.
+/// The group list: the Active group first, then newest first. Archived
+/// Groups are not in it.
 
 final class GroupListProvider
     extends
@@ -25,7 +27,8 @@ final class GroupListProvider
     with
         $FutureModifier<List<GroupListItem>>,
         $StreamProvider<List<GroupListItem>> {
-  /// The group list, newest first.
+  /// The group list: the Active group first, then newest first. Archived
+  /// Groups are not in it.
   GroupListProvider._()
     : super(
         from: null,
@@ -53,6 +56,131 @@ final class GroupListProvider
 }
 
 String _$groupListHash() => r'4673a5994301e00c639d8b3931ab2db7dcf38751';
+
+/// The Archive view: every Archived group, newest first.
+
+@ProviderFor(archivedGroupList)
+final archivedGroupListProvider = ArchivedGroupListProvider._();
+
+/// The Archive view: every Archived group, newest first.
+
+final class ArchivedGroupListProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<GroupListItem>>,
+          List<GroupListItem>,
+          Stream<List<GroupListItem>>
+        >
+    with
+        $FutureModifier<List<GroupListItem>>,
+        $StreamProvider<List<GroupListItem>> {
+  /// The Archive view: every Archived group, newest first.
+  ArchivedGroupListProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'archivedGroupListProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$archivedGroupListHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<GroupListItem>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<GroupListItem>> create(Ref ref) {
+    return archivedGroupList(ref);
+  }
+}
+
+String _$archivedGroupListHash() => r'b61c50931f6689772ca2f002e3078619a21e603a';
+
+/// The id of the Active group, or `null` when none is set.
+
+@ProviderFor(activeGroupId)
+final activeGroupIdProvider = ActiveGroupIdProvider._();
+
+/// The id of the Active group, or `null` when none is set.
+
+final class ActiveGroupIdProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, Stream<String?>>
+    with $FutureModifier<String?>, $StreamProvider<String?> {
+  /// The id of the Active group, or `null` when none is set.
+  ActiveGroupIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeGroupIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeGroupIdHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<String?> create(Ref ref) {
+    return activeGroupId(ref);
+  }
+}
+
+String _$activeGroupIdHash() => r'0c5a67651e57ab2d4f3de9ed9e05152a9e738c62';
+
+/// The Active group, or `null` when none is set. Used to name it in the
+/// Active-group sheet's warning.
+
+@ProviderFor(activeGroup)
+final activeGroupProvider = ActiveGroupProvider._();
+
+/// The Active group, or `null` when none is set. Used to name it in the
+/// Active-group sheet's warning.
+
+final class ActiveGroupProvider
+    extends $FunctionalProvider<AsyncValue<Group?>, Group?, FutureOr<Group?>>
+    with $FutureModifier<Group?>, $FutureProvider<Group?> {
+  /// The Active group, or `null` when none is set. Used to name it in the
+  /// Active-group sheet's warning.
+  ActiveGroupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'activeGroupProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeGroupHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Group?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Group?> create(Ref ref) {
+    return activeGroup(ref);
+  }
+}
+
+String _$activeGroupHash() => r'4e473b77f56824b3ee83a9506b2beb38ff94417d';
 
 /// One Group, or `null` when it does not exist.
 
@@ -547,6 +675,250 @@ String _$removeMemberHash() => r'932b4f4eb59ef6d4fd1e25d9baa0bbdebcf7ff4b';
 /// made meanwhile are ignored and return `null`.
 
 abstract class _$RemoveMember extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Makes a Group the Active group. The state is `true` while the write is
+/// in flight; calls made meanwhile are ignored and return `null`.
+
+@ProviderFor(SetActive)
+final setActiveProvider = SetActiveProvider._();
+
+/// Makes a Group the Active group. The state is `true` while the write is
+/// in flight; calls made meanwhile are ignored and return `null`.
+final class SetActiveProvider extends $NotifierProvider<SetActive, bool> {
+  /// Makes a Group the Active group. The state is `true` while the write is
+  /// in flight; calls made meanwhile are ignored and return `null`.
+  SetActiveProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'setActiveProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$setActiveHash();
+
+  @$internal
+  @override
+  SetActive create() => SetActive();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$setActiveHash() => r'6439c3d390d0bdfeac9959da5111463f61f614b1';
+
+/// Makes a Group the Active group. The state is `true` while the write is
+/// in flight; calls made meanwhile are ignored and return `null`.
+
+abstract class _$SetActive extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Unsets the Active group. The state is `true` while the write is in
+/// flight; calls made meanwhile are ignored and return `null`.
+
+@ProviderFor(UnsetActive)
+final unsetActiveProvider = UnsetActiveProvider._();
+
+/// Unsets the Active group. The state is `true` while the write is in
+/// flight; calls made meanwhile are ignored and return `null`.
+final class UnsetActiveProvider extends $NotifierProvider<UnsetActive, bool> {
+  /// Unsets the Active group. The state is `true` while the write is in
+  /// flight; calls made meanwhile are ignored and return `null`.
+  UnsetActiveProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'unsetActiveProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$unsetActiveHash();
+
+  @$internal
+  @override
+  UnsetActive create() => UnsetActive();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$unsetActiveHash() => r'9463258e8caf0b11e51fbf56730c9312c67bb250';
+
+/// Unsets the Active group. The state is `true` while the write is in
+/// flight; calls made meanwhile are ignored and return `null`.
+
+abstract class _$UnsetActive extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Archives a Group. The state is `true` while the write is in flight;
+/// calls made meanwhile are ignored and return `null`.
+
+@ProviderFor(ArchiveGroup)
+final archiveGroupProvider = ArchiveGroupProvider._();
+
+/// Archives a Group. The state is `true` while the write is in flight;
+/// calls made meanwhile are ignored and return `null`.
+final class ArchiveGroupProvider extends $NotifierProvider<ArchiveGroup, bool> {
+  /// Archives a Group. The state is `true` while the write is in flight;
+  /// calls made meanwhile are ignored and return `null`.
+  ArchiveGroupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'archiveGroupProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$archiveGroupHash();
+
+  @$internal
+  @override
+  ArchiveGroup create() => ArchiveGroup();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$archiveGroupHash() => r'4b5e11434c79623fed04983b289250d8f7262777';
+
+/// Archives a Group. The state is `true` while the write is in flight;
+/// calls made meanwhile are ignored and return `null`.
+
+abstract class _$ArchiveGroup extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Restores an Archived group. The state is `true` while the write is in
+/// flight; calls made meanwhile are ignored and return `null`.
+
+@ProviderFor(RestoreGroup)
+final restoreGroupProvider = RestoreGroupProvider._();
+
+/// Restores an Archived group. The state is `true` while the write is in
+/// flight; calls made meanwhile are ignored and return `null`.
+final class RestoreGroupProvider extends $NotifierProvider<RestoreGroup, bool> {
+  /// Restores an Archived group. The state is `true` while the write is in
+  /// flight; calls made meanwhile are ignored and return `null`.
+  RestoreGroupProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'restoreGroupProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$restoreGroupHash();
+
+  @$internal
+  @override
+  RestoreGroup create() => RestoreGroup();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$restoreGroupHash() => r'6557c1d932427bffde37e96b41d238fd73dd964e';
+
+/// Restores an Archived group. The state is `true` while the write is in
+/// flight; calls made meanwhile are ignored and return `null`.
+
+abstract class _$RestoreGroup extends $Notifier<bool> {
   bool build();
   @$mustCallSuper
   @override

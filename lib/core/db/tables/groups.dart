@@ -24,6 +24,11 @@ class Groups extends Table {
   /// UTC epoch millis, set on insert and on every edit (AD-8).
   IntColumn get modifiedAt => integer()();
 
+  /// UTC epoch millis when the Group was archived (FR-6), or `null` while it
+  /// is not archived. Set by archive, cleared by restore. Groups are never
+  /// deleted.
+  IntColumn get archivedAt => integer().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }

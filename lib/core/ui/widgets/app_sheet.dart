@@ -37,26 +37,32 @@ Future<T?> showAppSheet<T>(
   );
 }
 
-/// The anatomy of a sheet: the [title], an optional [body], then a button
-/// row with the [primary] on the start side (about two thirds wide) and the
+/// The anatomy of a sheet: the [title], an optional [body], an optional
+/// [warning] strip (on `badge-active-surface`), then a button row with the [primary] on the start side (about two thirds wide) and the
 /// [secondary] beside it.
 class AppSheetLayout extends StatelessWidget {
   const AppSheetLayout({
     super.key,
     required this.title,
     this.body,
+    this.warning,
     required this.primary,
     required this.secondary,
   });
 
   final String title;
   final Widget? body;
+
+  /// A warning shown in a strip under the body, such as "הקבוצה '…' תפסיק
+  /// להיות הקבוצה הפעילה".
+  final String? warning;
   final Widget primary;
   final Widget secondary;
 
   @override
   Widget build(BuildContext context) {
     final body = this.body;
+    final warning = this.warning;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.marginMobile,
@@ -73,6 +79,27 @@ class AppSheetLayout extends StatelessWidget {
             style: AppTextStyles.screenTitle.copyWith(color: AppColors.ink),
           ),
           if (body != null) ...[const SizedBox(height: AppSpacing.s3), body],
+          if (warning != null) ...[
+            const SizedBox(height: AppSpacing.s3),
+            DecoratedBox(
+              decoration: const BoxDecoration(
+                color: AppColors.badgeActiveSurface,
+                borderRadius: BorderRadius.all(Radius.circular(AppRadii.sm)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s3,
+                  vertical: AppSpacing.s2,
+                ),
+                child: Text(
+                  warning,
+                  style: AppTextStyles.message.copyWith(
+                    color: AppColors.badgeActiveInk,
+                  ),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.s5),
           Row(
             children: [

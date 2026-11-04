@@ -9,10 +9,30 @@ part 'group_providers.g.dart';
 
 // --- Reads: repository `.watch()` streams, no caching (AD-5) --------------
 
-/// The group list, newest first.
+/// The group list: the Active group first, then newest first. Archived
+/// Groups are not in it.
 @riverpod
 Stream<List<GroupListItem>> groupList(Ref ref) =>
     ref.watch(groupRepositoryProvider).watchGroups();
+
+/// The Archive view: every Archived group, newest first.
+@riverpod
+Stream<List<GroupListItem>> archivedGroupList(Ref ref) =>
+    ref.watch(groupRepositoryProvider).watchArchivedGroups();
+
+/// The id of the Active group, or `null` when none is set.
+@riverpod
+Stream<String?> activeGroupId(Ref ref) =>
+    ref.watch(groupRepositoryProvider).watchActiveGroupId();
+
+/// The Active group, or `null` when none is set. Used to name it in the
+/// Active-group sheet's warning.
+@riverpod
+Future<Group?> activeGroup(Ref ref) async {
+  final id = await ref.watch(activeGroupIdProvider.future);
+  if (id == null) return null;
+  return ref.watch(groupProvider(id).future);
+}
 
 /// One Group, or `null` when it does not exist.
 @riverpod
@@ -130,6 +150,78 @@ class RemoveMember extends _$RemoveMember {
     state = true;
     try {
       return await ref.read(memberRepositoryProvider).removeMember(id: id);
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+/// Makes a Group the Active group. The state is `true` while the write is
+/// in flight; calls made meanwhile are ignored and return `null`.
+@riverpod
+class SetActive extends _$SetActive {
+  @override
+  bool build() => false;
+
+  Future<Result<void>?> submit({required String id}) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref.read(groupRepositoryProvider).setActive(id: id);
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+/// Unsets the Active group. The state is `true` while the write is in
+/// flight; calls made meanwhile are ignored and return `null`.
+@riverpod
+class UnsetActive extends _$UnsetActive {
+  @override
+  bool build() => false;
+
+  Future<Result<void>?> submit({required String id}) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref.read(groupRepositoryProvider).unsetActive(id: id);
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+/// Archives a Group. The state is `true` while the write is in flight;
+/// calls made meanwhile are ignored and return `null`.
+@riverpod
+class ArchiveGroup extends _$ArchiveGroup {
+  @override
+  bool build() => false;
+
+  Future<Result<void>?> submit({required String id}) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref.read(groupRepositoryProvider).archive(id: id);
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+/// Restores an Archived group. The state is `true` while the write is in
+/// flight; calls made meanwhile are ignored and return `null`.
+@riverpod
+class RestoreGroup extends _$RestoreGroup {
+  @override
+  bool build() => false;
+
+  Future<Result<void>?> submit({required String id}) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref.read(groupRepositoryProvider).restore(id: id);
     } finally {
       if (ref.mounted) state = false;
     }

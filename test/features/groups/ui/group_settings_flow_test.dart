@@ -365,6 +365,8 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Eilat');
       await tester.tap(find.text(MessageKey.createGroup.text));
       await tester.pumpAndSettle();
+      await tester.tap(find.text(MessageKey.activeSheetDecline.text));
+      await tester.pumpAndSettle();
       expect(find.byType(CreateGroupScreen), findsOneWidget);
 
       final addField = find.descendant(

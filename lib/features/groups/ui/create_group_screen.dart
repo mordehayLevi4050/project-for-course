@@ -7,6 +7,7 @@ import '../../../core/ids/new_id.dart';
 import '../../../core/result/result.dart';
 import '../../../core/text/names.dart';
 import '../../../core/ui/theme/tokens.dart';
+import '../../../core/ui/widgets/active_group_sheet.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
 import '../../../core/ui/widgets/compact_top_bar.dart';
 import '../../../core/ui/widgets/name_field.dart';
@@ -45,15 +46,31 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
         .read(createGroupProvider.notifier)
         .submit(id: _groupFormId, name: _nameController.text);
     if (!mounted || result == null) return;
-    setState(() {
-      switch (result) {
-        case Ok(:final value):
+    switch (result) {
+      case Failure(:final message):
+        setState(() => _nameError = message);
+      case Ok(:final value):
+        await _offerActive(value);
+        if (!mounted) return;
+        setState(() {
           _group = value;
           _nameError = null;
-        case Failure(:final message):
-          _nameError = message;
-      }
-    });
+        });
+    }
+  }
+
+  /// FR-7: right after the Group is saved, before any Member is added, the
+  /// Active-group sheet offers to make it active, warning when another Group
+  /// is active. Any answer (or a dismissal) then opens stage 2.
+  Future<void> _offerActive(Group group) async {
+    final current = await ref.read(activeGroupProvider.future);
+    if (!mounted) return;
+    final confirmed = await showActiveGroupSheet(
+      context,
+      currentActiveName: current?.name,
+    );
+    if (confirmed != true || !mounted) return;
+    await ref.read(setActiveProvider.notifier).submit(id: group.id);
   }
 
   @override
@@ -64,6 +81,9 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
 
   Widget _buildNaming() {
     final saving = ref.watch(createGroupProvider);
+    // Kept alive for the Active-group sheet right after the save (FR-7).
+    ref.watch(activeGroupProvider);
+    ref.watch(setActiveProvider);
     return AppScaffold(
       header: CompactTopBar(
         title: MessageKey.newGroupTitle.text,

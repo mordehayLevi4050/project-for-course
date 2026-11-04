@@ -7,16 +7,19 @@ import '../../../core/i18n/message_key.dart';
 import '../../../core/result/result.dart';
 import '../../../core/text/names.dart';
 import '../../../core/ui/theme/tokens.dart';
+import '../../../core/ui/widgets/active_group_sheet.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
 import '../../../core/ui/widgets/compact_top_bar.dart';
+import '../../../core/ui/widgets/confirm_sheet.dart';
 import '../../../core/ui/widgets/rename_sheet.dart';
 import '../app/group_providers.dart';
 import '../domain/group.dart';
 import 'member_list.dart';
 
-/// Group settings (FR-2–FR-5), opened from the "⚙ ✎" chip: rename the
-/// Group, and add, rename and remove Members. "→" or system back returns to
-/// the Group page. The Active toggle and archive arrive in Story 1.2.
+/// Group settings (FR-2–FR-6, FR-8), opened from the "⚙ ✎" chip: rename the
+/// Group, the Active toggle, add, rename and remove Members, and archive.
+/// "→" or system back returns to the Group page. It is not reachable for an
+/// Archived group (the router redirects to its read-only page).
 class GroupSettingsScreen extends ConsumerStatefulWidget {
   const GroupSettingsScreen({super.key, required this.groupId});
 
@@ -47,14 +50,59 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
     );
   }
 
+  /// FR-8: on with no other Group active → active at once; on with another
+  /// Group active → the Active-group sheet first, and nothing changes unless
+  /// it is confirmed; off → unset at once.
+  Future<void> _toggleActive(bool on) async {
+    final id = widget.groupId;
+    if (!on) {
+      await ref.read(unsetActiveProvider.notifier).submit(id: id);
+      return;
+    }
+    final current = await ref.read(activeGroupProvider.future);
+    if (!mounted) return;
+    if (current != null && current.id != id) {
+      final confirmed = await showActiveGroupSheet(
+        context,
+        currentActiveName: current.name,
+      );
+      if (confirmed != true || !mounted) return;
+    }
+    await ref.read(setActiveProvider.notifier).submit(id: id);
+  }
+
+  Future<void> _archive(Group group) async {
+    final confirmed = await showConfirmSheet(
+      context,
+      title: MessageKey.archiveSheetTitle.fill({
+        'group': isolateName(group.name),
+      }),
+      body: MessageKey.archiveSheetBody.text,
+      confirmLabel: MessageKey.archiveSheetConfirm.text,
+      destructive: false,
+    );
+    if (confirmed != true || !mounted) return;
+    final result = await ref
+        .read(archiveGroupProvider.notifier)
+        .submit(id: group.id);
+    if (!mounted) return;
+    // The stack is replaced by the group list.
+    if (result is Ok) context.go('/');
+  }
+
   @override
   Widget build(BuildContext context) {
     final groupId = widget.groupId;
     final group = ref.watch(groupProvider(groupId)).value;
     final members = ref.watch(membersProvider(groupId)).value ?? [];
-    // Keeps the notifier (and its in-flight guard) alive while the sheet is
-    // open.
+    final isActive = ref.watch(activeGroupIdProvider).value == groupId;
+    // Keeps the notifiers (and their in-flight guards) and the Active group
+    // alive while a sheet is open.
     ref.watch(renameGroupProvider);
+    ref.watch(activeGroupProvider);
+    final settingActive =
+        ref.watch(setActiveProvider) || ref.watch(unsetActiveProvider);
+    final archiving = ref.watch(archiveGroupProvider);
 
     return AppScaffold(
       header: CompactTopBar(
@@ -68,12 +116,27 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
           children: [
             if (group != null)
               _SettingsCard(
-                child: _SettingsRow(
-                  label: MessageKey.groupNameLabel.text,
-                  value: MessageKey.rowValue.fill({
-                    'value': isolateName(group.name),
-                  }),
-                  onTap: () => _renameGroup(group),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _SettingsRow(
+                      label: MessageKey.groupNameLabel.text,
+                      value: MessageKey.rowValue.fill({
+                        'value': isolateName(group.name),
+                      }),
+                      onTap: () => _renameGroup(group),
+                    ),
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: AppColors.divider,
+                    ),
+                    _ToggleRow(
+                      label: MessageKey.activeToggle.text,
+                      value: isActive,
+                      onChanged: settingActive ? null : _toggleActive,
+                    ),
+                  ],
                 ),
               ),
             const SizedBox(height: AppSpacing.s5),
@@ -91,6 +154,15 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
             if (_adding) ...[
               const SizedBox(height: AppSpacing.s3),
               MemberAddField(groupId: groupId),
+            ],
+            if (group != null) ...[
+              const SizedBox(height: AppSpacing.s5),
+              _SettingsCard(
+                child: _ActionRow(
+                  label: MessageKey.archiveAction.text,
+                  onTap: archiving ? null : () => _archive(group),
+                ),
+              ),
             ],
           ],
         ),
@@ -160,6 +232,96 @@ class _SettingsRow extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A 56dp settings row with the [label] on the start side and the Toggle
+/// (`toggle-off` / `toggle-on`) on the end side. The whole row is the tap
+/// target.
+class _ToggleRow extends StatelessWidget {
+  const _ToggleRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final onChanged = this.onChanged;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onChanged == null ? null : () => onChanged(!value),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AppSizes.rowMinHeight),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.s4,
+            AppSpacing.s1,
+            AppSpacing.s2,
+            AppSpacing.s1,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.rowTitle.copyWith(color: AppColors.ink),
+                ),
+              ),
+              Switch(
+                value: value,
+                onChanged: onChanged,
+                activeTrackColor: AppColors.toggleOn,
+                inactiveTrackColor: AppColors.toggleOff,
+                activeThumbColor: AppColors.surfaceRaised,
+                inactiveThumbColor: AppColors.surfaceRaised,
+                trackOutlineColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? AppColors.toggleOn
+                      : AppColors.toggleOff,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A single-row action card, such as "🗂 העברה לארכיון", in the secondary
+/// ink.
+class _ActionRow extends StatelessWidget {
+  const _ActionRow({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AppSizes.rowMinHeight),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              label,
+              style: AppTextStyles.rowTitle.copyWith(
+                color: AppColors.secondaryInk,
+              ),
+            ),
           ),
         ),
       ),

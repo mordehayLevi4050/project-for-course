@@ -3,6 +3,10 @@ import 'member.dart';
 
 /// Reads and writes the Members of a Group (FR-2). Implemented in
 /// `groups/data`.
+///
+/// Every write first checks `isGroupMutable` inside its transaction: on an
+/// Archived group it writes nothing and returns `Failure(groupArchived)`
+/// (FR-6).
 abstract interface class MemberRepository {
   /// The Members of [groupId], in add order (`memberSeq`).
   Stream<List<Member>> watchMembers(String groupId);

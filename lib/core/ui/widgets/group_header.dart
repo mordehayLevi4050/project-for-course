@@ -6,7 +6,8 @@ import '../theme/tokens.dart';
 /// (`components.header-block`). Pass it as `AppScaffold.header`, which paints
 /// the gradient.
 ///
-/// Top to bottom: the [navLabel] line, the [name] with the optional
+/// Top to bottom: the [navLabel] line (with the optional [badgeLabel], such
+/// as "🗂 בארכיון"), the [name] with the optional
 /// [chipLabel] chip (Group page only), the [total] and the [secondaryLine].
 /// The category share stripe arrives with Expenses.
 class GroupHeader extends StatelessWidget {
@@ -19,6 +20,7 @@ class GroupHeader extends StatelessWidget {
     required this.secondaryLine,
     this.chipLabel,
     this.onChip,
+    this.badgeLabel,
   });
 
   final String navLabel;
@@ -28,12 +30,14 @@ class GroupHeader extends StatelessWidget {
   final String secondaryLine;
   final String? chipLabel;
   final VoidCallback? onChip;
+  final String? badgeLabel;
 
   static const TextStyle _onHeader = TextStyle(color: AppColors.onHeader);
 
   @override
   Widget build(BuildContext context) {
     final chipLabel = this.chipLabel;
+    final badgeLabel = this.badgeLabel;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.s5,
@@ -44,23 +48,31 @@ class GroupHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // The nav line keeps a 48dp hit area.
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onNav,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                minHeight: AppSizes.minTouchTarget,
-              ),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                widthFactor: 1,
-                child: Text(
-                  navLabel,
-                  style: AppTextStyles.headerSecondary.merge(_onHeader),
+          Row(
+            children: [
+              // The nav line keeps a 48dp hit area.
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onNav,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: AppSizes.minTouchTarget,
+                  ),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    widthFactor: 1,
+                    child: Text(
+                      navLabel,
+                      style: AppTextStyles.headerSecondary.merge(_onHeader),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              if (badgeLabel != null) ...[
+                const Spacer(),
+                _HeaderBadge(label: badgeLabel),
+              ],
+            ],
           ),
           Row(
             children: [
@@ -125,6 +137,33 @@ class _HeaderChip extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A header badge ("🗂 בארכיון"): the ink-25% overlay with white text.
+class _HeaderBadge extends StatelessWidget {
+  const _HeaderBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: AppColors.badgeOnHeaderSurface,
+        borderRadius: BorderRadius.all(Radius.circular(AppRadii.sm)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.s2,
+          vertical: AppSpacing.s1,
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.label.copyWith(color: AppColors.onHeader),
         ),
       ),
     );

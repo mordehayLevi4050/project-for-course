@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/i18n/message_key.dart';
+import '../../../core/policy/group_rules.dart';
 import '../../../core/policy/member_rules.dart';
 import '../../../core/policy/verdict.dart';
 import '../../../core/ports/payer_usage_port.dart';
@@ -36,6 +37,9 @@ final class DriftMemberRepository implements MemberRepository {
     required String groupId,
     required String name,
   }) => _db.transaction(() async {
+    final mutable = await _checkMutable(groupId);
+    if (mutable case Deny(:final message)) return Failure(message);
+
     // Save once (AD-23): a repeated save of the same form writes nothing.
     final existing = await (_db.select(
       _db.members,
@@ -81,6 +85,9 @@ final class DriftMemberRepository implements MemberRepository {
     )..where((m) => m.id.equals(id))).getSingleOrNull();
     if (current == null) throw StateError('No Member $id to rename');
 
+    final mutable = await _checkMutable(current.groupId);
+    if (mutable case Deny(:final message)) return Failure(message);
+
     if (isBlankName(name)) return const Failure(MessageKey.nameRequired);
     final normalized = normalizeNameWithin(name, maxMemberNameLength);
     final key = nameKey(normalized);
@@ -123,6 +130,9 @@ final class DriftMemberRepository implements MemberRepository {
         // Already gone: nothing to write.
         if (current == null) return const Ok<void>(null);
 
+        final mutable = await _checkMutable(current.groupId);
+        if (mutable case Deny(:final message)) return Failure(message);
+
         final isPayer = await _payerUsage.isPayer(current.groupId, id);
         final verdict = mayRemoveMember((isPayer: isPayer));
         if (verdict case Deny(:final message)) return Failure(message);
@@ -130,6 +140,17 @@ final class DriftMemberRepository implements MemberRepository {
         await (_db.delete(_db.members)..where((m) => m.id.equals(id))).go();
         return const Ok<void>(null);
       });
+
+  /// `isGroupMutable` for [groupId], read inside the caller's transaction
+  /// (FR-6: an Archived group's Members cannot change). An unknown Group is a
+  /// bug and throws a [StateError].
+  Future<Verdict> _checkMutable(String groupId) async {
+    final group = await (_db.select(
+      _db.groups,
+    )..where((g) => g.id.equals(groupId))).getSingleOrNull();
+    if (group == null) throw StateError('No Group $groupId');
+    return isGroupMutable((isArchived: group.archivedAt != null));
+  }
 }
 
 /// Maps a drift row to the domain entity (rows never leave `data/`).

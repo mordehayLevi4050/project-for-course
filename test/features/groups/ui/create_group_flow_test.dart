@@ -47,6 +47,34 @@ final class _PendingGroupRepository implements GroupRepository {
 
   @override
   Stream<Group?> watchGroup(String id) => Stream.value(null);
+
+  @override
+  Stream<List<GroupListItem>> watchArchivedGroups() => Stream.value(const []);
+
+  @override
+  Stream<String?> watchActiveGroupId() => Stream.value(null);
+
+  @override
+  Future<String?> readActiveGroupId() async => null;
+
+  @override
+  Future<Group?> readGroup(String id) async => null;
+
+  @override
+  Future<Result<void>> setActive({required String id}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> unsetActive({required String id}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> archive({required String id}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> restore({required String id}) =>
+      throw UnimplementedError();
 }
 
 void main() {
@@ -71,11 +99,20 @@ void main() {
     expect(find.byType(CreateGroupScreen), findsOneWidget);
   }
 
+  /// Answers the Active-group sheet that follows a stage-1 save with
+  /// "לא עכשיו".
+  Future<void> declineActiveSheet(WidgetTester tester) async {
+    expect(find.text(MessageKey.activeSheetTitle.text), findsOneWidget);
+    await tester.tap(find.text(MessageKey.activeSheetDecline.text));
+    await tester.pumpAndSettle();
+  }
+
   Future<void> createGroup(WidgetTester tester, String name) async {
     await openCreate(tester);
     await tester.enterText(field(), name);
     await tester.tap(find.text(MessageKey.createGroup.text));
     await tester.pumpAndSettle();
+    await declineActiveSheet(tester);
   }
 
   Future<void> tapAdd(WidgetTester tester) async {
@@ -315,7 +352,7 @@ void main() {
             DriftMemberRepository(db, FakeClock(), FakePayerUsage()),
           ),
         ],
-        child: GrouPayApp(router: buildRouter()),
+        child: GrouPayApp(router: buildRouter(isArchived: (_) async => false)),
       ),
     );
     await tester.pumpAndSettle();
@@ -340,6 +377,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await declineActiveSheet(tester);
     // Stage 2 replaced stage 1, and the save ran exactly once.
     expect(button, findsNothing);
     expect(find.text(MessageKey.membersSection.text), findsOneWidget);

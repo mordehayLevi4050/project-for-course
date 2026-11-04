@@ -112,6 +112,9 @@ abstract final class AppSizes {
 
   /// Group cards and Expense rows (`components.expense-row`).
   static const double cardMinHeight = 72;
+
+  /// The start-edge stripe of the Active group's card and of Expense rows.
+  static const double startEdge = 6;
 }
 
 /// Elevation (DESIGN.md › Elevation & Depth).
@@ -214,6 +217,14 @@ abstract final class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w400,
     fontVariations: [FontVariation.weight(400)],
+  );
+
+  /// The "🗂 ארכיון (n)" link: 14sp semibold (DESIGN.md › Archive link).
+  static const TextStyle link = TextStyle(
+    fontFamily: appFontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    fontVariations: [FontVariation.weight(600)],
   );
   static const TextStyle sectionTitle = TextStyle(
     fontFamily: appFontFamily,
