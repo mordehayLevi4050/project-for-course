@@ -28,8 +28,8 @@ sources:
 
 | Surface | Reached from | Purpose | PRD |
 |---|---|---|---|
-| Group list (home) | Launch with no Active group · "☰ הקבוצות שלי" on Group page | All non-archived Groups | FR-1, FR-6, FR-9 |
-| Archive | "🗂 ארכיון (n)" link at the bottom of the Group list | View and restore archived Groups. Same layout as the Group list, with Group cards in gray. Tapping a card opens that Group's page read-only | FR-6 |
+| Group list (home) | Launch with no Active group · the nav (chevron icon + "הקבוצות שלי") on Group page | All non-archived Groups | FR-1, FR-6, FR-9 |
+| Archive | "🗂 ארכיון (n)" link at the bottom of the Group list | View and restore archived Groups. Same layout as the Group list, with Group cards in gray. Tapping a card opens that Group's page read-only. The nav (chevron icon + "הקבוצות שלי") returns to the Group list | FR-6 |
 | Create group | "+ קבוצה חדשה" on the Group list | Two stages on one screen: name the Group and save it, then add Members | FR-1, FR-2, FR-7 |
 | Active-group sheet | Right after the Group is saved on Create group, before any Members are added · switching the Active toggle on in Group settings while another Group is active | Offer to make the Group active, warning when another Group stops being active | FR-7, FR-8 |
 | Group page | Launch with an Active group (no intermediate screen) · "סיום" on Create group · tap a Group card · tap an archived card in Archive (read-only) | Trip total, category stripe, Expense list, Add expense, Summary | FR-6, FR-9, FR-10, FR-12, FR-16 |
@@ -85,7 +85,7 @@ Free texts (secondary; may be refined without a SPEC change):
 | Situation | Hebrew string |
 |---|---|
 | Group list | Header "GrouPay" over "הקבוצות שלי" · button "+ קבוצה חדשה" · link "🗂 ארכיון ({n})" |
-| Group page header | Nav "☰ הקבוצות שלי" (archived: "→ ארכיון") · secondary line "{n} משתתפים · {m} הוצאות", with the singulars "משתתף אחד" and "הוצאה אחת" |
+| Group page header | Nav chevron icon + "הקבוצות שלי" (archived: chevron icon + "ארכיון"; Summary: chevron icon + "חזרה") · secondary line "{n} משתתפים · {m} הוצאות", with the singulars "משתתף אחד" and "הוצאה אחת" |
 | Group card | Group name · "{n} משתתפים" (singular "משתתף אחד") · Trip total "₪{total}" on the end side |
 | Active-group sheet (FR-7) | Body "האפליקציה תיפתח ישר לתוך הקבוצה הזו." · buttons "כן, להפוך לפעילה" / "לא עכשיו" |
 | Create group | Top-bar title "קבוצה חדשה" (stage 1; the group name in stage 2) · field label "שם הקבוצה" · button "יצירת קבוצה" (stage 1) · section label "משתתפים" · add-member placeholder "שם המשתתף" · button "סיום" (stage 2) |
@@ -155,7 +155,7 @@ Behavioral only. Visual specs live in `DESIGN.md` › Components.
 | Create group, Group settings | Member validation | "נדרש שם", "כבר יש משתתף בשם הזה" or "קבוצות מוגבלות ל-10 משתתפים" inline under the field. Nothing is added |
 | Group page | No Expenses | "עדיין אין הוצאות". The Trip total shows ₪0 and the stripe is empty |
 | Group page | < 2 Members | "+ הוספת הוצאה" and "סיכום" are disabled, and "יש להוסיף לפחות שני משתתפים כדי לרשום הוצאות" shows above the bottom bar |
-| Group page | Archived (FR-6) | Header nav "→ ארכיון", badge "🗂 בארכיון", no "⚙ ✎" chip. Archive note above the bottom bar; "↩ שחזור מהארכיון" in the primary slot and "סיכום" beside it. Rows are view-only (tap and long-press do nothing). The Expense list, Trip total and stripe are shown as usual |
+| Group page | Archived (FR-6) | Header nav chevron icon + "ארכיון", badge "🗂 בארכיון", no "⚙ ✎" chip. Archive note above the bottom bar; "↩ שחזור מהארכיון" in the primary slot and "סיכום" beside it. Rows are view-only (tap and long-press do nothing). The Expense list, Trip total and stripe are shown as usual |
 | Add expense | Initial | Amount empty with the caret showing, keypad active, default Payer selected, no Category selected |
 | Add expense, Edit expense | 7–10 Members | The payer picker takes a second row. If the region above the keypad no longer fits, the Categories use the two-page row |
 | Add expense | Other | Description field and system text keyboard. Save moves above the keyboard |

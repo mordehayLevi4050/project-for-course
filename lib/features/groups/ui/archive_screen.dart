@@ -7,6 +7,7 @@ import '../../../core/money/tenths.dart';
 import '../../../core/result/result.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
+import '../../../core/ui/widgets/nav_back_label.dart';
 import '../app/group_providers.dart';
 import 'group_card.dart';
 
@@ -42,19 +43,24 @@ class ArchiveScreen extends ConsumerWidget {
           children: [
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => context.go('/'),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: AppSizes.minTouchTarget,
-                  ),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    widthFactor: 1,
-                    child: Text(
-                      MessageKey.archiveBackNav.text,
-                      style: AppTextStyles.headerSecondary,
+              child: Semantics(
+                button: true,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => context.go('/'),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: AppSizes.minTouchTarget,
+                    ),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      widthFactor: 1,
+                      child: NavBackLabel(
+                        label: MessageKey.archiveBackNav.text,
+                        style: AppTextStyles.headerSecondary.copyWith(
+                          color: AppColors.onHeader,
+                        ),
+                      ),
                     ),
                   ),
                 ),

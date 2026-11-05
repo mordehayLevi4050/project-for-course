@@ -24,8 +24,9 @@ import '../../../support/heebo.dart';
 /// scale 1.0 and 1.5, with Hebrew, Latin and mixed names.
 ///
 /// The PNGs were generated on Windows; glyph rasterizing differs a little
-/// between platforms. Heebo has no "→" or emoji glyphs, so the goldens show
-/// a box in their place (on the device the system fallback font draws them).
+/// between platforms. Heebo has no emoji glyphs, so the goldens show a box
+/// in their place (on the device the system fallback font draws them). The
+/// nav chevron is a MaterialIcons icon, which `loadHeebo()` also loads.
 void main() {
   late AppDatabase db;
   late DriftGroupRepository groups;

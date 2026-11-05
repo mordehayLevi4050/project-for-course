@@ -5,6 +5,7 @@ import 'package:groupay/core/i18n/isolate_name.dart';
 import 'package:groupay/core/i18n/message_key.dart';
 import 'package:groupay/core/ids/new_id.dart';
 import 'package:groupay/core/result/result.dart';
+import 'package:groupay/core/ui/theme/tokens.dart';
 import 'package:groupay/features/groups/data/drift_group_repository.dart';
 import 'package:groupay/features/groups/data/drift_member_repository.dart';
 import 'package:groupay/features/groups/domain/group.dart';
@@ -198,7 +199,7 @@ void main() {
       expect(await activeName(), isNull);
 
       // The list has no "⭐ פעילה".
-      await tapAndSettle(tester, find.text(MessageKey.back.text));
+      await tapAndSettle(tester, find.bySemanticsLabel(MessageKey.back.text));
       await tapAndSettle(tester, find.text(MessageKey.groupListNav.text));
       expect(find.text(MessageKey.activeBadge.text), findsNothing);
       await unmountGrouPay(tester);
@@ -305,6 +306,21 @@ void main() {
         await tapAndSettle(tester, link);
         expect(find.byType(ArchiveScreen), findsOneWidget);
         expect(find.text(MessageKey.archiveBackNav.text), findsOneWidget);
+        // The nav is the chevron icon + label, white on the gradient.
+        final chevron = find.descendant(
+          of: find.byType(ArchiveScreen),
+          matching: find.byIcon(Icons.chevron_right),
+        );
+        expect(chevron, findsOneWidget);
+        expect(find.textContaining('→'), findsNothing);
+        expect(tester.widget<Icon>(chevron).color, AppColors.onHeader);
+        expect(
+          tester
+              .widget<Text>(find.text(MessageKey.archiveBackNav.text))
+              .style!
+              .color,
+          AppColors.onHeader,
+        );
         expect(find.text(MessageKey.archiveTitle.text), findsOneWidget);
         expect(find.byType(ArchivedGroupCard), findsOneWidget);
         expect(find.text(MessageKey.restore.text), findsOneWidget);
@@ -325,7 +341,7 @@ void main() {
           lessThan(tester.getTopLeft(restore).dy),
         );
 
-        // "→ ארכיון" returns to the Archive view, and back again.
+        // The "ארכיון" nav returns to the Archive view, and back again.
         await tapAndSettle(tester, find.text(MessageKey.archiveNav.text));
         expect(find.byType(ArchiveScreen), findsOneWidget);
         await tapAndSettle(tester, find.text('Budapest'));

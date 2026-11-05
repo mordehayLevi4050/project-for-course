@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groupay/core/db/app_database.dart';
 import 'package:groupay/core/i18n/isolate_name.dart';
@@ -98,7 +99,12 @@ void main() {
 
     // The top bar, the group-name row and the Members section.
     expect(find.text(MessageKey.groupSettingsTitle.text), findsOneWidget);
-    expect(find.text(MessageKey.back.text), findsOneWidget);
+    // The back control is the chevron icon alone, labelled "חזרה".
+    expect(find.bySemanticsLabel(MessageKey.back.text), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+    expect(find.text(MessageKey.back.text), findsNothing);
+    expect(find.textContaining('→'), findsNothing);
+    expect(find.textContaining('☰'), findsNothing);
     expect(find.text(MessageKey.groupNameLabel.text), findsOneWidget);
     expect(find.text(groupValue('Trip to Eilat')), findsOneWidget);
     expect(find.text(MessageKey.membersCount.fill({'n': '2'})), findsOneWidget);
@@ -142,8 +148,8 @@ void main() {
     expect(await memberNames(), ['Danna']);
     expect(find.text(MessageKey.membersCount.fill({'n': '1'})), findsOneWidget);
 
-    // "→" returns to the Group page with the new name and count.
-    await tapAndSettle(tester, find.text(MessageKey.back.text));
+    // The chevron back returns to the Group page with the new name and count.
+    await tapAndSettle(tester, find.bySemanticsLabel(MessageKey.back.text));
     expect(find.byType(GroupPage), findsOneWidget);
     expect(find.text('Eilat 2026'), findsOneWidget);
     expect(
@@ -165,6 +171,22 @@ void main() {
     final (groupId, _) = await seed('Eilat', ['Dana']);
     await openSettings(tester, groupId);
     await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(GroupPage), findsOneWidget);
+    await unmountGrouPay(tester);
+  });
+
+  testWidgets('the semantics tap on the "חזרה" back returns to the page', (
+    tester,
+  ) async {
+    final (groupId, _) = await seed('Eilat', ['Dana']);
+    await openSettings(tester, groupId);
+    final node = tester.getSemantics(
+      find.bySemanticsLabel(MessageKey.back.text),
+    );
+    expect(node.flagsCollection.isButton, isTrue);
+    expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    tester.semantics.tap(find.semantics.byLabel(MessageKey.back.text));
     await tester.pumpAndSettle();
     expect(find.byType(GroupPage), findsOneWidget);
     await unmountGrouPay(tester);

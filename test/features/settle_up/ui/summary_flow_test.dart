@@ -152,9 +152,7 @@ void main() {
     expect(find.byType(TransferCard), findsNothing);
   });
 
-  appTest('T3.43: "סיכום" opens the Summary; "→ חזרה" goes back', (
-    tester,
-  ) async {
+  appTest('T3.43: "סיכום" opens the Summary; "חזרה" goes back', (tester) async {
     final (g, m) = await seed(['דנה', 'יוסי', 'נועה']);
     await record(g, m['דנה']!, 3000);
     await open(tester, '/group/$g');
@@ -193,6 +191,16 @@ void main() {
     );
     expect(find.text(MessageKey.groupSettingsChip.text), findsNothing);
     expect(find.text(strip(MessageKey.groupSettingsChip.text)), findsNothing);
+    // The nav is the chevron icon + "חזרה", with no "→" or "☰" glyph.
+    expect(
+      find.descendant(
+        of: find.byType(GroupHeader),
+        matching: find.byIcon(Icons.chevron_right),
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('→'), findsNothing);
+    expect(find.textContaining('☰'), findsNothing);
     expect(find.byType(FilledButton), findsNothing);
     expect(find.byType(OutlinedButton), findsNothing);
     expect(
@@ -414,7 +422,7 @@ void main() {
   });
 
   appTest('the archived page\'s "סיכום" opens the archived Summary; '
-      '"→ חזרה" returns to the archived page', (tester) async {
+      '"חזרה" returns to the archived page', (tester) async {
     final g = await archivedBudapest();
     await open(tester, '/archive/group/$g');
     expect(

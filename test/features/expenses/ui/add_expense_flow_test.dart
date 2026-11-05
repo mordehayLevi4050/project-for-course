@@ -6,7 +6,9 @@ import 'package:groupay/core/ids/new_id.dart';
 import 'package:groupay/core/money/format_shekel.dart';
 import 'package:groupay/core/money/tenths.dart';
 import 'package:groupay/core/result/result.dart';
+import 'package:groupay/core/ui/theme/tokens.dart';
 import 'package:groupay/core/ui/widgets/category_stripe.dart';
+import 'package:groupay/core/ui/widgets/group_header.dart';
 import 'package:groupay/core/ui/widgets/member_avatar.dart';
 import 'package:groupay/features/expenses/data/drift_expense_repository.dart';
 import 'package:groupay/features/expenses/data/drift_payer_usage.dart';
@@ -528,6 +530,33 @@ void main() {
     expect(find.text(MessageKey.memberIsPayer.text), findsOneWidget);
     expect(find.widgetWithText(MemberListRow, 'Yossi'), findsOneWidget);
     expect(await db.select(db.members).get(), hasLength(3));
+    await unmountGrouPay(tester);
+  });
+
+  testWidgets('at text scale 1.5 the Group page nav grows and is not clipped', (
+    tester,
+  ) async {
+    await loadHeebo();
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final (g, _) = await seed(['Dana', 'Yossi']);
+    await openGroup(tester, g);
+    expect(tester.takeException(), isNull);
+
+    final header = tester.getRect(find.byType(GroupHeader));
+    final icon = find.descendant(
+      of: find.byType(GroupHeader),
+      matching: find.byIcon(Icons.chevron_right),
+    );
+    final iconRect = tester.getRect(icon);
+    final label = tester.getRect(find.text(MessageKey.groupListNav.text));
+    expect(iconRect.height, AppTextStyles.headerSecondary.fontSize! * 1.5);
+    for (final r in [iconRect, label]) {
+      expect(header.contains(r.topLeft), isTrue);
+      expect(header.contains(r.bottomRight - const Offset(1, 1)), isTrue);
+    }
+    // The chevron is on the start (right) side of the label.
+    expect(iconRect.left, greaterThanOrEqualTo(label.right));
     await unmountGrouPay(tester);
   });
 

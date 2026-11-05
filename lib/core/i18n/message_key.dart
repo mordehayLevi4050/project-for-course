@@ -79,11 +79,13 @@ enum MessageKey {
   /// The Archive view title.
   archiveTitle('ארכיון'),
 
-  /// The Archive view nav back to the group list.
-  archiveBackNav('→ הקבוצות שלי'),
+  /// The Archive view nav back to the group list (drawn after the chevron
+  /// icon by `NavBackLabel`).
+  archiveBackNav('הקבוצות שלי'),
 
-  /// The header nav of an archived Group page, back to the Archive view.
-  archiveNav('→ ארכיון'),
+  /// The header nav of an archived Group page, back to the Archive view
+  /// (drawn after the chevron icon by `NavBackLabel`).
+  archiveNav('ארכיון'),
 
   /// The header badge of an archived Group.
   archivedBadge('🗂 בארכיון'),
@@ -112,8 +114,9 @@ enum MessageKey {
   archiveSheetConfirm('העברה לארכיון'),
 
   // --- Group page header ---------------------------------------------------
-  /// The header nav back to the group list.
-  groupListNav('☰ הקבוצות שלי'),
+  /// The header nav back to the group list (drawn after the chevron icon by
+  /// `NavBackLabel`).
+  groupListNav('הקבוצות שלי'),
 
   /// The tap-affordance chip next to the group name (opens Group settings).
   groupSettingsChip('⚙ ✎'),
@@ -154,8 +157,9 @@ enum MessageKey {
   removeMemberBodyOne('כל ההוצאות יחולו על המשתתף הנותר.'),
   removeMemberConfirm('הסרה'),
 
-  /// The compact top bar back control (start side, RTL).
-  back('→'),
+  /// The semantics label of the compact top bar back control, which shows
+  /// the chevron icon alone (start side, RTL).
+  back('חזרה'),
 
   /// The Members section label in Group settings.
   membersCount('משתתפים ({n})'),
@@ -229,8 +233,9 @@ enum MessageKey {
   categoryOther('אחר'),
 
   // --- Summary (FR-15, FR-16) ---------------------------------------------
-  /// The Summary header nav back to the Group page.
-  summaryNav('→ חזרה'),
+  /// The Summary header nav back to the Group page (drawn after the chevron
+  /// icon by `NavBackLabel`).
+  summaryNav('חזרה'),
 
   /// The secondary button of the Group page bottom bar.
   summaryButton('סיכום'),

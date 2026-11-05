@@ -90,9 +90,11 @@ void main() {
         MessageKey.groupArchived.text,
         '🗂 הקבוצה בארכיון ולכן לקריאה בלבד.',
       );
-      expect(MessageKey.archiveNav.text, '→ ארכיון');
+      expect(MessageKey.archiveNav.text, 'ארכיון');
       expect(MessageKey.archiveTitle.text, 'ארכיון');
-      expect(MessageKey.archiveBackNav.text, '→ הקבוצות שלי');
+      expect(MessageKey.archiveBackNav.text, 'הקבוצות שלי');
+      expect(MessageKey.groupListNav.text, 'הקבוצות שלי');
+      expect(MessageKey.back.text, 'חזרה');
     });
 
     test('fill substitutes placeholders', () {
@@ -196,7 +198,7 @@ void main() {
       expect(MessageKey.settledUp.text, 'החשבון מאוזן, אין צורך בהעברות');
       expect(MessageKey.transfersTitle.text, 'מי מעביר למי');
       expect(MessageKey.summaryButton.text, 'סיכום');
-      expect(MessageKey.summaryNav.text, '→ חזרה');
+      expect(MessageKey.summaryNav.text, 'חזרה');
     });
 
     test('the share line reads "{n} משתתפים · ₪{share} לאחד"', () {

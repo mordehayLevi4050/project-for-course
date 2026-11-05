@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../i18n/message_key.dart';
 import '../theme/tokens.dart';
+import 'nav_back_label.dart';
 
 /// The 56dp gradient top bar of the full-screen forms (Add/Edit expense,
 /// Create group) and Group settings. Pass it as `AppScaffold.header`, which
 /// paints the gradient.
 ///
-/// The start side holds the ✕ close when [onClose] is given, or the "→" back
-/// when [onBack] is given (never both); the [title] is centered. The end
-/// side holds the optional [action] (Edit expense: the "🗑 מחיקה" chip, see
+/// The start side holds the ✕ close when [onClose] is given, or the chevron
+/// icon back (semantics label "חזרה") when [onBack] is given (never both);
+/// the [title] is centered. The end side holds the optional [action] (Edit expense: the "🗑 מחיקה" chip, see
 /// [TopBarDangerChip]), or an empty 48dp slot that keeps the title centered.
 class CompactTopBar extends StatelessWidget {
   const CompactTopBar({
@@ -43,9 +44,16 @@ class CompactTopBar extends StatelessWidget {
         child: Row(
           children: [
             if (onClose != null)
-              _BarControl(label: MessageKey.close.text, onTap: onClose)
+              _BarControl(
+                onTap: onClose,
+                child: Text(MessageKey.close.text, style: _style),
+              )
             else if (onBack != null)
-              _BarControl(label: MessageKey.back.text, onTap: onBack)
+              _BarControl(
+                onTap: onBack,
+                semanticsLabel: MessageKey.back.text,
+                child: NavChevron(size: _style.fontSize, color: _style.color),
+              )
             else
               slot,
             Expanded(
@@ -59,22 +67,37 @@ class CompactTopBar extends StatelessWidget {
   }
 }
 
-/// A glyph control with a 48dp hit area.
+/// A glyph or icon control with a 48dp hit area. An icon-only [child] needs
+/// a [semanticsLabel].
 class _BarControl extends StatelessWidget {
-  const _BarControl({required this.label, required this.onTap});
+  const _BarControl({
+    required this.child,
+    required this.onTap,
+    this.semanticsLabel,
+  });
 
-  final String label;
+  final Widget child;
   final VoidCallback onTap;
+  final String? semanticsLabel;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final control = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: SizedBox.square(
         dimension: AppSizes.minTouchTarget,
-        child: Center(child: Text(label, style: CompactTopBar._style)),
+        child: Center(child: child),
       ),
+    );
+    final semanticsLabel = this.semanticsLabel;
+    if (semanticsLabel == null) return control;
+    return Semantics(
+      label: semanticsLabel,
+      button: true,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: control,
     );
   }
 }

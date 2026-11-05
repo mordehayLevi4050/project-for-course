@@ -175,7 +175,7 @@ From DESIGN.md (visual) and EXPERIENCE.md (behavior). Both are in `draft` status
 
 **Shared components (`core/ui/widgets`)**
 - UX-DR4: `AppScaffold` owning edge-to-edge insets (Android 15) and keyboard handling.
-- UX-DR5: Header block: Lagoon gradient; nav line (back or "☰ הקבוצות שלי", "🗂 בארכיון" badge when archived); group name with "⚙ ✎" chip (single entry to Group settings, hidden when archived); Trip total; secondary line "{n} משתתפים · {m} הוצאות" / share line; 8dp category share stripe with segments proportional to each Category's share and 2dp gaps, recomputed on every Expense change (Group page and Summary).
+- UX-DR5: Header block: Lagoon gradient; nav line (a right-pointing chevron icon + label: "חזרה", "ארכיון" or "הקבוצות שלי"; "🗂 בארכיון" badge when archived); group name with "⚙ ✎" chip (single entry to Group settings, hidden when archived); Trip total; secondary line "{n} משתתפים · {m} הוצאות" / share line; 8dp category share stripe with segments proportional to each Category's share and 2dp gaps, recomputed on every Expense change (Group page and Summary).
 - UX-DR6: Compact top bar (56dp gradient) for add/edit expense and create group: ✕ on the start side, group name centered, red "🗑 מחיקה" chip on edit.
 - UX-DR7: Pill buttons: primary (orange, 64dp, glow shadow, ≤1 per screen, start/right side ~2/3 width) and secondary (white, teal border, 64dp, ~1/3 width); always text-labeled, never icon-only; disabled = 40% opacity, no shadow, label unchanged.
 - UX-DR8: `showAppSheet<T>()` bottom sheet (grab handle, title, body, optional warning strip, button row with primary on the start side, scrim). Dismiss via cancel, scrim or back changes nothing (`null` = dismissed). Used for: Active-group, Exit, Delete, Archive, Remove-member and Rename sheets. Never centered dialogs.
@@ -202,7 +202,7 @@ From DESIGN.md (visual) and EXPERIENCE.md (behavior). Both are in `draft` status
 - UX-DR27: Member removal from settings: Payer → inline refusal "לא ניתן להסיר משתתף שיש הוצאה על שמו" under the row in danger (replaces any previous message); Group has Expenses → Remove-member sheet "להסיר את {name}?" / "ההוצאות יתחלקו מחדש בין {n} המשתתפים הנותרים." / "הסרה" / "ביטול"; no Expenses → removed immediately.
 - UX-DR28: Rename sheet: text field with Name-field rules; invalid name messages inside the sheet; current name kept on rejection.
 - UX-DR29: Archive sheet: "להעביר את “{group}” לארכיון?" / "הנתונים נשמרים ואפשר לשחזר בכל רגע." / "העברה לארכיון" / "ביטול".
-- UX-DR30: Archived Group page: header nav "→ ארכיון", badge "🗂 בארכיון", no "⚙ ✎"; rows view-only (tap and long-press do nothing); archive note strip "🗂 הקבוצה בארכיון ולכן לקריאה בלבד. שחזור יחזיר את האפשרות לערוך." above the bar; "↩ שחזור מהארכיון" in the primary slot (no confirmation) with "סיכום" beside it. After restore the same page stays open without badge/note and back leads to the group list.
+- UX-DR30: Archived Group page: header nav chevron icon + "ארכיון", badge "🗂 בארכיון", no "⚙ ✎"; rows view-only (tap and long-press do nothing); archive note strip "🗂 הקבוצה בארכיון ולכן לקריאה בלבד. שחזור יחזיר את האפשרות לערוך." above the bar; "↩ שחזור מהארכיון" in the primary slot (no confirmation) with "סיכום" beside it. After restore the same page stays open without badge/note and back leads to the group list.
 - UX-DR31: Summary: header block (name, Trip total, share line "{n} משתתפים · ₪{share} לאחד", stripe) → "מי מעביר למי" title → Transfer cards with 8dp gaps, or "החשבון מאוזן, אין צורך בהעברות" → archive note "🗂 הקבוצה בארכיון ולכן לקריאה בלבד." when archived. No bottom button bar. ≤6 Members fixed; 7–10 header and title fixed, cards scroll with a bottom fade when more exist. Above 100% font scale the whole Summary may scroll.
 - UX-DR32: Transfer card: `transfer-surface` with 6dp orange start edge, ≥64dp, flat; decorative pair of 32dp initial-only avatars (debtor, receiver, 4dp apart, nothing between them) at the start; the sentence "תשלום נדרש מ{debtor} ל{receiver}" in row-title; amount in transfer-amount ending the line; long names wrap, amount stays at the end; not tappable, no toggle, no arrow anywhere.
 - UX-DR33: Voice: fixed messages exactly as in the PRD table with no added emoji or punctuation; free texts in second-person masculine; emoji only in free texts and Category icons.
@@ -321,7 +321,7 @@ So that the trip's people are recorded on my phone before the first Expense.
 **Given** stage 2
 **When** the Organizer taps "סיום" or uses system back
 **Then** the app runs `go('/group/:id')` and opens the new Group's page, and back from that page leads to the group list (AR21)
-**And** the Group page shows the header block (UX-DR5): the nav "☰ הקבוצות שלי", the group name with the "⚙ ✎" chip that opens Group settings (UX-DR25), the Trip total `₪0` and the line "{n} משתתפים". The Expense list and the bottom button bar arrive in Stories 1.3 and 1.4.
+**And** the Group page shows the header block (UX-DR5): the nav (chevron icon + "הקבוצות שלי"), the group name with the "⚙ ✎" chip that opens Group settings (UX-DR25), the Trip total `₪0` and the line "{n} משתתפים". The Expense list and the bottom button bar arrive in Stories 1.3 and 1.4.
 
 **FR2: Add Members (UX-DR10)**
 
@@ -475,7 +475,7 @@ So that the checkout flow starts at zero taps and my group list stays short.
 **Then** the group list shows.
 
 **Given** the app launched straight into "Budapest"
-**When** the Organizer taps "☰ הקבוצות שלי" or uses system back
+**When** the Organizer taps the nav (chevron icon + "הקבוצות שלי") or uses system back
 **Then** the group list shows, and other Groups can be opened (T1.11).
 
 **FR6: Archive a Group (UX-DR14, UX-DR29, UX-DR30)**
@@ -497,7 +497,7 @@ So that the checkout flow starts at zero taps and my group list stays short.
 
 **Given** "Budapest" is archived
 **When** the Organizer taps its card in the Archive view
-**Then** the Group page opens read-only: header nav "→ ארכיון", badge "🗂 בארכיון", no "⚙ ✎" chip, and the archive note "🗂 הקבוצה בארכיון ולכן לקריאה בלבד. שחזור יחזיר את האפשרות לערוך." directly above a bottom bar whose primary slot is "↩ שחזור מהארכיון"
+**Then** the Group page opens read-only: header nav chevron icon + "ארכיון", badge "🗂 בארכיון", no "⚙ ✎" chip, and the archive note "🗂 הקבוצה בארכיון ולכן לקריאה בלבד. שחזור יחזיר את האפשרות לערוך." directly above a bottom bar whose primary slot is "↩ שחזור מהארכיון"
 **And** routes to `add`, `edit` and `settings` for an archived Group are redirected away, and read-only mode comes from `isGroupMutable`, never from the route (AR21)
 **And** renaming the Group, adding, renaming or removing a Member, and setting it active are all impossible, both in the UI and in the repositories, where they return `Failure(MessageKey)` (T1.26 for Members, name and Active; Expenses in Story 1.3, Summary in Story 1.4).
 

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'nav_back_label.dart';
 
 /// The gradient header block of the Group page and the Summary
 /// (`components.header-block`). Pass it as `AppScaffold.header`, which paints
 /// the gradient.
 ///
-/// Top to bottom: the [navLabel] line (with the optional [badgeLabel], such
-/// as "🗂 בארכיון"), the [name] with the optional
+/// Top to bottom: the [navLabel] line (a [NavBackLabel], with the optional
+/// [badgeLabel], such as "🗂 בארכיון"), the [name] with the optional
 /// [chipLabel] chip (Group page only), the [total] and the [secondaryLine].
 /// The optional [stripe] (the category share stripe) closes the block.
 class GroupHeader extends StatelessWidget {
@@ -56,19 +57,22 @@ class GroupHeader extends StatelessWidget {
               // The nav line keeps a 48dp hit area, and wraps rather than
               // overflowing at a large text scale.
               Flexible(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: onNav,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minHeight: AppSizes.minTouchTarget,
-                    ),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      widthFactor: 1,
-                      child: Text(
-                        navLabel,
-                        style: AppTextStyles.headerSecondary.merge(_onHeader),
+                child: Semantics(
+                  button: true,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onNav,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: AppSizes.minTouchTarget,
+                      ),
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        widthFactor: 1,
+                        child: NavBackLabel(
+                          label: navLabel,
+                          style: AppTextStyles.headerSecondary.merge(_onHeader),
+                        ),
                       ),
                     ),
                   ),

@@ -161,6 +161,10 @@ void main() {
 
     expect(find.byType(GroupPage), findsOneWidget);
     expect(find.text(MessageKey.groupListNav.text), findsOneWidget);
+    // The nav is the chevron icon + label, with no "☰" or "→" glyph.
+    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+    expect(find.textContaining('☰'), findsNothing);
+    expect(find.textContaining('→'), findsNothing);
     expect(find.text('Trip to Eilat'), findsOneWidget);
     expect(find.text(MessageKey.groupSettingsChip.text), findsOneWidget);
     expect(find.text(formatShekel(Tenths.zero)), findsOneWidget);
@@ -193,7 +197,7 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('the nav "☰ הקבוצות שלי" returns to the list', (tester) async {
+  testWidgets('the nav "הקבוצות שלי" returns to the list', (tester) async {
     await createGroup(tester, 'Eilat');
     await tester.tap(find.text(MessageKey.done.text));
     await tester.pumpAndSettle();
