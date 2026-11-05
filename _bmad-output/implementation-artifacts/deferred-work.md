@@ -40,3 +40,13 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-4-part-b-archived-summary-scroll-and-goldens.md`
   summary: Landscape (or split-screen) at text scale 1.0 may overflow screens with a fixed header, such as the Summary's fixed title and pinned archive note, because the app has no orientation lock; decide whether to lock portrait or switch to a full-scroll layout on short viewports.
   evidence: Unverified (medium if true). `AndroidManifest.xml` has no `screenOrientation` and no `setPreferredOrientations` call exists; a widget test at a ~780×360dp landscape size would settle it.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-4-part-b-archived-summary-scroll-and-goldens.md`
+  summary: Replace the header nav glyphs with a plain chevron — "→ חזרה" / "→ ארכיון" use a chevron ("<"-style, no shaft) instead of the arrow, and the Group page nav "☰ הקבוצות שלי" uses the same chevron instead of the three bars. Requested by Motty after the story 1.4 part B emulator check (2026-11-05).
+  open_questions: (1) which glyph and direction in RTL — the back affordance points to the start side (right), so "›" or an icon (e.g. a chevron icon) rather than a literal "<"; (2) text glyph vs `Icon` (Heebo has no arrow glyph, so goldens show a box today); (3) EXPERIENCE.md/DESIGN.md nav labels and the MessageKey table must change first.
+  evidence: `MessageKey.summaryNav('→ חזרה')`, `archiveNav('→ ארכיון')`, `groupListNav('☰ הקבוצות שלי')` in `lib/core/i18n/message_key.dart`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-4-part-b-archived-summary-scroll-and-goldens.md`
+  summary: Add/Edit expense with 7–10 Members — keep the Category picker as the full 4×2 grid (two rows) instead of switching to the two-page swipe row when the Payer picker takes two rows. Requested by Motty after the story 1.4 part B emulator check (2026-11-05).
+  open_questions: (1) what may shrink to make the grid fit on the S25 (tile height, gaps, Amount area) without breaking the "nothing above the keypad scrolls" rule; (2) whether the two-page row stays as a fallback for smaller screens or larger fonts; (3) DESIGN.md/EXPERIENCE.md Add/Edit composition must change first.
+  evidence: `add_expense_screen.dart:319` switches to `twoPage` when `metrics.gridHeight > constraints.maxHeight`, which happens with a second Payer row.

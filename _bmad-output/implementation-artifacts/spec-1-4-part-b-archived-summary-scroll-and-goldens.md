@@ -81,6 +81,8 @@ context:
 - OQ1 confirmed by golden: 5 Transfers of ₪8,333.3 with 10-grapheme Hebrew two-word names fit (`maxScrollExtent == 0`); with 10-letter Latin names the cards wrap to 3 lines, breaking inside the word (e.g. "Bernadett|e"), and scroll with the fade.
 - Heebo has no glyph for "→" or the emoji, so the goldens show a box there; on the device the system fallback font draws them.
 
+- Emulator AC passed (Motty, 2026-11-05): the archived Summary showed the badge and the note under the cards, "→ חזרה" returned to the archived page, the 7–10 Member scroll and fade and the category stripe looked right.
+
 ## Spec Change Log
 
 ## Review Triage Log
