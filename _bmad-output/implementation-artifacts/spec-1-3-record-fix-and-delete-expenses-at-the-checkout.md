@@ -2,7 +2,7 @@
 title: 'Story 1.3 (part A): Record Expenses at the checkout'
 type: 'feature'
 created: '2026-11-04'
-status: 'in-review'
+status: 'done'
 baseline_commit: 'f1826f7395437c3832435ba17cec5ddb6f66e04c'
 route: 'dispatch'
 review_loop_iteration: 0
