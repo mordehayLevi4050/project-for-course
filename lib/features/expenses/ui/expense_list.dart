@@ -14,7 +14,11 @@ import 'category_style.dart';
 ///
 /// A row that appears after the list was first shown (a new Expense) slides
 /// into place through [AppAnimation.expenseRowSlideIn]; rows present on the
-/// first show do not move. Rows do nothing on tap or long-press yet.
+/// first show do not move.
+///
+/// A tap on a row calls [onTap] (Edit expense) and a long-press calls
+/// [onLongPress] (the Delete sheet). Both are `null` in an Archived group,
+/// where rows are view-only. There is no swipe gesture.
 class ExpenseList extends StatefulWidget {
   const ExpenseList({
     super.key,
@@ -22,6 +26,8 @@ class ExpenseList extends StatefulWidget {
     required this.payerNames,
     required this.nowUtc,
     this.padding = EdgeInsets.zero,
+    this.onTap,
+    this.onLongPress,
   });
 
   final List<Expense> expenses;
@@ -32,6 +38,8 @@ class ExpenseList extends StatefulWidget {
   /// Now, as UTC epoch millis, for the Expense time format.
   final int nowUtc;
   final EdgeInsets padding;
+  final ValueChanged<Expense>? onTap;
+  final ValueChanged<Expense>? onLongPress;
 
   @override
   State<ExpenseList> createState() => _ExpenseListState();
@@ -71,10 +79,14 @@ class _ExpenseListState extends State<ExpenseList> {
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.s2),
       itemBuilder: (context, i) {
         final expense = expenses[i];
+        final onTap = widget.onTap;
+        final onLongPress = widget.onLongPress;
         final row = ExpenseRowCard(
           expense: expense,
           payerName: widget.payerNames[expense.payerId] ?? '',
           nowUtc: widget.nowUtc,
+          onTap: onTap == null ? null : () => onTap(expense),
+          onLongPress: onLongPress == null ? null : () => onLongPress(expense),
         );
         return _fresh.contains(expense.id)
             ? _SlideIn(
@@ -92,17 +104,22 @@ class _ExpenseListState extends State<ExpenseList> {
 /// with a 6dp start-edge stripe and a 46dp emoji circle tinted 15% in the
 /// Category color, the title (the Category name, or the Description for
 /// *Other*), the meta line "payer · time" and the amount on the end side.
+/// [onTap] and [onLongPress] are `null` when the row is view-only.
 class ExpenseRowCard extends StatelessWidget {
   const ExpenseRowCard({
     super.key,
     required this.expense,
     required this.payerName,
     required this.nowUtc,
+    this.onTap,
+    this.onLongPress,
   });
 
   final Expense expense;
   final String payerName;
   final int nowUtc;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -114,78 +131,82 @@ class ExpenseRowCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(AppRadii.lg)),
-        child: ColoredBox(
+        child: Material(
           color: AppColors.surfaceRaised,
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  width: AppSizes.startEdge,
-                  child: ColoredBox(color: color),
-                ),
-                Expanded(
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      minHeight: AppSizes.cardMinHeight,
-                    ),
-                    padding: const EdgeInsets.all(AppSpacing.s3),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: AppSizes.expenseIconCircle,
-                          height: AppSizes.expenseIconCircle,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: color.withValues(
-                              alpha: AppOpacity.categoryTint,
+          child: InkWell(
+            onTap: onTap,
+            onLongPress: onLongPress,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    width: AppSizes.startEdge,
+                    child: ColoredBox(color: color),
+                  ),
+                  Expanded(
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minHeight: AppSizes.cardMinHeight,
+                      ),
+                      padding: const EdgeInsets.all(AppSpacing.s3),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: AppSizes.expenseIconCircle,
+                            height: AppSizes.expenseIconCircle,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: color.withValues(
+                                alpha: AppOpacity.categoryTint,
+                              ),
+                              shape: BoxShape.circle,
                             ),
-                            shape: BoxShape.circle,
+                            child: Text(
+                              expense.category.emoji,
+                              style: AppTextStyles.categoryEmoji,
+                            ),
                           ),
-                          child: Text(
-                            expense.category.emoji,
-                            style: AppTextStyles.categoryEmoji,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.s3),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                expense.title,
-                                style: AppTextStyles.rowTitle.copyWith(
-                                  color: AppColors.ink,
-                                ),
-                              ),
-                              Text(
-                                MessageKey.expenseMeta.fill({
-                                  'payer': isolateName(payerName),
-                                  'time': formatExpenseTime(
-                                    expense.createdAt,
-                                    nowUtc,
+                          const SizedBox(width: AppSpacing.s3),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  expense.title,
+                                  style: AppTextStyles.rowTitle.copyWith(
+                                    color: AppColors.ink,
                                   ),
-                                }),
-                                style: AppTextStyles.meta.copyWith(
-                                  color: AppColors.inkSecondary,
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  MessageKey.expenseMeta.fill({
+                                    'payer': isolateName(payerName),
+                                    'time': formatExpenseTime(
+                                      expense.createdAt,
+                                      nowUtc,
+                                    ),
+                                  }),
+                                  style: AppTextStyles.meta.copyWith(
+                                    color: AppColors.inkSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.s2),
-                        Text(
-                          formatShekel(expense.amount),
-                          style: AppTextStyles.rowAmount.copyWith(
-                            color: AppColors.ink,
+                          const SizedBox(width: AppSpacing.s2),
+                          Text(
+                            formatShekel(expense.amount),
+                            style: AppTextStyles.rowAmount.copyWith(
+                              color: AppColors.ink,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -193,6 +214,19 @@ class ExpenseRowCard extends StatelessWidget {
     );
   }
 }
+
+/// The expense line of the Delete sheet (FR-14): "{emoji} {title} · {payer}
+/// · {amount}", e.g. "🛒 אוכל ושתייה · מוטי · ₪87.4". A Description (the
+/// title under *Other*) and the Payer name are bidi-isolated.
+String expenseLineText(Expense expense, String payerName) =>
+    MessageKey.expenseLine.fill({
+      'emoji': expense.category.emoji,
+      'title': expense.description == null
+          ? expense.title
+          : isolateName(expense.title),
+      'payer': isolateName(payerName),
+      'amount': formatShekel(expense.amount),
+    });
 
 /// Slides a new row into the top of the list once; instant when "Remove
 /// animations" is on.

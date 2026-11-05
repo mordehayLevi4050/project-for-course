@@ -145,6 +145,38 @@ void main() {
       );
     });
 
+    test('Story 1.3 edit and delete texts match EXPERIENCE.md', () {
+      expect(MessageKey.deleteChip.text, '🗑 מחיקה');
+      expect(MessageKey.deleteTitle.text, 'למחוק את ההוצאה?');
+      expect(MessageKey.deleteBody.text, 'אי אפשר לבטל את הפעולה.');
+      expect(MessageKey.deleteConfirm.text, 'מחיקה');
+      expect(MessageKey.cancel.text, 'ביטול');
+      expect(MessageKey.expenseDeleted.text, 'ההוצאה נמחקה');
+      expect(MessageKey.recordedMeta.fill({'time': '10:00'}), 'נרשם 10:00');
+      expect(
+        MessageKey.recordedMeta.fill({'time': '10:00'}) +
+            MessageKey.editedMeta.fill({'time': '12:00'}),
+        'נרשם 10:00 · נערך 12:00',
+      );
+      expect(
+        MessageKey.expenseLine.fill({
+          'emoji': '🛒',
+          'title': 'אוכל ושתייה',
+          'payer': 'מוטי',
+          'amount': '₪87.4',
+        }),
+        '🛒 אוכל ושתייה · מוטי · ₪87.4',
+      );
+      expect(
+        MessageKey.removeMemberBody.fill({'n': '3'}),
+        'ההוצאות יתחלקו מחדש בין 3 המשתתפים הנותרים.',
+      );
+      expect(
+        MessageKey.removeMemberBodyOne.text,
+        'כל ההוצאות יחולו על המשתתף הנותר.',
+      );
+    });
+
     test('expenseCountText uses the singular for one Expense', () {
       expect(expenseCountText(1), 'הוצאה אחת');
       expect(expenseCountText(2), '2 הוצאות');

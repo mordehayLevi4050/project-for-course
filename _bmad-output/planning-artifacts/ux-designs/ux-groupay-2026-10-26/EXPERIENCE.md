@@ -96,7 +96,7 @@ Free texts (secondary; may be refined without a SPEC change):
 | Description placeholder (FR-11) | "מה קנית?" |
 | Exit sheet (FR-10) | Body "מה שהזנת לא יישמר." · buttons "יציאה" / "המשך עריכה" |
 | Archive sheet (FR-6) | Title "להעביר את “{group}” לארכיון?" · body "הנתונים נשמרים ואפשר לשחזר בכל רגע." · buttons "העברה לארכיון" / "ביטול" |
-| Remove-member sheet (FR-4) | Title "להסיר את {name}?" · body "ההוצאות יתחלקו מחדש בין {n} המשתתפים הנותרים." · buttons "הסרה" / "ביטול" |
+| Remove-member sheet (FR-4) | Title "להסיר את {name}?" · body (only when the Group has Expenses) "ההוצאות יתחלקו מחדש בין {n} המשתתפים הנותרים.", or "כל ההוצאות יחולו על המשתתף הנותר." when one Member remains · buttons "הסרה" / "ביטול" |
 | Delete sheet (FR-14) | Body = expense line "{emoji} {category or Description} · {payer} · ₪{amount}" (e.g. "🛒 אוכל ושתייה · מוטי · ₪87.4") + "אי אפשר לבטל את הפעולה." · buttons "מחיקה" / "ביטול" |
 | Archived card (FR-6) | Text button "↩ שחזור" |
 | After a delete | Snackbar "ההוצאה נמחקה" |

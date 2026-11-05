@@ -22,6 +22,11 @@ ExpenseRepository expenseRepository(Ref ref) =>
 Stream<List<Expense>> expenses(Ref ref, String groupId) =>
     ref.watch(expenseRepositoryProvider).watchExpenses(groupId);
 
+/// One Expense, or `null` once it is deleted (Edit expense).
+@riverpod
+Stream<Expense?> expense(Ref ref, String id) =>
+    ref.watch(expenseRepositoryProvider).watchExpense(id);
+
 /// The default Payer of a new Expense in [groupId] (FR-10): the Payer of the
 /// last saved Expense, or the earliest-added Member. Read once when the Add
 /// expense screen opens.
@@ -67,6 +72,57 @@ class AddExpense extends _$AddExpense {
             category: category,
             description: description,
           );
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+/// Edits an Expense (FR-13). The state is `true` while a save is in flight;
+/// calls made meanwhile are ignored and return `null`.
+@riverpod
+class EditExpense extends _$EditExpense {
+  @override
+  bool build() => false;
+
+  Future<Result<Expense>?> submit({
+    required String id,
+    required String payerId,
+    required Tenths amount,
+    required Category category,
+    String? description,
+  }) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref
+          .read(expenseRepositoryProvider)
+          .update(
+            id: id,
+            payerId: payerId,
+            amount: amount,
+            category: category,
+            description: description,
+          );
+    } finally {
+      if (ref.mounted) state = false;
+    }
+  }
+}
+
+/// Deletes an Expense (FR-14), after the Delete sheet. The state is `true`
+/// while the delete is in flight; calls made meanwhile are ignored and
+/// return `null`.
+@riverpod
+class DeleteExpense extends _$DeleteExpense {
+  @override
+  bool build() => false;
+
+  Future<Result<void>?> submit({required String id}) async {
+    if (state) return null;
+    state = true;
+    try {
+      return await ref.read(expenseRepositoryProvider).delete(id: id);
     } finally {
       if (ref.mounted) state = false;
     }

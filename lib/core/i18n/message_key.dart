@@ -136,7 +136,14 @@ enum MessageKey {
 
   /// {name} must be the result of `isolateName()`.
   removeMemberTitle('להסיר את {name}?'),
+
+  /// The Remove-member body when the Group has Expenses; {n} is the number of
+  /// Members left (2 or more).
   removeMemberBody('ההוצאות יתחלקו מחדש בין {n} המשתתפים הנותרים.'),
+
+  /// The Remove-member body when the Group has Expenses and one Member is
+  /// left.
+  removeMemberBodyOne('כל ההוצאות יחולו על המשתתף הנותר.'),
   removeMemberConfirm('הסרה'),
 
   /// The compact top bar back control (start side, RTL).
@@ -180,6 +187,28 @@ enum MessageKey {
 
   /// The keypad's delete key.
   keypadBackspace('⌫'),
+
+  // --- Edit and delete an Expense (FR-13, FR-14) ---------------------------
+  /// The danger chip on the end side of the Edit expense top bar.
+  deleteChip('🗑 מחיקה'),
+
+  /// fixed: the Delete sheet title (FR-14).
+  deleteTitle('למחוק את ההוצאה?'),
+  deleteBody('אי אפשר לבטל את הפעולה.'),
+  deleteConfirm('מחיקה'),
+
+  /// The expense line of the Delete sheet. {payer} must be the result of
+  /// `isolateName()`; {amount} comes from `formatShekel()` (it carries ₪).
+  expenseLine('{emoji} {title} · {payer} · {amount}'),
+
+  /// The snackbar after a delete.
+  expenseDeleted('ההוצאה נמחקה'),
+
+  /// The Edit expense meta line; {time} comes from `formatExpenseTime()`.
+  recordedMeta('נרשם {time}'),
+
+  /// Appended to [recordedMeta] once the Expense was saved with a change.
+  editedMeta(' · נערך {time}'),
 
   // --- Categories (fixed order; DESIGN.md › Category tile) ---------------
   categoryFlight('טיסה'),

@@ -11,7 +11,9 @@ import '../../../core/time/clock_provider.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
 import '../../../core/ui/widgets/category_stripe.dart';
+import '../../../core/ui/widgets/delete_sheet.dart';
 import '../../../core/ui/widgets/group_header.dart';
+import '../../../core/ui/widgets/snackbar.dart';
 import '../../groups/app/group_providers.dart';
 import '../app/expense_providers.dart';
 import '../domain/expense.dart';
@@ -30,6 +32,10 @@ import 'expense_list.dart';
 /// Archived group shows the nav "→ ארכיון", the badge "🗂 בארכיון", no chip,
 /// the list, total and stripe as usual, and the archive note above a bottom
 /// bar whose primary is "↩ שחזור מהארכיון".
+///
+/// A tap on an Expense row opens Edit expense; a long-press opens the Delete
+/// sheet, and "מחיקה" deletes it and shows the snackbar "ההוצאה נמחקה". In
+/// an Archived group rows are view-only.
 class GroupPage extends ConsumerWidget {
   const GroupPage({super.key, required this.groupId});
 
@@ -44,6 +50,23 @@ class GroupPage extends ConsumerWidget {
     if (result is Ok) context.go('/group/$groupId');
   }
 
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    Expense expense,
+    String payerName,
+  ) async {
+    final confirmed = await showDeleteSheet(
+      context,
+      line: expenseLineText(expense, payerName),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final result = await ref
+        .read(deleteExpenseProvider.notifier)
+        .submit(id: expense.id);
+    if (result is Ok) showAppSnackbar(MessageKey.expenseDeleted);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final group = ref.watch(groupProvider(groupId)).value;
@@ -55,6 +78,8 @@ class GroupPage extends ConsumerWidget {
     final canRecord = mayRecordExpense((memberCount: members.length)).isAllowed;
     // Keeps the notifier (and its in-flight guard) alive.
     final restoring = ref.watch(restoreGroupProvider);
+    ref.watch(deleteExpenseProvider);
+    final payerNames = {for (final m in members) m.id: m.name};
     final shown = expenses ?? const <Expense>[];
 
     return AppScaffold(
@@ -89,7 +114,7 @@ class GroupPage extends ConsumerWidget {
           : _ListWithFade(
               child: ExpenseList(
                 expenses: expenses,
-                payerNames: {for (final m in members) m.id: m.name},
+                payerNames: payerNames,
                 nowUtc: ref.read(clockProvider).nowUtcMillis(),
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.marginMobile,
@@ -97,6 +122,14 @@ class GroupPage extends ConsumerWidget {
                   AppSpacing.marginMobile,
                   AppSpacing.listFade + AppSizes.headerOverlap,
                 ),
+                // Rows are view-only while the Group is archived (FR-6).
+                onTap: group == null || readOnly
+                    ? null
+                    : (e) => context.go('/group/$groupId/edit/${e.id}'),
+                onLongPress: group == null || readOnly
+                    ? null
+                    : (e) =>
+                          _delete(context, ref, e, payerNames[e.payerId] ?? ''),
               ),
             ),
       bottomBar: readOnly

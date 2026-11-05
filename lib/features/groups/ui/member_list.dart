@@ -20,7 +20,10 @@ import '../domain/member.dart';
 ///
 /// ✎ opens the Rename sheet. ✕ opens the Remove-member sheet; "הסרה" runs the
 /// removal, and a refusal (FR-4) shows inline under that row, replacing any
-/// earlier one.
+/// earlier one. When the Group has Expenses the sheet says how they will be
+/// shared: "ההוצאות יתחלקו מחדש בין {n} המשתתפים הנותרים.", or "כל ההוצאות
+/// יחולו על המשתתף הנותר." when one Member is left; otherwise it has only the
+/// title.
 class MemberList extends ConsumerStatefulWidget {
   const MemberList({super.key, required this.members, this.footer});
 
@@ -51,12 +54,26 @@ class _MemberListState extends ConsumerState<MemberList> {
     );
   }
 
+  /// The Remove-member body: only when the Group has Expenses (it has a
+  /// Trip total in `groupTotalsProvider`), for the Members left.
+  String? _removeBody(Member member) {
+    final hasExpenses =
+        ref.read(groupTotalsProvider).value?.containsKey(member.groupId) ??
+        false;
+    final left = widget.members.length - 1;
+    if (!hasExpenses || left < 1) return null;
+    return left == 1
+        ? MessageKey.removeMemberBodyOne.text
+        : MessageKey.removeMemberBody.fill({'n': '$left'});
+  }
+
   Future<void> _remove(Member member) async {
     final confirmed = await showConfirmSheet(
       context,
       title: MessageKey.removeMemberTitle.fill({
         'name': isolateName(member.name),
       }),
+      body: _removeBody(member),
       confirmLabel: MessageKey.removeMemberConfirm.text,
     );
     if (confirmed != true || !mounted) return;
@@ -84,6 +101,8 @@ class _MemberListState extends ConsumerState<MemberList> {
     // a sheet is open.
     ref.watch(renameMemberProvider);
     ref.watch(removeMemberProvider);
+    // Watched so the Remove-member body knows whether there are Expenses.
+    ref.watch(groupTotalsProvider);
 
     final members = widget.members;
     final footer = widget.footer;

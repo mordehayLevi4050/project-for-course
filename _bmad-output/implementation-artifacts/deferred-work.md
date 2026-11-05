@@ -23,3 +23,7 @@
   summary: When the Category is "Other", reject a description made only of digits — e.g. "888" is rejected, "דלק ו80" is accepted. Proposed rule: the trimmed description must contain at least one letter (any script, via a `core/text` helper), enforced in the save transaction through the `core/policy` verdict, not only in the UI. Requested by Motty after the part A emulator check.
   open_questions: (1) the rejection message wording (new MessageKey, added to ui-messages.md / EXPERIENCE.md first); (2) whether punctuation- or emoji-only descriptions (e.g. "!!!", "⛽") are rejected too. Motty decides when this is picked up.
   evidence: Today "Other" accepts any non-empty description, so "888" saves as a valid Expense description.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-3-part-b-fix-and-delete-expenses.md`
+  summary: Reconcile `epics.md` with Motty's Story 1.3 decisions — lines 198/682 still say the Edit meta opens as "נרשם {date time} · נערך עכשיו", and lines 202/721 lack the singular Remove-member body "כל ההוצאות יחולו על המשתתף הנותר."; the earlier n=1 wording entry in this file is now resolved by part B.
+  evidence: Blind review of part B; EXPERIENCE.md:94 and :99 carry the decided wording, epics.md does not.

@@ -17,12 +17,12 @@ typedef IsGroupArchived = Future<bool> Function(String id);
 /// `/create`, `/group/:id` and `/archive` are children of `/`, so back from
 /// any of them leads to the group list. Create group leaves with
 /// `go('/group/:id')`, which replaces it with the new Group's page.
-/// `add` and `settings` are children of `group/:id`, so leaving Add expense
-/// or Group settings returns to the Group page. An archived card opens
+/// `add`, `edit/:eid` and `settings` are children of `group/:id`, so leaving
+/// Add or Edit expense or Group settings returns to the Group page. An archived card opens
 /// `/archive/group/:id`, so back from it returns to the Archive view.
 ///
-/// [isArchived] drives the redirect that keeps Add expense and Group
-/// settings (and later `edit`) of an Archived group out of reach: it opens
+/// [isArchived] drives the redirect that keeps Add expense, Edit expense and
+/// Group settings of an Archived group out of reach: it opens
 /// the Group's read-only page instead. Read-only mode itself comes from
 /// `isGroupMutable` on the page, never from the route.
 GoRouter buildRouter({
@@ -64,6 +64,17 @@ GoRouter buildRouter({
                 pageBuilder: (context, state) => NoTransitionPage(
                   key: state.pageKey,
                   child: AddExpenseScreen(groupId: state.pathParameters['id']!),
+                ),
+              ),
+              GoRoute(
+                path: 'edit/:eid',
+                redirect: (context, state) => archivedRedirect(state),
+                pageBuilder: (context, state) => NoTransitionPage(
+                  key: state.pageKey,
+                  child: AddExpenseScreen(
+                    groupId: state.pathParameters['id']!,
+                    expenseId: state.pathParameters['eid'],
+                  ),
                 ),
               ),
               GoRoute(

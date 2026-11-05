@@ -236,6 +236,189 @@ void main() {
     expect(await repo.readLastPayerId(g), yossi.id);
   });
 
+  group('update (FR-13)', () {
+    Future<Result<Expense>> edit(
+      Expense e, {
+      Member? payer,
+      int? tenths,
+      Category? category,
+      String? description,
+    }) => repo.update(
+      id: e.id,
+      payerId: payer?.id ?? e.payerId,
+      amount: Tenths(tenths ?? e.amount.value),
+      category: category ?? e.category,
+      description: description,
+    );
+
+    test(
+      '₪870 → ₪87 keeps id, saveSeq and createdAt; sets modifiedAt',
+      () async {
+        final (g, dana, _, _) = await seed();
+        final a =
+            (await add(g, dana, 8700, Category.foodDrink) as Ok<Expense>).value;
+        final b = (await add(g, dana, 100, Category.car) as Ok<Expense>).value;
+        clock.now = 5000;
+        final edited = (await edit(a, tenths: 870) as Ok<Expense>).value;
+        expect(edited.id, a.id);
+        expect(edited.groupId, g);
+        expect(edited.amount, const Tenths(870));
+        expect(edited.saveSeq, a.saveSeq);
+        expect(edited.createdAt, 1000);
+        expect(edited.modifiedAt, 5000);
+        // Same place in the list; the Trip total drops by ₪783.
+        final now = await list(g);
+        expect(now.map((e) => e.id), [b.id, a.id]);
+        expect(now.last, edited);
+        expect(tripTotal(now), const Tenths(970));
+      },
+    );
+
+    test('watchExpense follows edits and is null after a delete', () async {
+      final (g, dana, _, _) = await seed();
+      final a = (await add(g, dana, 870, Category.car) as Ok<Expense>).value;
+      expect(await repo.watchExpense(a.id).first, a);
+      final edited = (await edit(a, tenths: 50) as Ok<Expense>).value;
+      expect(await repo.watchExpense(a.id).first, edited);
+      await repo.delete(id: a.id);
+      expect(await repo.watchExpense(a.id).first, isNull);
+    });
+
+    for (final (label, tenths) in [('0', 0), ('1,000,001', 10000010)]) {
+      test('Amount $label: invalidAmount, nothing written', () async {
+        final (g, dana, _, _) = await seed();
+        final a = (await add(g, dana, 870, Category.car) as Ok<Expense>).value;
+        clock.now = 5000;
+        expect(
+          await edit(a, tenths: tenths),
+          const Failure<Expense>(MessageKey.invalidAmount),
+        );
+        expect(await list(g), [a]);
+      });
+    }
+
+    test('Other needs a Description; it is stored trimmed', () async {
+      final (g, dana, _, _) = await seed();
+      final a = (await add(g, dana, 870, Category.car) as Ok<Expense>).value;
+      expect(
+        await edit(a, category: Category.other, description: '  '),
+        const Failure<Expense>(MessageKey.descriptionRequired),
+      );
+      final e = (await edit(
+        a,
+        category: Category.other,
+        description: ' Map ',
+      ) as Ok<Expense>).value;
+      expect(e.description, 'Map');
+      // Back to a Category: the Description is dropped.
+      final f = (await edit(
+        e,
+        category: Category.fuel,
+        description: 'Map',
+      ) as Ok<Expense>).value;
+      expect(f.description, isNull);
+      expect((await db.select(db.expenses).getSingle()).description, isNull);
+    });
+
+    test(
+      'Dana → Yossi keeps saveSeq and time; Yossi is the next default',
+      () async {
+        final (g, dana, yossi, _) = await seed();
+        await add(g, dana, 10, Category.car);
+        final last =
+            (await add(g, dana, 20, Category.car) as Ok<Expense>).value;
+        clock.now = 5000;
+        final e = (await edit(last, payer: yossi) as Ok<Expense>).value;
+        expect(e.payerId, yossi.id);
+        expect(e.saveSeq, last.saveSeq);
+        expect(e.createdAt, last.createdAt);
+        expect(await repo.readLastPayerId(g), yossi.id);
+      },
+    );
+
+    test('no field changed: nothing written, modifiedAt stays', () async {
+      final (g, dana, _, _) = await seed();
+      final a = (await add(g, dana, 870, Category.car) as Ok<Expense>).value;
+      clock.now = 5000;
+      expect(await edit(a), Ok<Expense>(a));
+      expect((await db.select(db.expenses).getSingle()).modifiedAt, 1000);
+    });
+
+    test('an Archived group: groupArchived, nothing written', () async {
+      final (g, dana, _, _) = await seed();
+      final a = (await add(g, dana, 870, Category.car) as Ok<Expense>).value;
+      await groups.archive(id: g);
+      clock.now = 5000;
+      expect(
+        await edit(a, tenths: 50),
+        const Failure<Expense>(MessageKey.groupArchived),
+      );
+      expect(await list(g), [a]);
+    });
+
+    test('an unknown id or a Payer from another Group is a bug', () async {
+      final (g, dana, _, _) = await seed();
+      final (_, other, _, _) = await seed('Budapest');
+      final a = (await add(g, dana, 870, Category.car) as Ok<Expense>).value;
+      await expectLater(
+        repo.update(
+          id: newId(),
+          payerId: dana.id,
+          amount: const Tenths(10),
+          category: Category.car,
+        ),
+        throwsA(isA<StateError>()),
+      );
+      await expectLater(edit(a, payer: other), throwsA(isA<StateError>()));
+      expect(await list(g), [a]);
+    });
+  });
+
+  group('delete (FR-14)', () {
+    test('an SQL DELETE; the Trip total drops by ₪87', () async {
+      final (g, dana, _, _) = await seed();
+      final a =
+          (await add(g, dana, 870, Category.foodDrink) as Ok<Expense>).value;
+      final b = (await add(g, dana, 3000, Category.hotel) as Ok<Expense>).value;
+      expect(await repo.delete(id: a.id), isA<Ok<void>>());
+      final now = await list(g);
+      expect(now, [b]);
+      expect(tripTotal(now), const Tenths(3000));
+      expect(await db.select(db.expenses).get(), hasLength(1));
+    });
+
+    test('a missing id: Ok, nothing written', () async {
+      final (g, dana, _, _) = await seed();
+      final a = (await add(g, dana, 870, Category.car) as Ok<Expense>).value;
+      expect(await repo.delete(id: newId()), isA<Ok<void>>());
+      expect(await repo.delete(id: a.id), isA<Ok<void>>());
+      expect(await repo.delete(id: a.id), isA<Ok<void>>());
+      expect(await list(g), isEmpty);
+    });
+
+    test('an Archived group: groupArchived, nothing deleted', () async {
+      final (g, dana, _, _) = await seed();
+      final a = (await add(g, dana, 870, Category.car) as Ok<Expense>).value;
+      await groups.archive(id: g);
+      expect(
+        await repo.delete(id: a.id),
+        const Failure<void>(MessageKey.groupArchived),
+      );
+      expect(await list(g), [a]);
+    });
+
+    test('deleting the last row: the default Payer follows', () async {
+      final (g, dana, yossi, _) = await seed();
+      await add(g, dana, 10, Category.car);
+      final last = (await add(g, yossi, 20, Category.car) as Ok<Expense>).value;
+      expect(await repo.readLastPayerId(g), yossi.id);
+      await repo.delete(id: last.id);
+      expect(await repo.readLastPayerId(g), dana.id);
+      // A deleted Payer's Expense no longer blocks removing them.
+      expect((await members.removeMember(id: yossi.id)).isOk, isTrue);
+    });
+  });
+
   group('DriftPayerUsage', () {
     test('a Member who paid is a Payer; one who did not is not', () async {
       final (g, dana, yossi, _) = await seed();

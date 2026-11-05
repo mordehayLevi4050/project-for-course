@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/i18n/message_key.dart';
 import '../core/ui/theme/app_theme.dart';
+import '../core/ui/widgets/snackbar.dart';
 
 /// The largest text scale the layout supports (NFR-4, AD-21).
 const double maxTextScale = 1.5;
@@ -28,6 +29,7 @@ class GrouPayApp extends StatelessWidget {
       supportedLocales: const [appLocale],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       routerConfig: router,
+      scaffoldMessengerKey: appMessengerKey,
       builder: (context, child) => MediaQuery.withClampedTextScaling(
         maxScaleFactor: maxTextScale,
         child: child!,

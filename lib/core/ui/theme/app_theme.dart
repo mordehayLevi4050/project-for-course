@@ -114,6 +114,14 @@ ThemeData buildAppTheme() {
       contentTextStyle: TextStyle(color: AppColors.surfaceRaised),
       behavior: SnackBarBehavior.floating,
       shape: StadiumBorder(),
+      // Floats above the Group page bottom bar (its padding and the 64dp
+      // primary), which is part of the page body, not a Scaffold slot.
+      insetPadding: EdgeInsets.fromLTRB(
+        AppSpacing.marginMobile,
+        AppSpacing.s2,
+        AppSpacing.marginMobile,
+        AppSpacing.s2 + AppSizes.buttonHeight + AppSpacing.s4 + AppSpacing.s2,
+      ),
     ),
   );
 }

@@ -8,18 +8,22 @@ import '../theme/tokens.dart';
 /// paints the gradient.
 ///
 /// The start side holds the ✕ close when [onClose] is given, or the "→" back
-/// when [onBack] is given (never both); the [title] is centered.
+/// when [onBack] is given (never both); the [title] is centered. The end
+/// side holds the optional [action] (Edit expense: the "🗑 מחיקה" chip, see
+/// [TopBarDangerChip]), or an empty 48dp slot that keeps the title centered.
 class CompactTopBar extends StatelessWidget {
   const CompactTopBar({
     super.key,
     required this.title,
     this.onClose,
     this.onBack,
+    this.action,
   }) : assert(onClose == null || onBack == null);
 
   final String title;
   final VoidCallback? onClose;
   final VoidCallback? onBack;
+  final Widget? action;
 
   static final TextStyle _style = AppTextStyles.screenTitle.copyWith(
     color: AppColors.onHeader,
@@ -47,7 +51,7 @@ class CompactTopBar extends StatelessWidget {
             Expanded(
               child: Text(title, textAlign: TextAlign.center, style: _style),
             ),
-            slot,
+            action ?? slot,
           ],
         ),
       ),
@@ -70,6 +74,49 @@ class _BarControl extends StatelessWidget {
       child: SizedBox.square(
         dimension: AppSizes.minTouchTarget,
         child: Center(child: Text(label, style: CompactTopBar._style)),
+      ),
+    );
+  }
+}
+
+/// The red chip on the end side of a [CompactTopBar] (`colors.danger`), with
+/// a 48dp hit area: "🗑 מחיקה" on Edit expense.
+class TopBarDangerChip extends StatelessWidget {
+  const TopBarDangerChip({super.key, required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: AppSizes.minTouchTarget,
+          minHeight: AppSizes.minTouchTarget,
+        ),
+        child: Center(
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              color: AppColors.danger,
+              borderRadius: BorderRadius.all(Radius.circular(AppRadii.full)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s3,
+                vertical: AppSpacing.s1,
+              ),
+              child: Text(
+                label,
+                style: AppTextStyles.buttonSecondary.copyWith(
+                  color: AppColors.onDanger,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

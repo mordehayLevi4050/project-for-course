@@ -1,4 +1,5 @@
 import '../i18n/message_key.dart';
+import 'group_rules.dart';
 import 'sequence.dart';
 import 'verdict.dart';
 
@@ -14,6 +15,11 @@ Verdict mayRecordExpense(RecordExpenseFacts facts) =>
     facts.memberCount < minMembersToRecord
     ? const Deny(MessageKey.needTwoMembers)
     : const Allow();
+
+/// FR-13, FR-14, FR-6: an Expense can be edited or deleted only while its
+/// Group is not archived (the same rule as [isGroupMutable]). Checked inside
+/// the edit and delete transactions.
+Verdict mayModifyExpense(GroupStateFacts facts) => isGroupMutable(facts);
 
 /// FR-10: the default Payer of a new Expense.
 ///

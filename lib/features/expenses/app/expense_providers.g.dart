@@ -144,6 +144,85 @@ final class ExpensesFamily extends $Family
   String toString() => r'expensesProvider';
 }
 
+/// One Expense, or `null` once it is deleted (Edit expense).
+
+@ProviderFor(expense)
+final expenseProvider = ExpenseFamily._();
+
+/// One Expense, or `null` once it is deleted (Edit expense).
+
+final class ExpenseProvider
+    extends
+        $FunctionalProvider<AsyncValue<Expense?>, Expense?, Stream<Expense?>>
+    with $FutureModifier<Expense?>, $StreamProvider<Expense?> {
+  /// One Expense, or `null` once it is deleted (Edit expense).
+  ExpenseProvider._({
+    required ExpenseFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'expenseProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$expenseHash();
+
+  @override
+  String toString() {
+    return r'expenseProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Expense?> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<Expense?> create(Ref ref) {
+    final argument = this.argument as String;
+    return expense(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ExpenseProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$expenseHash() => r'812ebcaaaa84a159facae0484b51a06b8a48e50b';
+
+/// One Expense, or `null` once it is deleted (Edit expense).
+
+final class ExpenseFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<Expense?>, String> {
+  ExpenseFamily._()
+    : super(
+        retry: null,
+        name: r'expenseProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// One Expense, or `null` once it is deleted (Edit expense).
+
+  ExpenseProvider call(String id) =>
+      ExpenseProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'expenseProvider';
+}
+
 /// The default Payer of a new Expense in [groupId] (FR-10): the Payer of the
 /// last saved Expense, or the earliest-added Member. Read once when the Add
 /// expense screen opens.
@@ -276,6 +355,133 @@ String _$addExpenseHash() => r'1d788e87473ffd64b93f780171e2e85432c5f1e4';
 /// made meanwhile are ignored and return `null`.
 
 abstract class _$AddExpense extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Edits an Expense (FR-13). The state is `true` while a save is in flight;
+/// calls made meanwhile are ignored and return `null`.
+
+@ProviderFor(EditExpense)
+final editExpenseProvider = EditExpenseProvider._();
+
+/// Edits an Expense (FR-13). The state is `true` while a save is in flight;
+/// calls made meanwhile are ignored and return `null`.
+final class EditExpenseProvider extends $NotifierProvider<EditExpense, bool> {
+  /// Edits an Expense (FR-13). The state is `true` while a save is in flight;
+  /// calls made meanwhile are ignored and return `null`.
+  EditExpenseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'editExpenseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$editExpenseHash();
+
+  @$internal
+  @override
+  EditExpense create() => EditExpense();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$editExpenseHash() => r'db3ed7a830e8f920605f8aadf0d9996c5d4d951b';
+
+/// Edits an Expense (FR-13). The state is `true` while a save is in flight;
+/// calls made meanwhile are ignored and return `null`.
+
+abstract class _$EditExpense extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Deletes an Expense (FR-14), after the Delete sheet. The state is `true`
+/// while the delete is in flight; calls made meanwhile are ignored and
+/// return `null`.
+
+@ProviderFor(DeleteExpense)
+final deleteExpenseProvider = DeleteExpenseProvider._();
+
+/// Deletes an Expense (FR-14), after the Delete sheet. The state is `true`
+/// while the delete is in flight; calls made meanwhile are ignored and
+/// return `null`.
+final class DeleteExpenseProvider
+    extends $NotifierProvider<DeleteExpense, bool> {
+  /// Deletes an Expense (FR-14), after the Delete sheet. The state is `true`
+  /// while the delete is in flight; calls made meanwhile are ignored and
+  /// return `null`.
+  DeleteExpenseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'deleteExpenseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$deleteExpenseHash();
+
+  @$internal
+  @override
+  DeleteExpense create() => DeleteExpense();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$deleteExpenseHash() => r'8759b675089ec0383d5f0b0ca56f398e069bbc40';
+
+/// Deletes an Expense (FR-14), after the Delete sheet. The state is `true`
+/// while the delete is in flight; calls made meanwhile are ignored and
+/// return `null`.
+
+abstract class _$DeleteExpense extends $Notifier<bool> {
   bool build();
   @$mustCallSuper
   @override

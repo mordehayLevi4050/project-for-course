@@ -35,6 +35,32 @@ final class _SlowExpenses implements ExpenseRepository {
     return c.future;
   }
 
+  final edits = <Completer<Result<Expense>>>[];
+  final deletes = <Completer<Result<void>>>[];
+
+  @override
+  Future<Result<Expense>> update({
+    required String id,
+    required String payerId,
+    required Tenths amount,
+    required Category category,
+    String? description,
+  }) {
+    final c = Completer<Result<Expense>>();
+    edits.add(c);
+    return c.future;
+  }
+
+  @override
+  Future<Result<void>> delete({required String id}) {
+    final c = Completer<Result<void>>();
+    deletes.add(c);
+    return c.future;
+  }
+
+  @override
+  Stream<Expense?> watchExpense(String id) => Stream.value(null);
+
   @override
   Future<String?> readLastPayerId(String groupId) async => null;
 
@@ -80,6 +106,53 @@ void main() {
     repo.calls.single.complete(const Ok<Expense>(_expense));
     expect(await first, const Ok<Expense>(_expense));
     expect(container.read(addExpenseProvider), isFalse);
+  });
+
+  test('EditExpense ignores calls while a save is in flight', () async {
+    final repo = _SlowExpenses();
+    final container = ProviderContainer(
+      overrides: [expenseRepositoryProvider.overrideWithValue(repo)],
+    );
+    addTearDown(container.dispose);
+    final sub = container.listen(editExpenseProvider, (_, _) {});
+    addTearDown(sub.close);
+    final notifier = container.read(editExpenseProvider.notifier);
+
+    Future<Result<Expense>?> submit() => notifier.submit(
+      id: 'e1',
+      payerId: 'm',
+      amount: const Tenths(10),
+      category: Category.car,
+    );
+
+    final first = submit();
+    expect(container.read(editExpenseProvider), isTrue);
+    expect(await submit(), isNull);
+    expect(repo.edits, hasLength(1));
+
+    repo.edits.single.complete(const Ok<Expense>(_expense));
+    expect(await first, const Ok<Expense>(_expense));
+    expect(container.read(editExpenseProvider), isFalse);
+  });
+
+  test('DeleteExpense ignores calls while a delete is in flight', () async {
+    final repo = _SlowExpenses();
+    final container = ProviderContainer(
+      overrides: [expenseRepositoryProvider.overrideWithValue(repo)],
+    );
+    addTearDown(container.dispose);
+    final sub = container.listen(deleteExpenseProvider, (_, _) {});
+    addTearDown(sub.close);
+    final notifier = container.read(deleteExpenseProvider.notifier);
+
+    final first = notifier.submit(id: 'e1');
+    expect(container.read(deleteExpenseProvider), isTrue);
+    expect(await notifier.submit(id: 'e1'), isNull);
+    expect(repo.deletes, hasLength(1));
+
+    repo.deletes.single.complete(const Ok<void>(null));
+    expect(await first, isA<Ok<void>>());
+    expect(container.read(deleteExpenseProvider), isFalse);
   });
 
   group('defaultPayerId', () {

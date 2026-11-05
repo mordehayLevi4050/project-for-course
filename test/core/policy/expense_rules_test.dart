@@ -50,6 +50,19 @@ void main() {
     });
   });
 
+  group('mayModifyExpense', () {
+    test('an Archived group: Deny(groupArchived)', () {
+      expect(
+        mayModifyExpense((isArchived: true)),
+        const Deny(MessageKey.groupArchived),
+      );
+    });
+
+    test('a Group that is not archived: Allow', () {
+      expect(mayModifyExpense((isArchived: false)), const Allow());
+    });
+  });
+
   group('nextSaveSeq', () {
     test('the first Expense gets 1', () {
       expect(nextSaveSeq([]), 1);

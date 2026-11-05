@@ -12,6 +12,9 @@ abstract interface class ExpenseRepository {
   /// The Expenses of [groupId], newest first by `saveSeq` (never the clock).
   Stream<List<Expense>> watchExpenses(String groupId);
 
+  /// The Expense [id], or `null` when there is none (or it was deleted).
+  Stream<Expense?> watchExpense(String id);
+
   /// The Payer of the Expense with the highest `saveSeq` in [groupId], or
   /// `null` when the Group has no Expenses (for `defaultPayer`).
   Future<String?> readLastPayerId(String groupId);
@@ -35,4 +38,25 @@ abstract interface class ExpenseRepository {
     required Category category,
     String? description,
   });
+
+  /// Edits the Expense [id] in one transaction (FR-13): Archived →
+  /// `groupArchived` (`mayModifyExpense`), then the same checks as [add]
+  /// (Amount bounds, the *Other* Description, the Payer is a current Member).
+  ///
+  /// `id`, `groupId`, `saveSeq` and `createdAt` are kept; `modifiedAt` is set
+  /// to now. When nothing differs from the stored Expense, nothing is
+  /// written and it is returned as [Ok]. An unknown [id], or a [payerId] that
+  /// is not a current Member, is a bug and throws a [StateError].
+  Future<Result<Expense>> update({
+    required String id,
+    required String payerId,
+    required Tenths amount,
+    required Category category,
+    String? description,
+  });
+
+  /// Deletes the Expense [id] with an SQL `DELETE`, in one transaction
+  /// (FR-14). Archived → `groupArchived` (`mayModifyExpense`) and nothing is
+  /// deleted. A missing [id] (already deleted) writes nothing and is [Ok].
+  Future<Result<void>> delete({required String id});
 }

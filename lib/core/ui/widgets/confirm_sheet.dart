@@ -13,9 +13,9 @@ final ButtonStyle dangerButtonStyle = FilledButton.styleFrom(
   elevation: 0,
 );
 
-/// A confirmation sheet: the [title], an optional [body], the [confirmLabel]
-/// button on the start side and the [cancelLabel] (default "ביטול") beside
-/// it.
+/// A confirmation sheet: the [title], an optional [body] (and an optional
+/// [detail] paragraph under it), the [confirmLabel] button on the start side
+/// and the [cancelLabel] (default "ביטול") beside it.
 ///
 /// When [destructive] (Remove member; later Delete and Exit) the confirm is
 /// the danger button; otherwise (Archive) it is the orange primary.
@@ -28,6 +28,7 @@ Future<bool?> showConfirmSheet(
   required String title,
   required String confirmLabel,
   String? body,
+  String? detail,
   String? cancelLabel,
   bool destructive = true,
 }) => showAppSheet<bool>(
@@ -36,9 +37,22 @@ Future<bool?> showConfirmSheet(
     title: title,
     body: body == null
         ? null
-        : Text(
-            body,
-            style: AppTextStyles.message.copyWith(color: AppColors.ink),
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                body,
+                style: AppTextStyles.message.copyWith(color: AppColors.ink),
+              ),
+              if (detail != null) ...[
+                const SizedBox(height: AppSpacing.s1),
+                Text(
+                  detail,
+                  style: AppTextStyles.message.copyWith(color: AppColors.ink),
+                ),
+              ],
+            ],
           ),
     primary: FilledButton(
       style: destructive ? dangerButtonStyle : null,
