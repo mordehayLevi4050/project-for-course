@@ -48,5 +48,6 @@
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-4-part-b-archived-summary-scroll-and-goldens.md`
   summary: Add/Edit expense with 7–10 Members — keep the Category picker as the full 4×2 grid (two rows) instead of switching to the two-page swipe row when the Payer picker takes two rows. Requested by Motty after the story 1.4 part B emulator check (2026-11-05).
-  open_questions: (1) what may shrink to make the grid fit on the S25 (tile height, gaps, Amount area) without breaking the "nothing above the keypad scrolls" rule; (2) whether the two-page row stays as a fallback for smaller screens or larger fonts; (3) DESIGN.md/EXPERIENCE.md Add/Edit composition must change first.
+  decided: (Motty, 2026-11-05) only when the Payer picker has two rows, shrink the Category tile height a little and the Amount area height a little so the 4×2 grid fits.
+  open_questions: (1) whether the two-page row stays as a fallback for smaller screens or larger fonts; (2) DESIGN.md/EXPERIENCE.md Add/Edit composition must change first.
   evidence: `add_expense_screen.dart:319` switches to `twoPage` when `metrics.gridHeight > constraints.maxHeight`, which happens with a second Payer row.
