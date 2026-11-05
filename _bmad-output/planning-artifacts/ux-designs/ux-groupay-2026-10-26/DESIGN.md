@@ -64,6 +64,11 @@ typography:
     fontFamily: Heebo
     fontSize: 46sp
     fontWeight: 800
+  amount-entry-compact:
+    fontFamily: Heebo
+    fontSize: 40sp
+    fontWeight: 800
+    note: 'The Amount with two payer rows and the 4×2 grid (Add/edit expense composition).'
   screen-title:
     fontFamily: Heebo
     fontSize: 22sp
@@ -160,6 +165,9 @@ components:
   category-tile:
     background: '{colors.surface-raised}'
     height: 64dp
+    compactHeight: 56dp
+    paddingVertical: 4dp
+    compactPaddingVertical: 0dp
     rounded: '{rounded.lg}'
     labelTypography: '{typography.label}'
     selectedBorderWidth: 2dp
@@ -297,7 +305,7 @@ Scale: 4 / 8 / 12 / 16 / 20 / 24 dp. Side margin `{spacing.margin-mobile}`. Sing
 
 **Summary composition** (top to bottom; FR-16): header block (with the category stripe, without the "⚙ ✎" chip) → "מי מעביר למי" title in `{typography.section-title}` → Transfer cards with an 8dp gap, or "החשבון מאוזן, אין צורך בהעברות" when there are none → archive note, when archived. There is no bottom button bar on the Summary. Up to 6 Members everything is fixed. For 7–10 Members the header and the title stay fixed, and the Transfer cards scroll inside the remaining height; their bottom edge fades into `{colors.surface-base}` over `{spacing.list-fade}` when more cards exist.
 
-**Add/edit expense composition** (top to bottom): compact top bar → amount → message slot (one reserved line in `{typography.message}`, about 20dp, empty unless there is an FR-11 error) → payer picker (`components.payer-picker`: 6 avatars per row, one row up to 6 Members, two rows for 7–10, never scrolls) → 4×2 category grid → keypad (3×4) → wide Save button (`components.button-save`). No section labels above the payer picker or the grid. The keypad and Save are pinned to the bottom inside the system insets (Android 15 draws edge-to-edge). The region above them never scrolls. Estimated height at default font is about 675dp before insets with one payer row, which fits 360×780dp phones with either navigation mode. A second payer row adds about 70dp (about 745dp); when that does not fit, the two-page Category row below takes over and saves about 50dp. Fit is checked on the reference device (Galaxy S25). Six 48dp slots with 8dp gaps fill the 328dp content width of a 360dp phone exactly. **Two-page Category row** (when it applies and how it behaves: EXPERIENCE.md › Component Patterns): the row keeps the tile size, and the first tile of the other page peeks in about a quarter tile at the edge. Two page dots (`components.page-dot`) sit centered under the row, `{spacing.2}` below it. The *Other* state swaps the keypad for a description field plus the system text keyboard, with Save just above it.
+**Add/edit expense composition** (top to bottom): compact top bar → amount → message slot (one reserved line in `{typography.message}`, about 20dp, empty unless there is an FR-11 error) → payer picker (`components.payer-picker`: 6 avatars per row, one row up to 6 Members, two rows for 7–10, never scrolls) → 4×2 category grid → keypad (3×4) → wide Save button (`components.button-save`). No section labels above the payer picker or the grid. The keypad and Save are pinned to the bottom inside the system insets (Android 15 draws edge-to-edge). The region above them never scrolls. Estimated height at default font is about 675dp before insets with one payer row, which fits 360×780dp phones with either navigation mode. A second payer row adds about 70dp (about 745dp). With two payer rows the 4×2 grid is **compact**: the Amount uses `{typography.amount-entry-compact}` (40sp) and the Category tiles are at least `compactHeight` (56dp) with `compactPaddingVertical`, which saves about 25dp; tiles stay ≥48dp and labels are never truncated. One payer row keeps the full sizes. The grid is chosen only when its **measured** height (the real laid-out lines at the current text scale, screen width, Member names and Edit meta line, not an estimate) fits the region above the keypad; otherwise the two-page Category row below takes over, at the full sizes, and saves about 50dp. The choice is made in the same layout pass, so the screen never flashes between the two. Fit is checked on the reference device (Galaxy S25), where 10 Members still use the two-page row, and on a 411×914dp emulator, where they get the compact grid. Six 48dp slots with 8dp gaps fill the 328dp content width of a 360dp phone exactly. **Two-page Category row** (when it applies and how it behaves: EXPERIENCE.md › Component Patterns): the row keeps the tile size, and the first tile of the other page peeks in about a quarter tile at the edge. Two page dots (`components.page-dot`) sit centered under the row, `{spacing.2}` below it. The *Other* state swaps the keypad for a description field plus the system text keyboard, with Save just above it.
 
 ## Elevation & Depth
 

@@ -51,3 +51,7 @@
   decided: (Motty, 2026-11-05) only when the Payer picker has two rows, shrink the Category tile height a little and the Amount area height a little so the 4×2 grid fits.
   open_questions: (1) whether the two-page row stays as a fallback for smaller screens or larger fonts; (2) DESIGN.md/EXPERIENCE.md Add/Edit composition must change first.
   evidence: `add_expense_screen.dart:319` switches to `twoPage` when `metrics.gridHeight > constraints.maxHeight`, which happens with a second Payer row.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-category-grid-two-payer-rows.md`
+  summary: DESIGN.md says the one-payer-row layout fits 360×780dp phones, but in widget tests (Heebo, no emoji font) 6 Members on the Galaxy S25 with 32/24dp insets miss the 4×2 grid by 4dp (352 vs 348dp) and use the two-page row; the claim or the layout needs reconciling (unverified, medium if true).
+  evidence: Pre-existing (the old estimate gave the same result). Settle it by opening Add expense with a 6-Member Group on a real S25 (or a 360×780dp emulator with 32/24dp insets and the system emoji font) and checking whether page dots appear.

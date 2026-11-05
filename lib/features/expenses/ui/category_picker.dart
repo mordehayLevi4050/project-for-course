@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/ui/text_height.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../domain/category.dart';
 import 'category_style.dart';
@@ -7,11 +8,83 @@ import 'category_style.dart';
 /// Categories per row of the grid and per page of the two-page row.
 const int categoriesPerRow = 4;
 
+const double _gap = AppSpacing.s2;
+
+const List<Category> _firstRow = [
+  Category.flight,
+  Category.hotel,
+  Category.car,
+  Category.fuel,
+];
+const List<Category> _secondRow = [
+  Category.restaurant,
+  Category.foodDrink,
+  Category.attractions,
+  Category.other,
+];
+
+/// The height of the 4×2 grid [width] wide at [context], exactly as
+/// [CategoryPicker] lays it out (`twoPage: false`, the same [compact]), so
+/// the caller can choose between the grid and the two-page row before
+/// building either.
+double categoryGridHeight(
+  BuildContext context,
+  double width, {
+  required bool compact,
+}) {
+  final (first, second) = _gridRowHeights(context, width, compact);
+  return first + _gap + second;
+}
+
+/// The heights of the grid's two rows: in each, the tallest tile's emoji
+/// plus label (each label measured both regular and bold, so selecting a
+/// tile never changes the size), the padding and the border, rounded up;
+/// at least the tile's minimum height.
+(double, double) _gridRowHeights(
+  BuildContext context,
+  double width,
+  bool compact,
+) {
+  final tileWidth = (width - (categoriesPerRow - 1) * _gap) / categoriesPerRow;
+  final labelWidth = tileWidth - 2 * (AppSpacing.s1 + AppSizes.selectedBorder);
+  final chrome =
+      2 * (_CategoryTile.verticalPadding(compact) + AppSizes.selectedBorder);
+  final minHeight = _CategoryTile.minHeight(compact);
+  double row(List<Category> categories) {
+    var tallest = 0.0;
+    for (final c in categories) {
+      final emoji = textHeight(
+        context,
+        c.emoji,
+        AppTextStyles.categoryEmoji,
+        maxWidth: labelWidth,
+      );
+      var label = 0.0;
+      for (final bold in [false, true]) {
+        final h = textHeight(
+          context,
+          c.label.text,
+          _CategoryTile.labelStyle(bold),
+          maxWidth: labelWidth,
+        );
+        if (h > label) label = h;
+      }
+      final content = chrome + emoji + label;
+      if (content > tallest) tallest = content;
+    }
+    return tallest > minHeight ? tallest.ceilToDouble() : minHeight;
+  }
+
+  return (row(_firstRow), row(_secondRow));
+}
+
 /// The Category picker (FR-10, DESIGN.md › Category tile): the eight tiles in
 /// the fixed order, as a 4×2 grid, or, when [twoPage] (the grid does not fit
 /// at the touch-target size), as a two-page sideways row.
 ///
 /// A tap selects a tile and replaces any previous selection; it never saves.
+/// The grid's [compact] tiles (two payer rows) are shorter; the two-page row
+/// always keeps the full tile size.
 ///
 /// The two-page row holds the first four tiles on page 1 and the last four
 /// on page 2 (on the end side), with no third page. The first tile of the
@@ -25,11 +98,15 @@ class CategoryPicker extends StatefulWidget {
     required this.selected,
     required this.onSelect,
     required this.twoPage,
+    this.compact = false,
   });
 
   final Category? selected;
   final ValueChanged<Category> onSelect;
   final bool twoPage;
+
+  /// The grid's compact tiles (DESIGN.md › Add/edit expense composition).
+  final bool compact;
 
   @override
   State<CategoryPicker> createState() => _CategoryPickerState();
@@ -38,8 +115,6 @@ class CategoryPicker extends StatefulWidget {
 class _CategoryPickerState extends State<CategoryPicker> {
   PageController? _controller;
   int _page = 0;
-
-  static const double _gap = AppSpacing.s2;
 
   @override
   void dispose() {
@@ -99,44 +174,52 @@ class _CategoryPickerState extends State<CategoryPicker> {
         : AppSizes.categoryTileHeight;
   }
 
-  Widget _tile(Category c) => _CategoryTile(
+  Widget _tile(Category c, {bool compact = false}) => _CategoryTile(
     category: c,
     selected: c == widget.selected,
+    compact: compact,
     onTap: () => widget.onSelect(c),
   );
 
-  Widget _row(List<Category> categories) => Row(
+  Widget _row(List<Category> categories, {bool compact = false}) => Row(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       for (final (i, c) in categories.indexed) ...[
         if (i > 0) const SizedBox(width: _gap),
-        Expanded(child: _tile(c)),
+        Expanded(child: _tile(c, compact: compact)),
       ],
     ],
   );
 
   @override
   Widget build(BuildContext context) {
-    const first = [
-      Category.flight,
-      Category.hotel,
-      Category.car,
-      Category.fuel,
-    ];
-    const second = [
-      Category.restaurant,
-      Category.foodDrink,
-      Category.attractions,
-      Category.other,
-    ];
+    const first = _firstRow;
+    const second = _secondRow;
     if (!widget.twoPage) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IntrinsicHeight(child: _row(first)),
-          const SizedBox(height: _gap),
-          IntrinsicHeight(child: _row(second)),
-        ],
+      // Each row is exactly the height categoryGridHeight() reports.
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = widget.compact;
+          final (h1, h2) = _gridRowHeights(
+            context,
+            constraints.maxWidth,
+            compact,
+          );
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: h1,
+                child: _row(first, compact: compact),
+              ),
+              const SizedBox(height: _gap),
+              SizedBox(
+                height: h2,
+                child: _row(second, compact: compact),
+              ),
+            ],
+          );
+        },
       );
     }
     return LayoutBuilder(
@@ -185,18 +268,29 @@ class _CategoryPickerState extends State<CategoryPicker> {
   }
 }
 
-/// A Category tile: the emoji above the name, at least 64dp tall. Selected:
-/// a 2dp border and a 16% tint in the Category color, and a bold label.
+/// A Category tile: the emoji above the name, at least 64dp tall (56dp when
+/// [compact]). Selected: a 2dp border and a 16% tint in the Category color,
+/// and a bold label.
 class _CategoryTile extends StatelessWidget {
   const _CategoryTile({
     required this.category,
     required this.selected,
     required this.onTap,
+    this.compact = false,
   });
 
   final Category category;
   final bool selected;
   final VoidCallback onTap;
+  final bool compact;
+
+  static double minHeight(bool compact) => compact
+      ? AppSizes.categoryTileHeightCompact
+      : AppSizes.categoryTileHeight;
+
+  static double verticalPadding(bool compact) => compact
+      ? AppSizes.categoryTilePaddingCompact
+      : AppSizes.categoryTilePadding;
 
   /// The tile label; bold when [selected].
   static TextStyle labelStyle(bool selected) => AppTextStyles.label.copyWith(
@@ -213,12 +307,10 @@ class _CategoryTile extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
-        constraints: const BoxConstraints(
-          minHeight: AppSizes.categoryTileHeight,
-        ),
-        padding: const EdgeInsets.symmetric(
+        constraints: BoxConstraints(minHeight: minHeight(compact)),
+        padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.s1,
-          vertical: AppSpacing.s1,
+          vertical: verticalPadding(compact),
         ),
         alignment: Alignment.center,
         decoration: BoxDecoration(

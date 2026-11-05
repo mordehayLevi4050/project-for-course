@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groupay/core/db/app_database.dart';
 import 'package:groupay/core/i18n/message_key.dart';
@@ -747,5 +748,331 @@ void main() {
     );
     expect(tester.hasRunningAnimations, isFalse);
     await unmountGrouPay(tester);
+  });
+
+  group('the Category grid fit (measured)', () {
+    /// A screen, in physical pixels, with its system insets in dp.
+    const emulator = (
+      size: Size(1080, 2400),
+      dpr: 2.625,
+      top: 50.0,
+      bottom: 24.0,
+    );
+    const s25 = (size: Size(1080, 2340), dpr: 3.0, top: 32.0, bottom: 24.0);
+    const screens = {'emulator': emulator, 's25': s25};
+    // Tall enough that the grid always fits: the width, and so every
+    // measured line, stays the screen's.
+    Size tall(Size size) => Size(size.width, 20000);
+
+    const shortNames = [
+      'Dana', 'Yossi', 'Noa', 'Avi', 'Tal', //
+      'Gil', 'Ron', 'Lior', 'Maya', 'Eli',
+    ];
+    // Ten letters each, the longest a Member name can be: two lines under
+    // the avatar.
+    const longNames = [
+      'Alexandria',
+      'Bernadette',
+      'Christophe',
+      'Evangeline',
+      'Fitzgerald',
+      'Gwendolynn',
+      'Hildegarde',
+      'Jacquelina',
+      'Konstantin',
+      'Maximilian',
+    ];
+
+    void useScreen(
+      WidgetTester tester,
+      ({Size size, double dpr, double top, double bottom}) screen, {
+      Size? size,
+    }) {
+      tester.view.physicalSize = size ?? screen.size;
+      tester.view.devicePixelRatio = screen.dpr;
+      final padding = FakeViewPadding(
+        top: screen.top * screen.dpr,
+        bottom: screen.bottom * screen.dpr,
+      );
+      tester.view.padding = padding;
+      tester.view.viewPadding = padding;
+      addTearDown(tester.view.reset);
+    }
+
+    Future<void> openAt(WidgetTester tester, String location) async {
+      await pumpGrouPay(tester, db, initialLocation: location, clock: clock);
+      expect(find.byType(AddExpenseScreen), findsOneWidget);
+    }
+
+    Finder region() => find.descendant(
+      of: find.byType(AddExpenseScreen),
+      matching: find.byType(SingleChildScrollView),
+    );
+
+    double maxScroll(WidgetTester tester) => tester
+        .state<ScrollableState>(
+          find
+              .descendant(of: region(), matching: find.byType(Scrollable))
+              .first,
+        )
+        .position
+        .maxScrollExtent;
+
+    bool twoPage() =>
+        find.byKey(const ValueKey('category-pages')).evaluate().isNotEmpty;
+
+    /// The estimate the screen decides with, measured at the region.
+    double estimate(
+      WidgetTester tester,
+      List<Member> members, {
+      bool edit = false,
+    }) {
+      final metrics = ExpenseRegionMetrics(
+        payerRows: members.length > 6 ? 2 : 1,
+        metaLine: edit,
+      );
+      final context = tester.element(
+        find.byKey(const ValueKey('amount-message')),
+      );
+      final meta = find.byKey(const ValueKey('edit-meta'));
+      return metrics.gridRegionHeight(
+        context,
+        tester.getSize(region()).width - 2 * AppSpacing.marginMobile,
+        buffer: amountText(tester),
+        metaText: meta.evaluate().isEmpty
+            ? null
+            : tester.widget<Text>(meta).data,
+        messageText: slot(tester),
+        members: members,
+        compact: members.length > 6,
+      );
+    }
+
+    /// The rendered region: its Column plus the top and bottom padding.
+    double rendered(WidgetTester tester, {bool edit = false}) {
+      final column = find
+          .descendant(of: region(), matching: find.byType(Column))
+          .first;
+      final padding = ExpenseRegionMetrics(
+        payerRows: 1,
+        metaLine: edit,
+      ).regionPadding;
+      return tester.getSize(column).height + 2 * padding;
+    }
+
+    double amountSize(WidgetTester tester) => tester
+        .widget<Text>(find.byKey(const ValueKey('amount-text')))
+        .style!
+        .fontSize!;
+
+    setUpAll(loadHeebo);
+
+    for (final count in [2, 6, 10]) {
+      for (final (label, names) in [
+        ('short', shortNames),
+        ('long', longNames),
+      ]) {
+        for (final scale in [1.0, 1.3, 1.5]) {
+          for (final MapEntry(key: screenName, value: screen)
+              in screens.entries) {
+            testWidgets(
+              '$count $label names, scale $scale, $screenName: the estimate '
+              'is the rendered height, and decides the layout',
+              (tester) async {
+                tester.platformDispatcher.textScaleFactorTestValue = scale;
+                addTearDown(
+                  tester.platformDispatcher.clearTextScaleFactorTestValue,
+                );
+                final (g, byName) = await seed(names.take(count).toList());
+                final members = [for (final n in names.take(count)) byName[n]!];
+
+                // On a tall screen of the same width the grid is laid out:
+                // the estimate matches it.
+                useScreen(tester, screen, size: tall(screen.size));
+                await openAt(tester, '/group/$g/add');
+                expect(twoPage(), isFalse);
+                final grid = estimate(tester, members);
+                expect(rendered(tester), closeTo(grid, 1));
+                await unmountGrouPay(tester);
+
+                // On the real screen the same estimate picks the layout.
+                useScreen(tester, screen);
+                await openAt(tester, '/group/$g/add');
+                expect(estimate(tester, members), closeTo(grid, 0.001));
+                final viewport = tester.getSize(region()).height;
+                expect(twoPage(), grid > viewport);
+                if (!twoPage()) expect(maxScroll(tester), 0);
+                expect(tester.takeException(), isNull);
+                await unmountGrouPay(tester);
+              },
+            );
+          }
+        }
+      }
+    }
+
+    testWidgets('emulator, 10 Members: the compact 4×2 grid, no scroll; '
+        'Save works with the default Payer', (tester) async {
+      final (g, byName) = await seed(shortNames);
+      useScreen(tester, emulator);
+      await openAt(tester, '/group/$g/add');
+
+      expect(twoPage(), isFalse);
+      expect(find.byType(PageView), findsNothing);
+      expect(maxScroll(tester), 0);
+      expect(amountSize(tester), AppTextStyles.amountEntryCompact.fontSize);
+      expect(
+        AppTextStyles.amountEntry.fontSize! -
+            AppTextStyles.amountEntryCompact.fontSize!,
+        lessThanOrEqualTo(6),
+      );
+      for (final c in Category.values) {
+        final rect = tester.getRect(tile(c));
+        expect(rect.height, AppSizes.categoryTileHeightCompact);
+        expect(rect.height, greaterThanOrEqualTo(AppSizes.minTouchTarget));
+        expect(AppSizes.categoryTileHeight - rect.height, lessThanOrEqualTo(8));
+        // Both rows sit inside the region, above the keypad.
+        expect(rect.bottom, lessThanOrEqualTo(tester.getRect(region()).bottom));
+      }
+      // Labels are never truncated.
+      for (final c in Category.values) {
+        final text = find.descendant(
+          of: tile(c),
+          matching: find.text(c.label.text),
+        );
+        expect(
+          tester.renderObject<RenderParagraph>(text).didExceedMaxLines,
+          isFalse,
+        );
+        expect(
+          tester.getRect(text).bottom,
+          lessThanOrEqualTo(tester.getRect(tile(c)).bottom),
+        );
+      }
+
+      // Selecting a tile (bold label) changes nothing in the layout.
+      final before = rendered(tester);
+      await type(tester, '87.4');
+      await pick(tester, Category.foodDrink);
+      expect(rendered(tester), before);
+      expect(maxScroll(tester), 0);
+      await save(tester);
+      final row = (await rows()).single;
+      expect(row.category, 'food_drink');
+      expect(row.payerId, byName['Dana']!.id);
+      expect(find.byType(GroupPage), findsOneWidget);
+      await unmountGrouPay(tester);
+    });
+
+    testWidgets('S25, 10 Members: the two-page row, at the full sizes', (
+      tester,
+    ) async {
+      final (g, _) = await seed(shortNames);
+      useScreen(tester, s25);
+      await openAt(tester, '/group/$g/add');
+
+      expect(twoPage(), isTrue);
+      expect(amountSize(tester), AppTextStyles.amountEntry.fontSize);
+      expect(
+        tester.getSize(tile(Category.flight)).height,
+        greaterThanOrEqualTo(AppSizes.categoryTileHeight),
+      );
+      await unmountGrouPay(tester);
+    });
+
+    for (final MapEntry(key: screenName, value: screen) in screens.entries) {
+      testWidgets('6 Members, $screenName: unchanged sizes; the grid on '
+          'the emulator, the two-page row on S25', (tester) async {
+        final (g, byName) = await seed(shortNames.take(6).toList());
+        final members = [for (final n in shortNames.take(6)) byName[n]!];
+        useScreen(tester, screen);
+        await openAt(tester, '/group/$g/add');
+
+        final fits =
+            estimate(tester, members) <= tester.getSize(region()).height;
+        // The emulator has room for one payer row; S25 with its insets
+        // misses by a few dp (as with the old estimate).
+        expect(fits, screen == emulator);
+        expect(twoPage(), screen != emulator);
+        expect(twoPage(), !fits);
+        if (fits) expect(maxScroll(tester), 0);
+        expect(amountSize(tester), AppTextStyles.amountEntry.fontSize);
+        for (final c in Category.values) {
+          expect(
+            tester.getSize(tile(c)).height,
+            greaterThanOrEqualTo(AppSizes.categoryTileHeight),
+          );
+        }
+        await unmountGrouPay(tester);
+      });
+    }
+
+    testWidgets('Edit, 10 Members, emulator: the estimate (with the meta '
+        'line) decides, and the grid never scrolls', (tester) async {
+      final (g, byName) = await seed(shortNames);
+      final members = [for (final n in shortNames) byName[n]!];
+      final id = newId();
+      await DriftExpenseRepository(
+        db,
+        clock,
+        DriftMemberRepository(db, clock, DriftPayerUsage(db)),
+      ).add(
+        id: id,
+        groupId: g,
+        payerId: members.first.id,
+        amount: Tenths(870),
+        category: Category.foodDrink,
+      );
+
+      useScreen(tester, emulator, size: tall(emulator.size));
+      await openAt(tester, '/group/$g/edit/$id');
+      expect(find.byKey(const ValueKey('edit-meta')), findsOneWidget);
+      final grid = estimate(tester, members, edit: true);
+      expect(rendered(tester, edit: true), closeTo(grid, 1));
+      await unmountGrouPay(tester);
+
+      useScreen(tester, emulator);
+      await openAt(tester, '/group/$g/edit/$id');
+      final viewport = tester.getSize(region()).height;
+      expect(grid, lessThanOrEqualTo(viewport));
+      expect(twoPage(), isFalse);
+      expect(maxScroll(tester), 0);
+      expect(amountSize(tester), AppTextStyles.amountEntryCompact.fontSize);
+      await unmountGrouPay(tester);
+    });
+
+    testWidgets('bold text, 10 long names, scale 1.3, emulator: the estimate '
+        'is the rendered height, and decides the layout', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(boldText: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final (g, byName) = await seed(longNames);
+      final members = [for (final n in longNames) byName[n]!];
+
+      useScreen(tester, emulator, size: tall(emulator.size));
+      await openAt(tester, '/group/$g/add');
+      expect(
+        MediaQuery.boldTextOf(
+          tester.element(find.byKey(const ValueKey('amount-message'))),
+        ),
+        isTrue,
+      );
+      expect(twoPage(), isFalse);
+      final grid = estimate(tester, members);
+      expect(rendered(tester), closeTo(grid, 1));
+      await unmountGrouPay(tester);
+
+      useScreen(tester, emulator);
+      await openAt(tester, '/group/$g/add');
+      final viewport = tester.getSize(region()).height;
+      expect(twoPage(), grid > viewport);
+      if (!twoPage()) expect(maxScroll(tester), 0);
+      expect(tester.takeException(), isNull);
+      await unmountGrouPay(tester);
+    });
   });
 }

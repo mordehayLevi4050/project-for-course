@@ -130,6 +130,15 @@ abstract final class AppSizes {
   static const double categoryTileHeight = 64;
   static const double selectedBorder = 2;
 
+  /// A Category tile's vertical padding inside the border.
+  static const double categoryTilePadding = AppSpacing.s1;
+
+  /// The compact Category tile of the 4×2 grid with two payer rows
+  /// (DESIGN.md › Add/edit expense composition): at least 56dp, with no
+  /// vertical padding inside the border.
+  static const double categoryTileHeightCompact = 56;
+  static const double categoryTilePaddingCompact = 0;
+
   /// Keypad keys (`components.keypad-key`).
   static const double keypadKeyHeight = 48;
 
@@ -192,6 +201,15 @@ abstract final class AppTextStyles {
   static const TextStyle amountEntry = TextStyle(
     fontFamily: appFontFamily,
     fontSize: 46,
+    fontWeight: FontWeight.w800,
+    fontVariations: [FontVariation.weight(800)],
+  );
+
+  /// The Amount with two payer rows and the 4×2 grid (DESIGN.md › Add/edit
+  /// expense composition).
+  static const TextStyle amountEntryCompact = TextStyle(
+    fontFamily: appFontFamily,
+    fontSize: 40,
     fontWeight: FontWeight.w800,
     fontVariations: [FontVariation.weight(800)],
   );

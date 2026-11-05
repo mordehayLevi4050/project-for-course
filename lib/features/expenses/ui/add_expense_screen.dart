@@ -12,13 +12,16 @@ import '../../../core/money/tenths.dart';
 import '../../../core/result/result.dart';
 import '../../../core/text/description.dart';
 import '../../../core/time/clock_provider.dart';
+import '../../../core/ui/text_height.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
 import '../../../core/ui/widgets/compact_top_bar.dart';
 import '../../../core/ui/widgets/delete_sheet.dart';
 import '../../../core/ui/widgets/exit_sheet.dart';
+import '../../../core/ui/widgets/member_avatar.dart';
 import '../../../core/ui/widgets/snackbar.dart';
 import '../../groups/app/group_providers.dart';
+import '../../groups/domain/member.dart';
 import '../app/expense_providers.dart';
 import '../domain/category.dart';
 import '../domain/expense.dart';
@@ -32,9 +35,10 @@ import 'payer_picker.dart';
 ///
 /// Top to bottom: the compact top bar (✕, the group name), the Amount with
 /// the ₪ mark and a caret, the message slot, the payer picker, the Category
-/// grid (or the two-page row when the grid does not fit), then the keypad
-/// and the wide "שמירה" pinned at the bottom. Nothing above the keypad
-/// scrolls in normal use. *Other* swaps the keypad for the Description field
+/// grid (or the two-page row when the measured grid does not fit), then the
+/// keypad and the wide "שמירה" pinned at the bottom. With two payer rows the
+/// grid's Amount and tiles are compact. Nothing above the keypad scrolls in
+/// normal use. *Other* swaps the keypad for the Description field
 /// and the system keyboard.
 ///
 /// The Expense id is generated when the screen opens (AD-23). Save validates
@@ -281,9 +285,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final saved = _saved;
     final payerNames = {for (final m in members) m.id: m.name};
     final other = _category?.needsDescription ?? false;
-    final scaler = MediaQuery.textScalerOf(context);
-    final metrics = _TopMetrics(
-      scaler,
+    final metrics = ExpenseRegionMetrics(
       payerRows: _rowsFor(members.length),
       metaLine: _isEdit,
     );
@@ -316,7 +318,27 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final twoPage = metrics.gridHeight > constraints.maxHeight;
+                  final metaText = saved == null
+                      ? null
+                      : _metaText(
+                          saved,
+                          ref.read(clockProvider).nowUtcMillis(),
+                        );
+                  final messageText = _error?.text ?? '';
+                  // The grid's real laid-out height, measured before it is
+                  // built: the choice is made in this pass, with no flash.
+                  final compactGrid = metrics.payerRows > 1;
+                  final gridHeight = metrics.gridRegionHeight(
+                    context,
+                    constraints.maxWidth - 2 * AppSpacing.marginMobile,
+                    buffer: _buffer,
+                    metaText: metaText,
+                    messageText: messageText,
+                    members: members,
+                    compact: compactGrid,
+                  );
+                  final twoPage = gridHeight > constraints.maxHeight;
+                  final compact = compactGrid && !twoPage;
                   // A safety net only: in normal use the region fits and
                   // never scrolls (the Categories switch to the two-page
                   // row first).
@@ -328,13 +350,13 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _AmountDisplay(buffer: _buffer),
-                        if (saved != null)
+                        _AmountDisplay(
+                          buffer: _buffer,
+                          style: _AmountDisplay.styleFor(compact: compact),
+                        ),
+                        if (metaText != null)
                           Text(
-                            _metaText(
-                              saved,
-                              ref.read(clockProvider).nowUtcMillis(),
-                            ),
+                            metaText,
                             key: const ValueKey('edit-meta'),
                             maxLines: 1,
                             textAlign: TextAlign.center,
@@ -343,7 +365,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                             ),
                           ),
                         Text(
-                          _error?.text ?? '',
+                          messageText,
                           key: const ValueKey('amount-message'),
                           maxLines: 1,
                           textAlign: TextAlign.center,
@@ -362,6 +384,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                           selected: _category,
                           onSelect: _selectCategory,
                           twoPage: twoPage,
+                          compact: compact,
                         ),
                       ],
                     ),
@@ -422,16 +445,38 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 }
 
 /// The Amount: the ₪ mark tinted `currency-mark`, the typed buffer and a
-/// static caret, as an LTR run (46sp).
+/// static caret, as an LTR run (46sp; 40sp when compact).
 class _AmountDisplay extends StatelessWidget {
-  const _AmountDisplay({required this.buffer});
+  const _AmountDisplay({required this.buffer, required this.style});
 
   final String buffer;
+  final TextStyle style;
+
+  static TextStyle styleFor({required bool compact}) =>
+      compact ? AppTextStyles.amountEntryCompact : AppTextStyles.amountEntry;
+
+  static double _caretHeight(BuildContext context, TextStyle style) =>
+      MediaQuery.textScalerOf(context).scale(style.fontSize!);
+
+  /// The laid-out height of the display for [buffer] in [style].
+  static double heightOf(BuildContext context, String buffer, TextStyle style) {
+    double line(String text) => textHeight(
+      context,
+      text,
+      style,
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    );
+    return [
+      line(MessageKey.currencyMark.text),
+      line(buffer),
+      _caretHeight(context, style),
+    ].reduce(math.max);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.textScalerOf(context)
-        .scale(AppTextStyles.amountEntry.fontSize!);
+    final height = _caretHeight(context, style);
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Row(
@@ -439,16 +484,15 @@ class _AmountDisplay extends StatelessWidget {
         children: [
           Text(
             MessageKey.currencyMark.text,
-            style: AppTextStyles.amountEntry.copyWith(
-              color: AppColors.currencyMark,
-            ),
+            maxLines: 1,
+            style: style.copyWith(color: AppColors.currencyMark),
           ),
           Flexible(
             child: Text(
               buffer,
               key: const ValueKey('amount-text'),
               maxLines: 1,
-              style: AppTextStyles.amountEntry.copyWith(color: AppColors.ink),
+              style: style.copyWith(color: AppColors.ink),
             ),
           ),
           Container(
@@ -498,14 +542,12 @@ class _BottomPanel extends StatelessWidget {
   }
 }
 
-/// Estimated heights of the region above the keypad, for choosing between
-/// the 4×2 grid and the two-page row (FR-10). Every line is taken at its
-/// scaled size with generous line spacing, and avatar names and tile labels
-/// at two lines, so the grid is chosen only when it surely fits.
-final class _TopMetrics {
-  _TopMetrics(this._scaler, {required this.payerRows, this.metaLine = false});
+/// The region above the keypad, for choosing between the 4×2 grid and the
+/// two-page row (FR-10): its spacing, and the exact height it takes with
+/// the grid, measured line by line as the widgets lay it out.
+final class ExpenseRegionMetrics {
+  ExpenseRegionMetrics({required this.payerRows, this.metaLine = false});
 
-  final TextScaler _scaler;
   final int payerRows;
 
   /// Edit expense: the meta line under the Amount. Its height is paid for
@@ -518,34 +560,56 @@ final class _TopMetrics {
   /// The gap between the message slot and the payer picker.
   double get slotGap => metaLine ? AppSpacing.s1 : AppSpacing.s3;
 
-  static const double _lineFactor = 1.4;
+  /// The region's height with the 4×2 grid, [width] being the content width
+  /// (inside the side margins): the same children, sizes and spacing as the
+  /// region builds.
+  double gridRegionHeight(
+    BuildContext context,
+    double width, {
+    required String buffer,
+    required String? metaText,
+    required String messageText,
+    required List<Member> members,
+    required bool compact,
+  }) {
+    double line(String text, TextStyle style) =>
+        textHeight(context, text, style, maxWidth: width, maxLines: 1);
+    return 2 * regionPadding +
+        _AmountDisplay.heightOf(
+          context,
+          buffer,
+          _AmountDisplay.styleFor(compact: compact),
+        ) +
+        (metaText == null ? 0 : line(metaText, AppTextStyles.meta)) +
+        line(messageText, AppTextStyles.message) +
+        slotGap +
+        _payerPickerHeight(context, members) +
+        AppSpacing.s4 +
+        categoryGridHeight(context, width, compact: compact);
+  }
 
-  double _line(TextStyle style) => _scaler.scale(style.fontSize!) * _lineFactor;
-
-  /// A Category tile: emoji, a two-line label, padding and border; at least
-  /// 64dp.
-  double get tileHeight => math.max(
-    AppSizes.categoryTileHeight,
-    2 * (AppSpacing.s1 + AppSizes.selectedBorder) +
-        _line(AppTextStyles.categoryEmoji) +
-        2 * _line(AppTextStyles.label),
-  );
-
-  double get _payerHeight =>
-      payerRows *
-          (AppSizes.avatar + AppSpacing.s1 + 2 * _line(AppTextStyles.label)) +
-      (payerRows - 1) * AppSpacing.s2;
-
-  /// Everything above the Categories, with the region's padding.
-  double get _aboveCategories =>
-      2 * regionPadding +
-      _line(AppTextStyles.amountEntry) +
-      (metaLine ? _line(AppTextStyles.meta) : 0) +
-      _line(AppTextStyles.message) +
-      slotGap +
-      _payerHeight +
-      AppSpacing.s4;
-
-  /// The region's height with the 4×2 grid.
-  double get gridHeight => _aboveCategories + 2 * tileHeight + AppSpacing.s2;
+  /// The payer picker's height: per row, the tallest avatar (the circle, the
+  /// gap and the label as wrapped in its slot), at least the touch target;
+  /// the rows [AppSpacing.s2] apart.
+  static double _payerPickerHeight(BuildContext context, List<Member> members) {
+    final names = members.map((m) => m.name);
+    var total = 0.0;
+    for (var i = 0; i < members.length; i += payerPickerColumns) {
+      var row = AppSizes.minTouchTarget;
+      for (final m in members.skip(i).take(payerPickerColumns)) {
+        final avatar =
+            AppSizes.avatar +
+            AppSpacing.s1 +
+            textHeight(
+              context,
+              avatarLabel(m.name, names),
+              AppTextStyles.label,
+              maxWidth: AppSizes.avatarSlot,
+            );
+        row = math.max(row, avatar);
+      }
+      total += row + (i > 0 ? AppSpacing.s2 : 0);
+    }
+    return total;
+  }
 }
