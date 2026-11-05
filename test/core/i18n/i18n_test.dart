@@ -83,6 +83,10 @@ void main() {
         '🗂 הקבוצה בארכיון ולכן לקריאה בלבד. שחזור יחזיר את האפשרות לערוך.',
       );
       expect(
+        MessageKey.archiveSummaryNote.text,
+        '🗂 הקבוצה בארכיון ולכן לקריאה בלבד.',
+      );
+      expect(
         MessageKey.groupArchived.text,
         '🗂 הקבוצה בארכיון ולכן לקריאה בלבד.',
       );

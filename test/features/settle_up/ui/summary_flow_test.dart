@@ -6,6 +6,8 @@ import 'package:groupay/core/ids/new_id.dart';
 import 'package:groupay/core/money/tenths.dart';
 import 'package:groupay/core/result/result.dart';
 import 'package:groupay/core/ui/theme/tokens.dart';
+import 'package:groupay/core/ui/widgets/archive_note.dart';
+import 'package:groupay/core/ui/widgets/bottom_fade.dart';
 import 'package:groupay/core/ui/widgets/category_stripe.dart';
 import 'package:groupay/core/ui/widgets/group_header.dart';
 import 'package:groupay/features/expenses/data/drift_expense_repository.dart';
@@ -24,8 +26,10 @@ import '../../../support/app_harness.dart';
 import '../../../support/fake_clock.dart';
 import '../../../support/heebo.dart';
 
-/// Story 1.4 part A: the Summary (FR-16) and its "סיכום" button, with the
-/// Transfers of the `settle_up` calculation (FR-15) kept live.
+/// Story 1.4: the Summary (FR-16) and its "סיכום" button, with the
+/// Transfers of the `settle_up` calculation (FR-15) kept live; the archived
+/// Summary (FR-6), the 7–10 Member scroll with its fade (T3.46) and the
+/// layout at text scale 1.5.
 void main() {
   late AppDatabase db;
   late FakeClock clock;
@@ -175,6 +179,18 @@ void main() {
       tester.widget<CategoryStripe>(headerStripe()).segments,
       hasLength(1),
     );
+    // The segment fills the stripe's 8dp height, so it is visible.
+    expect(
+      tester
+          .getSize(
+            find.descendant(
+              of: headerStripe(),
+              matching: find.byType(DecoratedBox),
+            ),
+          )
+          .height,
+      AppSizes.stripeHeight,
+    );
     expect(find.text(MessageKey.groupSettingsChip.text), findsNothing);
     expect(find.text(strip(MessageKey.groupSettingsChip.text)), findsNothing);
     expect(find.byType(FilledButton), findsNothing);
@@ -248,6 +264,7 @@ void main() {
       ),
     );
     expect(scrollable.position.maxScrollExtent, 0);
+    expect(find.byType(BottomFade), findsNothing);
     final screen = tester.getSize(find.byType(SummaryScreen));
     for (final card in tester.widgetList(find.byType(TransferCard))) {
       expect(
@@ -327,15 +344,239 @@ void main() {
     expect(find.text('Budapest 2026'), findsOneWidget);
   });
 
-  appTest('an Archived group\'s Summary route opens its read-only page', (
-    tester,
-  ) async {
+  /// The Summary body's only scrollable.
+  ScrollPosition summaryScroll(WidgetTester tester) => tester
+      .state<ScrollableState>(
+        find.descendant(
+          of: find.byType(SummaryScreen),
+          matching: find.byType(Scrollable),
+        ),
+      )
+      .position;
+
+  /// Ten Hebrew Members; the first paid ₪1,000, so the other nine each
+  /// transfer ₪100 to her (9 Transfers).
+  Future<String> tenMembers() async {
+    final (g, m) = await seed([
+      'אביגיל',
+      'בתיה',
+      'גילה',
+      'דנה',
+      'הדס',
+      'ורד',
+      'זיוה',
+      'חנה',
+      'טל',
+      'יעל',
+    ]);
+    await record(g, m['אביגיל']!, 10000);
+    return g;
+  }
+
+  /// An Archived "Budapest" with Dana 300 and Yossi.
+  Future<String> archivedBudapest() async {
     final (g, m) = await seed(['Dana', 'Yossi']);
     await record(g, m['Dana']!, 3000);
     await groups.archive(id: g);
-    await open(tester, '/group/$g/summary');
+    return g;
+  }
+
+  appTest('T1.26: the archived Summary has the badge and the note, no chip', (
+    tester,
+  ) async {
+    final g = await archivedBudapest();
+    await open(tester, '/archive/group/$g/summary');
+    expect(find.byType(SummaryScreen), findsOneWidget);
+    expect(lines(tester), ['תשלום נדרש מ-Yossi ל-Dana ₪150']);
+    expect(
+      find.descendant(
+        of: find.byType(GroupHeader),
+        matching: find.text(MessageKey.archivedBadge.text),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text(MessageKey.groupSettingsChip.text), findsNothing);
+    expect(find.byType(FilledButton), findsNothing);
+    expect(find.byType(OutlinedButton), findsNothing);
+    final note = find.text(MessageKey.archiveSummaryNote.text);
+    expect(note, findsOneWidget);
+    // The note strip sits directly under the last card, not at the screen
+    // bottom.
+    final cardBottom = tester.getRect(find.byType(TransferCard)).bottom;
+    final strip = tester.getRect(find.byType(ArchiveNote));
+    expect(strip.top, greaterThan(cardBottom));
+    expect(
+      strip.top,
+      lessThanOrEqualTo(cardBottom + AppSpacing.s3 + 1),
+    );
+    expect(find.byType(BottomFade), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  appTest('the archived page\'s "סיכום" opens the archived Summary; '
+      '"→ חזרה" returns to the archived page', (tester) async {
+    final g = await archivedBudapest();
+    await open(tester, '/archive/group/$g');
+    expect(
+      find.widgetWithText(FilledButton, MessageKey.restoreFromArchive.text),
+      findsOneWidget,
+    );
+    expect(summaryButton(), findsOneWidget);
+    // "סיכום" takes the remaining third, on the end (left) side.
+    final button = tester.getRect(summaryButton());
+    final width = tester.getSize(find.byType(GroupPage)).width;
+    expect(button.left, lessThan(width / 4));
+    expect(button.width, closeTo(width / 3, width / 8));
+    final opacity = tester.widget<Opacity>(
+      find.ancestor(of: summaryButton(), matching: find.byType(Opacity)).first,
+    );
+    expect(opacity.opacity, 1);
+
+    await tester.tap(summaryButton());
+    await tester.pumpAndSettle();
+    expect(find.byType(SummaryScreen), findsOneWidget);
+    expect(find.text(MessageKey.archiveSummaryNote.text), findsOneWidget);
+
+    await tester.tap(find.text(MessageKey.summaryNav.text));
+    await tester.pumpAndSettle();
     expect(find.byType(SummaryScreen), findsNothing);
     expect(find.byType(GroupPage), findsOneWidget);
+    expect(find.text(MessageKey.archiveNav.text), findsOneWidget);
+    expect(find.text(MessageKey.archiveNote.text), findsOneWidget);
+  });
+
+  appTest('below two Members the archived "סיכום" is at 40% and does nothing', (
+    tester,
+  ) async {
+    final (g, _) = await seed(['Dana']);
+    await groups.archive(id: g);
+    await open(tester, '/archive/group/$g');
+    final opacity = tester.widget<Opacity>(
+      find.ancestor(of: summaryButton(), matching: find.byType(Opacity)).first,
+    );
+    expect(opacity.opacity, AppOpacity.disabled);
+    expect(tester.widget<OutlinedButton>(summaryButton()).onPressed, isNull);
+    await tester.tap(summaryButton(), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(find.byType(SummaryScreen), findsNothing);
+  });
+
+  appTest('an Archived group\'s /group/:id/summary redirects to the archived '
+      'Summary', (tester) async {
+    final g = await archivedBudapest();
+    await open(tester, '/group/$g/summary');
+    expect(find.byType(SummaryScreen), findsOneWidget);
     expect(find.text(MessageKey.archivedBadge.text), findsOneWidget);
+    expect(find.text(MessageKey.archiveSummaryNote.text), findsOneWidget);
+    // Back leads to the archived page, so the route was the archived one.
+    await tester.tap(find.text(MessageKey.summaryNav.text));
+    await tester.pumpAndSettle();
+    expect(find.byType(GroupPage), findsOneWidget);
+    expect(find.text(MessageKey.archiveNav.text), findsOneWidget);
+  });
+
+  appTest('T3.46: 10 Members: header and title fixed, cards scroll, fade '
+      'until the end', (tester) async {
+    final g = await tenMembers();
+    await open(tester, '/group/$g/summary');
+    expect(find.byType(TransferCard), findsWidgets);
+    final position = summaryScroll(tester);
+    expect(position.maxScrollExtent, greaterThan(0));
+    expect(find.byType(BottomFade), findsOneWidget);
+
+    final title = find.text(MessageKey.transfersTitle.text);
+    final titleBefore = tester.getRect(title);
+    final headerBefore = tester.getRect(find.byType(GroupHeader));
+    final firstCard = find.byType(TransferCard).first;
+    final cardBefore = tester.getRect(firstCard);
+    await tester.drag(firstCard, const Offset(0, -60));
+    await tester.pumpAndSettle();
+    expect(tester.getRect(title), titleBefore);
+    expect(tester.getRect(find.byType(GroupHeader)), headerBefore);
+    expect(tester.getRect(firstCard).top, lessThan(cardBefore.top));
+    // The cards scroll under the title, never over it.
+    expect(position.pixels, greaterThan(0));
+    final scrollableTop = tester
+        .getRect(
+          find.descendant(
+            of: find.byType(SummaryScreen),
+            matching: find.byType(Scrollable),
+          ),
+        )
+        .top;
+    expect(scrollableTop, greaterThanOrEqualTo(tester.getRect(title).bottom));
+    expect(find.byType(BottomFade), findsOneWidget);
+
+    position.jumpTo(position.maxScrollExtent);
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomFade), findsNothing);
+    expect(find.byType(TransferCard), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  appTest('an archived 10-Member Summary keeps the note pinned below the '
+      'cards', (tester) async {
+    final g = await tenMembers();
+    await groups.archive(id: g);
+    await open(tester, '/archive/group/$g/summary');
+    final position = summaryScroll(tester);
+    expect(position.pixels, 0);
+    expect(position.maxScrollExtent, greaterThan(0));
+    final note = find.text(MessageKey.archiveSummaryNote.text);
+    expect(note, findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(Scrollable), matching: note),
+      findsNothing,
+    );
+    final noteBefore = tester.getRect(note);
+    final screen = tester.getSize(find.byType(SummaryScreen));
+    expect(noteBefore.bottom, lessThanOrEqualTo(screen.height));
+
+    position.jumpTo(position.maxScrollExtent);
+    await tester.pumpAndSettle();
+    expect(tester.getRect(note), noteBefore);
+    expect(find.byType(BottomFade), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  appTest('at text scale 1.5 the whole archived Summary scrolls, unclipped', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final g = await tenMembers();
+    await groups.archive(id: g);
+    await open(tester, '/archive/group/$g/summary');
+    expect(tester.takeException(), isNull);
+    final position = summaryScroll(tester);
+    expect(position.maxScrollExtent, greaterThan(0));
+    expect(find.byType(BottomFade), findsOneWidget);
+
+    // The title scrolls with the cards; the header stays.
+    final title = find.text(MessageKey.transfersTitle.text);
+    final titleBefore = tester.getRect(title);
+    final headerBefore = tester.getRect(find.byType(GroupHeader));
+    position.jumpTo(AppSpacing.s5);
+    await tester.pumpAndSettle();
+    expect(tester.getRect(title).top, lessThan(titleBefore.top));
+    expect(tester.getRect(find.byType(GroupHeader)), headerBefore);
+
+    position.jumpTo(position.maxScrollExtent);
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomFade), findsNothing);
+    expect(find.text(MessageKey.archiveSummaryNote.text), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  appTest('at text scale 1.5 a short Summary does not overflow', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final (g, m) = await seed(['מוטי', 'דנה', 'יוסי', 'נועה', 'Adam', 'Zoe']);
+    await record(g, m['Zoe']!, 123456);
+    await open(tester, '/group/$g/summary');
+    expect(find.byType(TransferCard), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 }

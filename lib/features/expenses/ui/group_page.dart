@@ -10,6 +10,8 @@ import '../../../core/result/result.dart';
 import '../../../core/time/clock_provider.dart';
 import '../../../core/ui/theme/tokens.dart';
 import '../../../core/ui/widgets/app_scaffold.dart';
+import '../../../core/ui/widgets/archive_note.dart';
+import '../../../core/ui/widgets/bottom_fade.dart';
 import '../../../core/ui/widgets/category_stripe.dart';
 import '../../../core/ui/widgets/delete_sheet.dart';
 import '../../../core/ui/widgets/group_header.dart';
@@ -136,6 +138,9 @@ class GroupPage extends ConsumerWidget {
       bottomBar: readOnly
           ? _ArchivedBar(
               onRestore: restoring ? null : () => _restore(context, ref),
+              onSummary: canSummarize
+                  ? () => context.go('/archive/group/$groupId/summary')
+                  : null,
             )
           : _AddBar(
               onAdd: canRecord ? () => context.go('/group/$groupId/add') : null,
@@ -165,26 +170,7 @@ class _ListWithFade extends StatelessWidget {
             child: child,
           ),
         ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: AppSpacing.listFade,
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.surfaceBase.withValues(alpha: 0),
-                    AppColors.surfaceBase,
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        BottomFade.positioned(),
       ],
     );
   }
@@ -242,11 +228,15 @@ class _AddBar extends StatelessWidget {
 }
 
 /// The archive note directly above the bar, with "↩ שחזור מהארכיון" as the
-/// orange primary on the start side.
+/// orange primary on the start side and "סיכום" as the secondary in the
+/// remaining third (an Archived group's Summary stays viewable, FR-6). When
+/// [onSummary] is `null` (fewer than two Members) "סיכום" is shown at 40%
+/// opacity and does nothing.
 class _ArchivedBar extends StatelessWidget {
-  const _ArchivedBar({required this.onRestore});
+  const _ArchivedBar({required this.onRestore, required this.onSummary});
 
   final VoidCallback? onRestore;
+  final VoidCallback? onSummary;
 
   @override
   Widget build(BuildContext context) {
@@ -254,24 +244,7 @@ class _ArchivedBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DecoratedBox(
-          decoration: const BoxDecoration(
-            color: AppColors.archivedSurface,
-            borderRadius: BorderRadius.all(Radius.circular(AppRadii.sm)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.s3,
-              vertical: AppSpacing.s2,
-            ),
-            child: Text(
-              MessageKey.archiveNote.text,
-              style: AppTextStyles.message.copyWith(
-                color: AppColors.archivedInk,
-              ),
-            ),
-          ),
-        ),
+        ArchiveNote(MessageKey.archiveNote.text),
         const SizedBox(height: AppSpacing.s3),
         Row(
           children: [
@@ -282,7 +255,16 @@ class _ArchivedBar extends StatelessWidget {
                 child: Text(MessageKey.restoreFromArchive.text),
               ),
             ),
-            const Spacer(),
+            const SizedBox(width: AppSpacing.s3),
+            Expanded(
+              child: Opacity(
+                opacity: onSummary == null ? AppOpacity.disabled : 1,
+                child: OutlinedButton(
+                  onPressed: onSummary,
+                  child: Text(MessageKey.summaryButton.text),
+                ),
+              ),
+            ),
           ],
         ),
       ],

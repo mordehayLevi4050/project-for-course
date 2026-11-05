@@ -21,6 +21,8 @@ class CategoryStripe extends StatelessWidget {
     return SizedBox(
       height: AppSizes.stripeHeight,
       child: Row(
+        // Segments fill the 8dp height (a DecoratedBox has none of its own).
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final (i, s) in visible.indexed) ...[
             if (i > 0) const SizedBox(width: AppSizes.stripeGap),

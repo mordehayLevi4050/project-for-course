@@ -99,6 +99,10 @@ enum MessageKey {
     '🗂 הקבוצה בארכיון ולכן לקריאה בלבד. שחזור יחזיר את האפשרות לערוך.',
   ),
 
+  /// The note under the Transfer cards of an archived Summary
+  /// (EXPERIENCE.md › Archived Summary).
+  archiveSummaryNote('🗂 הקבוצה בארכיון ולכן לקריאה בלבד.'),
+
   /// The Group settings row that opens the Archive sheet.
   archiveAction('🗂 העברה לארכיון'),
 
