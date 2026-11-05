@@ -87,7 +87,7 @@ context:
 - Summary flow tests use an `appTest` wrapper that unmounts in `finally`; writes after the pump run in `tester.runAsync`.
 - The Category→stripe color switch is repeated in `summary_screen.dart` (a feature `ui/` may not import `expenses/ui`); it is exhaustive.
 - Below 2 Members the header line is the Member count only (no Share exists then).
-- Emulator AC not yet run.
+- Emulator AC passed (Motty, 2026-11-05): in airplane mode the T3.6 Summary showed the three lines on one screen and was unchanged after force-stop and relaunch.
 
 ## Spec Change Log
 
