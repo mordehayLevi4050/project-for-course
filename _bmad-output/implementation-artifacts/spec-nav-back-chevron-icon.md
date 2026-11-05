@@ -68,6 +68,8 @@ context:
 
 ## Implementation Notes
 
+- Emulator AC passed (Motty, 2026-11-05): every back control shows the right-pointing chevron, no arrow shaft and no ☰; the Archive nav is white.
+
 ## Spec Change Log
 
 ## Review Triage Log
