@@ -68,6 +68,10 @@ ThemeData buildAppTheme() {
       style: OutlinedButton.styleFrom(
         backgroundColor: AppColors.surfaceRaised,
         foregroundColor: AppColors.secondaryInk,
+        // Disabled keeps the enabled look: the caller dims the whole button
+        // to 40% (DESIGN.md › Button disabled), with the label unchanged.
+        disabledBackgroundColor: AppColors.surfaceRaised,
+        disabledForegroundColor: AppColors.secondaryInk,
         minimumSize: minButtonSize,
         shape: pill,
         side: const BorderSide(color: AppColors.secondaryBorder, width: 1.5),

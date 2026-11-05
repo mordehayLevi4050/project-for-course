@@ -52,6 +52,7 @@ List<Override> appOverrides({
     (ref) => DriftExpenseRepository(
       ref.watch(appDatabaseProvider),
       ref.watch(clockProvider),
+      ref.watch(memberRepositoryProvider),
     ),
   ),
 ];

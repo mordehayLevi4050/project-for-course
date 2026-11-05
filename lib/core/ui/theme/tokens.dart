@@ -141,6 +141,12 @@ abstract final class AppSizes {
   static const double pageDot = 8;
   static const double pageDotRing = 1.5;
 
+  /// Transfer cards on the Summary (`components.transfer-card`).
+  static const double transferCardMinHeight = 64;
+
+  /// The decorative initial-only avatars of a Transfer card.
+  static const double transferAvatar = 32;
+
   /// The static caret of the Amount entry.
   static const double caretWidth = 2;
 }
@@ -240,6 +246,14 @@ abstract final class AppTextStyles {
   static const TextStyle avatarInitial = TextStyle(
     fontFamily: appFontFamily,
     fontSize: 22,
+    fontWeight: FontWeight.w800,
+    fontVariations: [FontVariation.weight(800)],
+  );
+
+  /// The initial inside a Transfer card's 32dp avatar.
+  static const TextStyle transferAvatarInitial = TextStyle(
+    fontFamily: appFontFamily,
+    fontSize: 16,
     fontWeight: FontWeight.w800,
     fontVariations: [FontVariation.weight(800)],
   );

@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-02-2026 18:29
-last_updated: 11-05-2026 00:00
+last_updated: 11-05-2026 12:15
 project: groupay
 project_key: NOKEY
 tracking_system: file-system
@@ -39,5 +39,5 @@ development_status:
   1-1-create-a-group-and-manage-its-members: done
   1-2-open-straight-into-the-trip-and-archive-old-groups: done
   1-3-record-fix-and-delete-expenses-at-the-checkout: done
-  1-4-settle-up-with-one-screenshot: backlog
+  1-4-settle-up-with-one-screenshot: in-progress
   epic-1-retrospective: optional

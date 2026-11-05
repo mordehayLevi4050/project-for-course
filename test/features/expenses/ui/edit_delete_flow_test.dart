@@ -72,14 +72,21 @@ void main() {
     int tenths,
     Category category, {
     String? description,
-  }) async => (await DriftExpenseRepository(db, clock).add(
-    id: newId(),
-    groupId: groupId,
-    payerId: payer.id,
-    amount: Tenths(tenths),
-    category: category,
-    description: description,
-  ) as Ok<Expense>).value;
+  }) async =>
+      (await DriftExpenseRepository(
+                db,
+                clock,
+                DriftMemberRepository(db, clock, DriftPayerUsage(db)),
+              ).add(
+                id: newId(),
+                groupId: groupId,
+                payerId: payer.id,
+                amount: Tenths(tenths),
+                category: category,
+                description: description,
+              )
+              as Ok<Expense>)
+          .value;
 
   Future<void> openGroup(WidgetTester tester, String groupId) async {
     usePhone(tester);

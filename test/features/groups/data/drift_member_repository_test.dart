@@ -141,6 +141,22 @@ void main() {
     expect(row.modifiedAt, 7000);
   });
 
+  test('readMembers returns the Members in memberSeq order', () async {
+    expect(await repo.readMembers(groupId), isEmpty);
+    final dana = await added('Dana');
+    final yossi = await added('Yossi');
+    final other = await createGroup('Rome');
+    await repo.addMember(id: newId(), groupId: other, name: 'Noa');
+    final noa = await added('Noa');
+    expect(await repo.readMembers(groupId), [dana, yossi, noa]);
+    await repo.renameMember(id: dana.id, name: 'Zoe');
+    expect((await repo.readMembers(groupId)).map((m) => m.name), [
+      'Zoe',
+      'Yossi',
+      'Noa',
+    ]);
+  });
+
   group('renameMember', () {
     Future<Result<Member>> rename(Member m, String name) =>
         repo.renameMember(id: m.id, name: name);

@@ -10,6 +10,7 @@ import 'package:groupay/features/expenses/app/expense_providers.dart';
 import 'package:groupay/features/expenses/domain/category.dart';
 import 'package:groupay/features/expenses/domain/expense.dart';
 import 'package:groupay/features/expenses/domain/expense_repository.dart';
+import 'package:groupay/features/expenses/domain/group_snapshot.dart';
 import 'package:groupay/features/groups/app/repository_providers.dart';
 import 'package:groupay/features/groups/domain/group.dart';
 import 'package:groupay/features/groups/domain/member.dart';
@@ -66,6 +67,10 @@ final class _SlowExpenses implements ExpenseRepository {
 
   @override
   Stream<List<Expense>> watchExpenses(String groupId) => Stream.value([]);
+
+  @override
+  Stream<GroupSnapshot> watchSnapshot(String groupId) =>
+      Stream.value(const GroupSnapshot(members: [], expenses: []));
 }
 
 const _expense = Expense(

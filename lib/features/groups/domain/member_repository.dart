@@ -11,6 +11,11 @@ abstract interface class MemberRepository {
   /// The Members of [groupId], in add order (`memberSeq`).
   Stream<List<Member>> watchMembers(String groupId);
 
+  /// The Members of [groupId] now, in add order (`memberSeq`). Called inside
+  /// a caller's transaction, it reads within that transaction (the Summary
+  /// snapshot, FR-15).
+  Future<List<Member>> readMembers(String groupId);
+
   /// Adds a Member named [name] to [groupId] with the form's [id], in one
   /// transaction, with `memberSeq` = MAX + 1.
   ///

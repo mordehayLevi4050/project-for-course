@@ -16,6 +16,11 @@ Verdict mayRecordExpense(RecordExpenseFacts facts) =>
     ? const Deny(MessageKey.needTwoMembers)
     : const Allow();
 
+/// FR-16: the Summary (and its Transfer list) is available only in a Group
+/// with at least [minMembersToRecord] Members: the same rule and message as
+/// [mayRecordExpense].
+Verdict maySummarize(RecordExpenseFacts facts) => mayRecordExpense(facts);
+
 /// FR-13, FR-14, FR-6: an Expense can be edited or deleted only while its
 /// Group is not archived (the same rule as [isGroupMutable]). Checked inside
 /// the edit and delete transactions.

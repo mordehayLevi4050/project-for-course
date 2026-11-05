@@ -8,6 +8,7 @@ import '../features/groups/ui/archive_screen.dart';
 import '../features/groups/ui/create_group_screen.dart';
 import '../features/groups/ui/group_list_screen.dart';
 import '../features/groups/ui/group_settings_screen.dart';
+import '../features/settle_up/ui/summary_screen.dart';
 
 /// Answers whether the Group [id] is an Archived group (for the redirect).
 typedef IsGroupArchived = Future<bool> Function(String id);
@@ -17,8 +18,9 @@ typedef IsGroupArchived = Future<bool> Function(String id);
 /// `/create`, `/group/:id` and `/archive` are children of `/`, so back from
 /// any of them leads to the group list. Create group leaves with
 /// `go('/group/:id')`, which replaces it with the new Group's page.
-/// `add`, `edit/:eid` and `settings` are children of `group/:id`, so leaving
-/// Add or Edit expense or Group settings returns to the Group page. An archived card opens
+/// `add`, `edit/:eid`, `settings` and `summary` are children of `group/:id`,
+/// so leaving Add or Edit expense, Group settings or the Summary returns to
+/// the Group page. An archived card opens
 /// `/archive/group/:id`, so back from it returns to the Archive view.
 ///
 /// [isArchived] drives the redirect that keeps Add expense, Edit expense and
@@ -85,6 +87,16 @@ GoRouter buildRouter({
                   child: GroupSettingsScreen(
                     groupId: state.pathParameters['id']!,
                   ),
+                ),
+              ),
+              GoRoute(
+                path: 'summary',
+                // Until the archived Summary exists (story 1.4 part B), an
+                // Archived group's Summary opens its read-only page.
+                redirect: (context, state) => archivedRedirect(state),
+                pageBuilder: (context, state) => NoTransitionPage(
+                  key: state.pageKey,
+                  child: SummaryScreen(groupId: state.pathParameters['id']!),
                 ),
               ),
             ],

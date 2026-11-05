@@ -32,6 +32,16 @@ final class DriftMemberRepository implements MemberRepository {
           .map((rows) => rows.map(memberFromRow).toList());
 
   @override
+  Future<List<Member>> readMembers(String groupId) async {
+    final rows =
+        await (_db.select(_db.members)
+              ..where((m) => m.groupId.equals(groupId))
+              ..orderBy([(m) => OrderingTerm.asc(m.memberSeq)]))
+            .get();
+    return rows.map(memberFromRow).toList();
+  }
+
+  @override
   Future<Result<Member>> addMember({
     required String id,
     required String groupId,

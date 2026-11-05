@@ -9,6 +9,7 @@ import 'package:groupay/features/expenses/data/drift_group_totals.dart';
 import 'package:groupay/features/expenses/data/drift_payer_usage.dart';
 import 'package:groupay/features/expenses/domain/category.dart';
 import 'package:groupay/features/expenses/domain/expense.dart';
+import 'package:groupay/features/expenses/domain/group_snapshot.dart';
 import 'package:groupay/features/groups/data/drift_group_repository.dart';
 import 'package:groupay/features/groups/data/drift_member_repository.dart';
 import 'package:groupay/features/groups/domain/group.dart';
@@ -29,7 +30,7 @@ void main() {
     clock = FakeClock(1000);
     groups = DriftGroupRepository(db, clock);
     members = DriftMemberRepository(db, clock, DriftPayerUsage(db));
-    repo = DriftExpenseRepository(db, clock);
+    repo = DriftExpenseRepository(db, clock, members);
   });
   tearDown(() => db.close());
 
@@ -416,6 +417,107 @@ void main() {
       expect(await repo.readLastPayerId(g), dana.id);
       // A deleted Payer's Expense no longer blocks removing them.
       expect((await members.removeMember(id: yossi.id)).isOk, isTrue);
+    });
+  });
+
+  group('watchSnapshot (FR-15)', () {
+    /// The snapshot as [Member names, (payer name, tenths) in save order].
+    List<List<Object>> view(GroupSnapshot s) {
+      final names = {for (final m in s.members) m.id: m.name};
+      return [
+        [for (final m in s.members) m.name],
+        [for (final e in s.expenses) (names[e.payerId]!, e.amount.value)],
+      ];
+    }
+
+    test('emits at once, then a consistent pair after every change', () async {
+      final (g, dana, yossi, noa) = await seed();
+      final other = await createGroup('Rome');
+      final events = <List<List<Object>>>[];
+      final subscription = repo
+          .watchSnapshot(g)
+          .listen((s) => events.add(view(s)));
+      Future<void> settled() => pumpEventQueue();
+
+      await settled();
+      expect(events.last, [
+        ['Dana', 'Yossi', 'Noa'],
+        [],
+      ]);
+
+      final expense =
+          (await add(g, dana, 3000, Category.hotel) as Ok<Expense>).value;
+      await settled();
+      expect(events.last, [
+        ['Dana', 'Yossi', 'Noa'],
+        [('Dana', 3000)],
+      ]);
+
+      await add(g, yossi, 500, Category.car);
+      await settled();
+      expect(events.last[1], [('Dana', 3000), ('Yossi', 500)]);
+
+      await repo.update(
+        id: expense.id,
+        payerId: dana.id,
+        amount: const Tenths(1500),
+        category: Category.hotel,
+      );
+      await settled();
+      expect(events.last[1], [('Dana', 1500), ('Yossi', 500)]);
+
+      await members.renameMember(id: dana.id, name: 'Danna');
+      await settled();
+      expect(events.last, [
+        ['Danna', 'Yossi', 'Noa'],
+        [('Danna', 1500), ('Yossi', 500)],
+      ]);
+
+      await members.removeMember(id: noa.id);
+      await settled();
+      expect(events.last[0], ['Danna', 'Yossi']);
+
+      await addMember(g, 'Avi');
+      await settled();
+      expect(events.last[0], ['Danna', 'Yossi', 'Avi']);
+
+      await repo.delete(id: expense.id);
+      await settled();
+      expect(events.last[1], [('Yossi', 500)]);
+
+      // Another Group's changes never leak in.
+      final rome = await addMember(other, 'Eli');
+      await addMember(other, 'Gal');
+      await add(other, rome, 100, Category.car);
+      await settled();
+      expect(events.last, [
+        ['Danna', 'Yossi', 'Avi'],
+        [('Yossi', 500)],
+      ]);
+
+      await subscription.cancel();
+    });
+
+    test('writes landing during a read are all in the last event', () async {
+      final (g, dana, yossi, noa) = await seed();
+      final events = <List<List<Object>>>[];
+      final subscription = repo
+          .watchSnapshot(g)
+          .listen((s) => events.add(view(s)));
+      // Fired at once, while the first read is still in flight, and
+      // without awaiting in between.
+      await Future.wait([
+        add(g, dana, 100, Category.car),
+        add(g, yossi, 200, Category.car),
+        add(g, noa, 300, Category.car),
+        members.renameMember(id: noa.id, name: 'Noga'),
+      ]);
+      await pumpEventQueue();
+      expect(events.last, [
+        ['Dana', 'Yossi', 'Noga'],
+        [('Dana', 100), ('Yossi', 200), ('Noga', 300)],
+      ]);
+      await subscription.cancel();
     });
   });
 

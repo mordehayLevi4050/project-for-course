@@ -27,3 +27,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-3-part-b-fix-and-delete-expenses.md`
   summary: Reconcile `epics.md` with Motty's Story 1.3 decisions — lines 198/682 still say the Edit meta opens as "נרשם {date time} · נערך עכשיו", and lines 202/721 lack the singular Remove-member body "כל ההוצאות יחולו על המשתתף הנותר."; the earlier n=1 wording entry in this file is now resolved by part B.
   evidence: Blind review of part B; EXPERIENCE.md:94 and :99 carry the decided wording, epics.md does not.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-4-settle-up-with-one-screenshot.md`
+  summary: Story 1.4 part B — the Summary of an Archived group (`archive/group/:id/summary`, `group/:id/summary` redirecting there when archived, "סיכום" beside "↩ שחזור מהארכיון", header badge "🗂 בארכיון" and the archive note under the cards), the 7–10 Member layout (header and "מי מעביר למי" fixed, only the cards scroll, 56dp bottom fade only while more cards are below; whole Summary may scroll above 100% font), and the Summary golden tests with bundled Heebo at text scale 1.0 and 1.5 (Hebrew-only, Latin-only, mixed, 5 long-name Transfers, archived) (epics.md lines 846–886).
+  evidence: Split at the step-02 token gate (full spec ~2,400 tokens vs the 1,600 target); the user chose to ship the Transfer calculation and the basic Summary first. Story 1.4 stays in-progress in sprint-status until part B is done.

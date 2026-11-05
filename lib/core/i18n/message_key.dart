@@ -1,3 +1,7 @@
+import '../money/format_shekel.dart';
+import '../money/tenths.dart';
+import 'isolate_name.dart';
+
 /// Every user-visible string in the app (AD-14). Widgets hold no Hebrew
 /// literals; they show `MessageKey.x.text` or `MessageKey.x.fill({...})`.
 ///
@@ -220,6 +224,28 @@ enum MessageKey {
   categoryAttractions('אטרקציות'),
   categoryOther('אחר'),
 
+  // --- Summary (FR-15, FR-16) ---------------------------------------------
+  /// The Summary header nav back to the Group page.
+  summaryNav('→ חזרה'),
+
+  /// The secondary button of the Group page bottom bar.
+  summaryButton('סיכום'),
+
+  /// The Summary section title above the Transfer cards.
+  transfersTitle('מי מעביר למי'),
+
+  /// The Summary header line; {members} comes from `memberCountText()` and
+  /// {share} from `formatShekel()` (it carries ₪).
+  shareLine('{members} · {share} לאחד'),
+
+  /// fixed: "Everyone is settled up" (FR-16).
+  settledUp('החשבון מאוזן, אין צורך בהעברות'),
+
+  /// fixed: "Payment due from {debtor} to {receiver} ₪N" (FR-16), without
+  /// the amount, which closes the line as its own widget. {from} and {to}
+  /// must be `isolateName()` with the prefixes "מ" and "ל".
+  transferLine('תשלום נדרש {from} {to}'),
+
   // --- Counts ------------------------------------------------------------
   memberCountOne('משתתף אחד'),
   memberCountMany('{n} משתתפים'),
@@ -264,6 +290,21 @@ String memberCountText(int count) => count == 1
 String expenseCountText(int count) => count == 1
     ? MessageKey.expenseCountOne.text
     : MessageKey.expenseCountMany.fill({'n': '$count'});
+
+/// The Summary header line "{n} משתתפים · ₪{share} לאחד".
+String shareLineText({required int memberCount, required Tenths share}) =>
+    MessageKey.shareLine.fill({
+      'members': memberCountText(memberCount),
+      'share': formatShekel(share),
+    });
+
+/// A Transfer card's sentence "תשלום נדרש מ{debtor} ל{receiver}" (the
+/// amount is shown after it, through `formatShekel()`).
+String transferLineText({required String debtor, required String receiver}) =>
+    MessageKey.transferLine.fill({
+      'from': isolateName(debtor, prefix: 'מ'),
+      'to': isolateName(receiver, prefix: 'ל'),
+    });
 
 /// The Group page header line "{n} משתתפים · {m} הוצאות".
 String groupHeaderLineText({

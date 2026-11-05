@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 
 import '../../../core/db/app_database.dart';
@@ -11,15 +13,81 @@ import '../../../core/text/description.dart';
 import '../../../core/time/clock.dart';
 import '../domain/category.dart';
 import '../domain/expense.dart';
+import '../../groups/domain/member_repository.dart';
 import '../domain/expense_repository.dart';
+import '../domain/group_snapshot.dart';
 
 /// The drift [ExpenseRepository] (AD-3: `expenses` writes the `expenses`
 /// table).
 final class DriftExpenseRepository implements ExpenseRepository {
-  DriftExpenseRepository(this._db, this._clock);
+  DriftExpenseRepository(this._db, this._clock, this._members);
 
   final AppDatabase _db;
   final Clock _clock;
+
+  /// Reads the Members for [watchSnapshot] (AD-6: the `members` table is
+  /// owned by `groups`).
+  final MemberRepository _members;
+
+  @override
+  Stream<GroupSnapshot> watchSnapshot(String groupId) {
+    final updates = _db.tableUpdates(
+      TableUpdateQuery.onAllTables([_db.members, _db.expenses]),
+    );
+    StreamSubscription<Set<TableUpdate>>? subscription;
+    late final StreamController<GroupSnapshot> controller;
+    var reading = false;
+    var dirty = false;
+
+    // One read at a time; a change during a read triggers one more read, so
+    // the last event always reflects the latest commit.
+    Future<void> refresh() async {
+      if (reading) {
+        dirty = true;
+        return;
+      }
+      reading = true;
+      try {
+        do {
+          dirty = false;
+          final snapshot = await _readSnapshot(groupId);
+          if (controller.isClosed) return;
+          controller.add(snapshot);
+        } while (dirty);
+      } catch (error, stack) {
+        if (!controller.isClosed) controller.addError(error, stack);
+      } finally {
+        reading = false;
+      }
+    }
+
+    controller = StreamController<GroupSnapshot>(
+      onListen: () {
+        // Listen to changes before the first read, so none is missed.
+        subscription = updates.listen((_) => refresh());
+        refresh();
+      },
+      onCancel: () async {
+        await subscription?.cancel();
+        await controller.close();
+      },
+    );
+    return controller.stream;
+  }
+
+  Future<GroupSnapshot> _readSnapshot(String groupId) =>
+      _db.transaction(() async {
+        final members = await _members.readMembers(groupId);
+        final rows =
+            await (_db.select(_db.expenses)
+                  ..where((e) => e.groupId.equals(groupId))
+                  ..orderBy([(e) => OrderingTerm.asc(e.saveSeq)]))
+                .get();
+        return GroupSnapshot(
+          members: members,
+          expenses: rows.map(expenseFromRow).toList(),
+        );
+      });
 
   @override
   Stream<List<Expense>> watchExpenses(String groupId) =>

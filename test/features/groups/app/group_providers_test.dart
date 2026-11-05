@@ -113,6 +113,9 @@ final class _SlowRepos implements GroupRepository, MemberRepository {
 
   @override
   Stream<List<Member>> watchMembers(String groupId) => const Stream.empty();
+
+  @override
+  Future<List<Member>> readMembers(String groupId) async => const [];
 }
 
 void main() {

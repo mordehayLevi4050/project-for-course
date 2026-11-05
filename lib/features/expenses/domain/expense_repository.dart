@@ -2,6 +2,7 @@ import '../../../core/money/tenths.dart';
 import '../../../core/result/result.dart';
 import 'category.dart';
 import 'expense.dart';
+import 'group_snapshot.dart';
 
 /// Reads and writes Expenses (FR-10–FR-12). Implemented in `expenses/data`.
 ///
@@ -11,6 +12,12 @@ import 'expense.dart';
 abstract interface class ExpenseRepository {
   /// The Expenses of [groupId], newest first by `saveSeq` (never the clock).
   Stream<List<Expense>> watchExpenses(String groupId);
+
+  /// The Members (add order) and Expenses (save order, oldest first) of
+  /// [groupId], read together in one transaction (FR-15). Emits once at
+  /// once, then again after every change to the `members` or `expenses`
+  /// table.
+  Stream<GroupSnapshot> watchSnapshot(String groupId);
 
   /// The Expense [id], or `null` when there is none (or it was deleted).
   Stream<Expense?> watchExpense(String id);

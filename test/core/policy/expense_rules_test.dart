@@ -23,6 +23,24 @@ void main() {
     });
   });
 
+  group('maySummarize', () {
+    test('0 or 1 Members: Deny(needTwoMembers)', () {
+      expect(
+        maySummarize((memberCount: 0)),
+        const Deny(MessageKey.needTwoMembers),
+      );
+      expect(
+        maySummarize((memberCount: 1)),
+        const Deny(MessageKey.needTwoMembers),
+      );
+    });
+
+    test('2 or more Members: Allow', () {
+      expect(maySummarize((memberCount: 2)), const Allow());
+      expect(maySummarize((memberCount: 10)), const Allow());
+    });
+  });
+
   group('defaultPayer', () {
     test('the last Payer while still a Member', () {
       expect(

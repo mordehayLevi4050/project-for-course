@@ -1,8 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:groupay/core/i18n/isolate_name.dart';
 import 'package:groupay/core/i18n/message_key.dart';
+import 'package:groupay/core/money/format_shekel.dart';
+import 'package:groupay/core/money/tenths.dart';
 
 String iso(String s) => '\u2068$s\u2069';
+
+/// [s] without the bidi isolate controls (what a reader sees).
+String strip(String s) => s.replaceAll(RegExp('[\u2066-\u2069]'), '');
 
 void main() {
   group('isolateName', () {
@@ -181,6 +186,43 @@ void main() {
       expect(expenseCountText(1), 'הוצאה אחת');
       expect(expenseCountText(2), '2 הוצאות');
       expect(expenseCountText(0), '0 הוצאות');
+    });
+
+    test('Story 1.4 Summary texts match ui-messages.md and the mockup', () {
+      expect(MessageKey.settledUp.text, 'החשבון מאוזן, אין צורך בהעברות');
+      expect(MessageKey.transfersTitle.text, 'מי מעביר למי');
+      expect(MessageKey.summaryButton.text, 'סיכום');
+      expect(MessageKey.summaryNav.text, '→ חזרה');
+    });
+
+    test('the share line reads "{n} משתתפים · ₪{share} לאחד"', () {
+      expect(
+        strip(shareLineText(memberCount: 4, share: const Tenths(21000))),
+        '4 משתתפים · ₪2,100 לאחד',
+      );
+      expect(
+        strip(shareLineText(memberCount: 3, share: const Tenths(333))),
+        '3 משתתפים · ₪33.3 לאחד',
+      );
+      expect(
+        shareLineText(memberCount: 2, share: const Tenths(500)),
+        '2 משתתפים · ${formatShekel(const Tenths(500))} לאחד',
+      );
+    });
+
+    test('the Transfer line isolates both names with their prefixes', () {
+      expect(
+        transferLineText(debtor: 'יוסי', receiver: 'דנה'),
+        'תשלום נדרש מ${iso('יוסי')} ל${iso('דנה')}',
+      );
+      expect(
+        transferLineText(debtor: 'Adam', receiver: 'Zoe'),
+        'תשלום נדרש מ-${iso('Adam')} ל-${iso('Zoe')}',
+      );
+      expect(
+        strip(transferLineText(debtor: 'דנה', receiver: 'Zoe')),
+        'תשלום נדרש מדנה ל-Zoe',
+      );
     });
 
     test('the Group page header line joins both counts', () {

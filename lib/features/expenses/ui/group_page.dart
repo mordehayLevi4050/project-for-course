@@ -23,10 +23,10 @@ import 'expense_list.dart';
 /// The Group page (FR-6, FR-10, FR-12): the header block (nav, name with the
 /// "⚙ ✎" chip, Trip total, "{n} משתתפים · {m} הוצאות" and the category share
 /// stripe), the Expense list overlapping the header by 16dp and fading over
-/// 56dp above the bottom bar, and "+ הוספת הוצאה".
+/// 56dp above the bottom bar, "+ הוספת הוצאה" and "סיכום".
 ///
-/// "+ הוספת הוצאה" is disabled below two Members, with the fixed hint above
-/// the bar (the repository refuses the insert too).
+/// "+ הוספת הוצאה" and "סיכום" are disabled below two Members, with the
+/// fixed hint above the bar (the repository refuses the insert too).
 ///
 /// Read-only mode comes from `isGroupMutable`, never from the route. An
 /// Archived group shows the nav "→ ארכיון", the badge "🗂 בארכיון", no chip,
@@ -76,6 +76,7 @@ class GroupPage extends ConsumerWidget {
         group != null &&
         !isGroupMutable((isArchived: group.isArchived)).isAllowed;
     final canRecord = mayRecordExpense((memberCount: members.length)).isAllowed;
+    final canSummarize = maySummarize((memberCount: members.length)).isAllowed;
     // Keeps the notifier (and its in-flight guard) alive.
     final restoring = ref.watch(restoreGroupProvider);
     ref.watch(deleteExpenseProvider);
@@ -138,6 +139,9 @@ class GroupPage extends ConsumerWidget {
             )
           : _AddBar(
               onAdd: canRecord ? () => context.go('/group/$groupId/add') : null,
+              onSummary: canSummarize
+                  ? () => context.go('/group/$groupId/summary')
+                  : null,
             ),
     );
   }
@@ -187,12 +191,15 @@ class _ListWithFade extends StatelessWidget {
 }
 
 /// "+ הוספת הוצאה" as the orange primary on the start side, about two thirds
-/// wide. When [onAdd] is `null` (fewer than two Members) it is disabled and
-/// the fixed hint sits directly above the bar.
+/// wide, and "סיכום" as the secondary in the remaining third. When [onAdd]
+/// is `null` (fewer than two Members) it is disabled and the fixed hint sits
+/// directly above the bar. When [onSummary] is `null` "סיכום" is shown at
+/// 40% opacity and does nothing.
 class _AddBar extends StatelessWidget {
-  const _AddBar({required this.onAdd});
+  const _AddBar({required this.onAdd, required this.onSummary});
 
   final VoidCallback? onAdd;
+  final VoidCallback? onSummary;
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +224,16 @@ class _AddBar extends StatelessWidget {
                 child: Text(MessageKey.addExpense.text),
               ),
             ),
-            const Spacer(),
+            const SizedBox(width: AppSpacing.s3),
+            Expanded(
+              child: Opacity(
+                opacity: onSummary == null ? AppOpacity.disabled : 1,
+                child: OutlinedButton(
+                  onPressed: onSummary,
+                  child: Text(MessageKey.summaryButton.text),
+                ),
+              ),
+            ),
           ],
         ),
       ],
