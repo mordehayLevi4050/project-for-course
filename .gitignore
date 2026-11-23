@@ -49,3 +49,6 @@ app.*.map.json
 
 # Golden-test failure diffs written by flutter test
 **/failures/*.png
+
+# Node (tools/groupay-mcp)
+node_modules/

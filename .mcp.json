@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "groupay-spec": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["tools/groupay-mcp/src/index.ts"]
+    }
+  }
+}

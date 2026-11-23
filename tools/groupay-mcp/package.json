@@ -1,0 +1,20 @@
+{
+  "name": "groupay-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server that knows the GrouPay project: the MessageKey table and the no-Hebrew-literals rule.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.ts",
+    "test": "node --test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2"
+  }
+}
